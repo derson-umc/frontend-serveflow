@@ -1,32 +1,7 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { parseJwt, isTokenExpired, loadStoredToken } from './utils/jwt';
 
 const AuthContext = createContext(null);
-
-function parseJwt(token) {
-  try {
-    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const padded = b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, '=');
-    return JSON.parse(atob(padded));
-  } catch {
-    return null;
-  }
-}
-
-function isTokenExpired(token) {
-  const payload = parseJwt(token);
-  if (!payload?.exp) return false;
-  return Date.now() >= payload.exp * 1000;
-}
-
-function loadStoredToken() {
-  const t = localStorage.getItem('token');
-  if (!t) return null;
-  if (isTokenExpired(t)) {
-    localStorage.removeItem('token');
-    return null;
-  }
-  return t;
-}
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(loadStoredToken);
