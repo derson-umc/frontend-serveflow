@@ -3,11 +3,19 @@ import { parseJwt, isTokenExpired, loadStoredToken } from './utils/jwt';
 
 const AuthContext = createContext(null);
 
+function normalize(payload) {
+  if (!payload) return null;
+  return {
+    ...payload,
+    role: typeof payload.role === 'string' ? payload.role.toLowerCase() : payload.role,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(loadStoredToken);
   const [user, setUser] = useState(() => {
     const t = loadStoredToken();
-    return t ? parseJwt(t) : null;
+    return t ? normalize(parseJwt(t)) : null;
   });
 
   const signIn = useCallback((jwt) => {
@@ -16,7 +24,7 @@ export function AuthProvider({ children }) {
     if (isTokenExpired(tokenString)) return;
     localStorage.setItem('token', tokenString);
     setToken(tokenString);
-    setUser(parseJwt(tokenString));
+    setUser(normalize(parseJwt(tokenString)));
   }, []);
 
   const signOut = useCallback(() => {

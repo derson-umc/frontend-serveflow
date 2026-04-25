@@ -96,7 +96,7 @@ export default function Cadastro() {
 
     try {
       setLoading(true);
-      await api.post("/auth/register", { username: u, password: p, role });
+      await api.post("/auth/register", { username: u, password: p, role: role.toUpperCase() });
       const roleLabel = ROLES.find((r) => r.value === role)?.label ?? role;
       setSuccess(`Usuário "${u}" cadastrado como ${roleLabel} com sucesso!`);
       setUsername("");

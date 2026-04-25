@@ -13,6 +13,17 @@ const ROLE_LABELS = {
 
 const ALL_PAGES = [
   {
+    to: "/menu",
+    label: "Menu",
+    description: "Catálogo e novo pedido",
+    roles: ["root", "admin", "garcon"],
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5h18M3 12h18M3 19h12" />
+      </svg>
+    ),
+  },
+  {
     to: "/pedido",
     label: "Pedidos",
     description: "Gerenciar pedidos de mesa",
@@ -75,6 +86,17 @@ const ALL_PAGES = [
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+      </svg>
+    ),
+  },
+  {
+    to: "/profile/senha",
+    label: "Alterar Senha",
+    description: "Atualize sua senha de acesso",
+    roles: null,
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
       </svg>
     ),
   },
