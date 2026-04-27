@@ -8,7 +8,6 @@ import { validatePassword } from "../utils/validators";
 const STRENGTH_COLORS = ["#3d0f18", "#9f1239", "#e11d48", "#f43f5e", "#fb7185", "#4ade80"];
 
 export default function ChangePassword() {
-  // user.id vem do claim 'id' do JWT (preenchido pelo backend ao logar).
   const { user } = useAuth();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -56,8 +55,6 @@ export default function ChangePassword() {
 
     setLoading(true);
     try {
-      // Endpoint granular do backend: PATCH /users/{id}/password.
-      // Exige a senha atual, validada server-side via BCrypt.matches.
       await api.patch(`/users/${user.id}/password`, {
         currentPassword: current,
         newPassword: next,

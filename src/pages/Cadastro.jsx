@@ -105,9 +105,6 @@ export default function Cadastro() {
 
     try {
       setLoading(true);
-      // Endpoint correto do backend: POST /users (criação restrita a ADMIN/ROOT).
-      // Enviamos role em UPPERCASE para casar com o enum UserRole, e jobposition
-      // como o cargo livre validado pelo backend.
       await api.post("/users", {
         username: u,
         password: p,
