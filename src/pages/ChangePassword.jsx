@@ -2,11 +2,14 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { api } from "../services/api";
+import { useAuth } from "../AuthContext";
 import { validatePassword } from "../utils/validators";
 
 const STRENGTH_COLORS = ["#3d0f18", "#9f1239", "#e11d48", "#f43f5e", "#fb7185", "#4ade80"];
 
 export default function ChangePassword() {
+  // user.id vem do claim 'id' do JWT (preenchido pelo backend ao logar).
+  const { user } = useAuth();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -46,9 +49,16 @@ export default function ChangePassword() {
     if (sameAsCurrent) return setError("A nova senha deve ser diferente da atual.");
     if (!matches) return setError("As senhas não coincidem.");
 
+    if (!user?.id) {
+      setError("Sessão inválida. Faça login novamente.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await api.post("/auth/change-password", {
+      // Endpoint granular do backend: PATCH /users/{id}/password.
+      // Exige a senha atual, validada server-side via BCrypt.matches.
+      await api.patch(`/users/${user.id}/password`, {
         currentPassword: current,
         newPassword: next,
       });
@@ -63,6 +73,8 @@ export default function ChangePassword() {
         apiMsg ||
         (status === 401
           ? "Sessão expirada. Faça login novamente."
+          : status === 422
+          ? "Senha atual incorreta."
           : "Não foi possível alterar a senha.")
       );
     } finally {
