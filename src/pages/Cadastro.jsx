@@ -49,10 +49,14 @@ function sanitizeBackendMessage(msg) {
   return safe || null;
 }
 
+const JOBPOSITION_MIN = 2;
+const JOBPOSITION_MAX = 60;
+
 export default function Cadastro() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("caixa");
+  const [jobposition, setJobposition] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,8 +68,9 @@ export default function Cadastro() {
 
     const u = username.trim();
     const p = password;
+    const job = jobposition.trim();
 
-    if (!u || !p) {
+    if (!u || !p || !job) {
       setError("Preencha todos os campos.");
       return;
     }
@@ -93,18 +98,42 @@ export default function Cadastro() {
       setError("Cargo inválido.");
       return;
     }
+    if (job.length < JOBPOSITION_MIN || job.length > JOBPOSITION_MAX) {
+      setError(`Cargo deve ter entre ${JOBPOSITION_MIN} e ${JOBPOSITION_MAX} caracteres.`);
+      return;
+    }
 
     try {
       setLoading(true);
-      await api.post("/auth/register", { username: u, password: p, role: role.toUpperCase() });
+      // Endpoint correto do backend: POST /users (criação restrita a ADMIN/ROOT).
+      // Enviamos role em UPPERCASE para casar com o enum UserRole, e jobposition
+      // como o cargo livre validado pelo backend.
+      await api.post("/users", {
+        username: u,
+        password: p,
+        role: role.toUpperCase(),
+        jobposition: job,
+      });
       const roleLabel = ROLES.find((r) => r.value === role)?.label ?? role;
-      setSuccess(`Usuário "${u}" cadastrado como ${roleLabel} com sucesso!`);
+      setSuccess(`Usuário "${u}" cadastrado como ${roleLabel} (${job}) com sucesso!`);
       setUsername("");
       setPassword("");
       setRole("caixa");
+      setJobposition("");
     } catch (err) {
-      const rawMsg = err?.response?.data?.message;
-      setError(sanitizeBackendMessage(rawMsg) || "Erro ao cadastrar. Tente novamente.");
+      const status = err?.response?.status;
+      const rawMsg =
+        err?.response?.data?.error ??
+        err?.response?.data?.message;
+      const fallback =
+        status === 401
+          ? "Sessão expirada. Faça login novamente."
+          : status === 403
+          ? "Você não tem permissão para cadastrar usuários."
+          : status === 409
+          ? "Já existe um usuário com este nome."
+          : "Erro ao cadastrar. Tente novamente.";
+      setError(sanitizeBackendMessage(rawMsg) || fallback);
     } finally {
       setLoading(false);
     }
@@ -246,7 +275,7 @@ export default function Cadastro() {
                   className="block text-xs font-semibold mb-2 tracking-wider uppercase"
                   style={{ color: "#6b2130" }}
                 >
-                  Cargo
+                  Perfil de acesso
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   {ROLES.map(({ value, label, desc, icon }) => {
@@ -286,6 +315,30 @@ export default function Cadastro() {
                     );
                   })}
                 </div>
+              </div>
+
+              <div>
+                <label
+                  className="block text-xs font-semibold mb-1.5 tracking-wider uppercase"
+                  style={{ color: "#6b2130" }}
+                >
+                  Cargo
+                </label>
+                <input
+                  className="input-red w-full px-4 py-3 rounded-xl text-sm"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(225,29,72,0.18)",
+                    color: "#fff1f2",
+                  }}
+                  placeholder="ex: Garçom da noite, Chef titular, Caixa A"
+                  maxLength={JOBPOSITION_MAX}
+                  value={jobposition}
+                  onChange={(e) => setJobposition(e.target.value)}
+                />
+                <p className="text-xs mt-1.5" style={{ color: "#4a1525" }}>
+                  Descreva o cargo/função do colaborador (2 a 60 caracteres)
+                </p>
               </div>
 
               <button
