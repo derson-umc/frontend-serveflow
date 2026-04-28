@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../services/api";
 import { useAuth } from "../AuthContext";
@@ -71,7 +71,7 @@ export default function Login() {
         username: username.trim(),
         password,
       });
-      signIn(response.data.token);
+      signIn(response.data.token, { id: response.data.id });
       navigate("/dashboard");
     } catch (err) {
       const status = err?.response?.status;
@@ -346,17 +346,6 @@ export default function Login() {
               )}
             </motion.button>
 
-            <div className="flex items-center justify-center mt-1">
-              <Link
-                to="/forgot-password"
-                className="text-xs transition-colors"
-                style={{ color: "#6b2130" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#f43f5e")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#6b2130")}
-              >
-                Esqueci minha senha
-              </Link>
-            </div>
           </form>
         </motion.div>
 
