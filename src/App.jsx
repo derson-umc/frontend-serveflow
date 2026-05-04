@@ -8,6 +8,7 @@ import Estoque from "./pages/Estoque";
 import Financeiro from "./pages/Financeiro";
 import Vendas from "./pages/Vendas";
 import Cadastro from "./pages/Cadastro";
+import Usuarios from "./pages/Usuarios";
 import Menu from "./pages/Menu";
 import RoleRoute from "./routes/RoleRoute";
 import { CartProvider } from "./context/CartContext";
@@ -28,7 +29,7 @@ function AnimatedRoutes() {
         <Route
           path="/menu"
           element={
-            <RoleRoute roles={["root", "admin", "garcon"]}>
+            <RoleRoute roles={["admin", "gerente", "garcon", "cozinheiro"]}>
               <Menu />
             </RoleRoute>
           }
@@ -42,7 +43,7 @@ function AnimatedRoutes() {
         <Route
           path="/vendas"
           element={
-            <RoleRoute roles={["root", "admin", "caixa"]}>
+            <RoleRoute roles={["admin", "gerente", "caixa"]}>
               <Vendas />
             </RoleRoute>
           }
@@ -51,7 +52,7 @@ function AnimatedRoutes() {
         <Route
           path="/estoque"
           element={
-            <RoleRoute roles={["root", "admin"]}>
+            <RoleRoute roles={["admin", "gerente"]}>
               <Estoque />
             </RoleRoute>
           }
@@ -60,7 +61,7 @@ function AnimatedRoutes() {
         <Route
           path="/financeiro"
           element={
-            <RoleRoute roles={["root", "admin"]}>
+            <RoleRoute roles={["admin", "gerente", "caixa"]}>
               <Financeiro />
             </RoleRoute>
           }
@@ -69,7 +70,7 @@ function AnimatedRoutes() {
         <Route
           path="/dashboard"
           element={
-            <RoleRoute roles={["root", "admin"]}>
+            <RoleRoute roles={["admin", "gerente"]}>
               <Dashboard />
             </RoleRoute>
           }
@@ -78,8 +79,17 @@ function AnimatedRoutes() {
         <Route
           path="/cadastro"
           element={
-            <RoleRoute roles={["root", "admin"]}>
+            <RoleRoute roles={["admin", "gerente"]}>
               <Cadastro />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="/usuarios"
+          element={
+            <RoleRoute roles={["admin", "gerente"]}>
+              <Usuarios />
             </RoleRoute>
           }
         />

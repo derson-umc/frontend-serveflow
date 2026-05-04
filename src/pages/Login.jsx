@@ -179,7 +179,7 @@ export default function Login() {
           className="text-sm mb-6"
           style={{ color: "#9f1239" }}
         >
-          {greeting()}, faça seu acesso
+          Faça seu acesso
         </motion.p>
 
         <div className="flex items-center gap-3 w-full mb-6">
