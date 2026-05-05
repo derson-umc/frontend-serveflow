@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { api } from "../services/api";
+import { userService } from "../services/userService";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../AuthContext";
+import { SkeletonRow } from "../components/Skeleton";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 const ROLE_LABELS = {
   ADMIN: "Admin",
@@ -13,15 +15,16 @@ const ROLE_LABELS = {
 };
 
 const ROLE_COLORS = {
-  ADMIN: { bg: "rgba(228,96,51,0.15)", color: "#f07040", border: "rgba(228,96,51,0.3)" },
-  GERENTE: { bg: "rgba(168,85,247,0.12)", color: "#c084fc", border: "rgba(168,85,247,0.3)" },
-  CAIXA: { bg: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "rgba(59,130,246,0.3)" },
-  GARCON: { bg: "rgba(52,211,153,0.1)", color: "#4ade80", border: "rgba(52,211,153,0.25)" },
-  COZINHEIRO: { bg: "rgba(251,191,36,0.1)", color: "#fbbf24", border: "rgba(251,191,36,0.25)" },
-  USER: { bg: "rgba(255,255,255,0.05)", color: "#a8a29e", border: "rgba(255,255,255,0.1)" },
+  ADMIN:      { bg: "rgba(228,96,51,0.15)",  color: "#f07040", border: "rgba(228,96,51,0.3)" },
+  GERENTE:    { bg: "rgba(168,85,247,0.12)", color: "#c084fc", border: "rgba(168,85,247,0.3)" },
+  CAIXA:      { bg: "rgba(59,130,246,0.12)", color: "#60a5fa", border: "rgba(59,130,246,0.3)" },
+  GARCON:     { bg: "rgba(52,211,153,0.1)",  color: "#4ade80", border: "rgba(52,211,153,0.25)" },
+  COZINHEIRO: { bg: "rgba(251,191,36,0.1)",  color: "#fbbf24", border: "rgba(251,191,36,0.25)" },
+  USER:       { bg: "rgba(255,255,255,0.05)", color: "#a8a29e", border: "rgba(255,255,255,0.1)" },
 };
 
 export default function Usuarios() {
+  useDocumentTitle("Usuarios");
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +42,8 @@ export default function Usuarios() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/users");
-      setUsers(res.data);
+      const data = await userService.list();
+      setUsers(data);
     } catch {
       setError("Erro ao carregar usuários.");
     } finally {
@@ -48,9 +51,7 @@ export default function Usuarios() {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const canEditUser = (u) => {
     if (isAdmin) return true;
@@ -58,9 +59,7 @@ export default function Usuarios() {
     return false;
   };
 
-  const canDeleteUser = (u) => {
-    return isAdmin && u.role !== "ADMIN";
-  };
+  const canDeleteUser = (u) => isAdmin && u.role !== "ADMIN";
 
   const handleResetPassword = async () => {
     if (!newPassword || newPassword.length < 8) {
@@ -70,7 +69,7 @@ export default function Usuarios() {
     setSaving(true);
     setError("");
     try {
-      await api.patch(`/users/${modal.id}/reset-password`, { newPassword });
+      await userService.resetPassword(modal.id, newPassword);
       setSuccess(`Senha de "${modal.username}" redefinida com sucesso.`);
       setModal(null);
       setNewPassword("");
@@ -85,7 +84,7 @@ export default function Usuarios() {
   const handleDelete = async (u) => {
     if (!window.confirm(`Deseja excluir o usuário "${u.username}"?`)) return;
     try {
-      await api.delete(`/users/${u.id}`);
+      await userService.remove(u.id);
       setSuccess(`Usuário "${u.username}" excluído.`);
       fetchUsers();
     } catch (err) {
@@ -120,29 +119,20 @@ export default function Usuarios() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <svg className="w-6 h-6 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="rgba(228,96,51,0.25)" strokeWidth="3" />
-              <path d="M22 12a10 10 0 00-10-10" stroke="#f07040" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          </div>
+          <SkeletonRow count={4} />
         ) : users.length === 0 ? (
           <div className="rounded-2xl p-10 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(228,96,51,0.08)" }}>
             <p style={{ color: "#7a3518" }}>Nenhum usuário cadastrado.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {users.map((u, i) => {
+            {users.map((u) => {
               const rc = ROLE_COLORS[u.role] || ROLE_COLORS.USER;
               return (
                 <div
                   key={u.id}
-                  className="flex items-center justify-between px-5 py-4 rounded-xl"
-                  style={{
-                    background: "rgba(255,255,255,0.025)",
-                    border: "1px solid rgba(228,96,51,0.1)",
-                    animationDelay: `${i * 0.05}s`,
-                  }}
+                  className="sf-hover-lift flex items-center justify-between px-5 py-4 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(228,96,51,0.1)" }}
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div
@@ -152,12 +142,8 @@ export default function Usuarios() {
                       {u.username?.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm truncate" style={{ color: "#fff1f2" }}>
-                        {u.username}
-                      </p>
-                      <p className="text-xs truncate" style={{ color: "#7a3518" }}>
-                        {u.jobposition || "—"}
-                      </p>
+                      <p className="font-semibold text-sm truncate" style={{ color: "#fff1f2" }}>{u.username}</p>
+                      <p className="text-xs truncate" style={{ color: "#7a3518" }}>{u.jobposition || "—"}</p>
                     </div>
                   </div>
 
@@ -174,8 +160,6 @@ export default function Usuarios() {
                         onClick={() => { setModal(u); setNewPassword(""); setShowPassword(false); setError(""); setSuccess(""); }}
                         className="text-xs px-3 py-1.5 rounded-lg font-semibold transition-all"
                         style={{ background: "rgba(228,96,51,0.1)", color: "#f07040", border: "1px solid rgba(228,96,51,0.2)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(228,96,51,0.2)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(228,96,51,0.1)")}
                       >
                         Redefinir senha
                       </button>
@@ -186,8 +170,6 @@ export default function Usuarios() {
                         onClick={() => handleDelete(u)}
                         className="text-xs px-3 py-1.5 rounded-lg font-semibold transition-all"
                         style={{ background: "rgba(248,113,113,0.08)", color: "#f87171", border: "1px solid rgba(248,113,113,0.2)" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(248,113,113,0.15)")}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(248,113,113,0.08)")}
                       >
                         Excluir
                       </button>
