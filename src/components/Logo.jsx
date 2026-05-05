@@ -1,71 +1,63 @@
-export default function Logo({ size = 48, showText = true, textSize = "xl" }) {
+export default function Logo({ size = 48, showText = true, textSize = "xl", light = false }) {
   const id = `lg-${size}`;
+  const textColor = light ? "#ffffff" : "#2d2d2d";
+  const subColor = light ? "rgba(255,255,255,0.5)" : "#3a7d1e";
+
   return (
     <div className="flex items-center gap-3">
       <svg width={size} height={size} viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id={`${id}-bg`} cx="50%" cy="40%" r="55%">
-            <stop offset="0%" stopColor="#e11d48" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#080404" stopOpacity="0.95" />
-          </radialGradient>
-          <linearGradient id={`${id}-icon`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fecdd3" />
-            <stop offset="100%" stopColor="#e11d48" />
-          </linearGradient>
           <linearGradient id={`${id}-ring`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#9f1239" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#f07820" />
+            <stop offset="50%" stopColor="#f0b820" />
+            <stop offset="100%" stopColor="#2d2d2d" />
           </linearGradient>
-          <filter id={`${id}-glow`}>
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
+          <linearGradient id={`${id}-swoosh`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#f07820" />
+            <stop offset="100%" stopColor="#f0b820" />
+          </linearGradient>
         </defs>
 
-        <circle cx="28" cy="28" r="27" fill={`url(#${id}-bg)`} />
-        <circle cx="28" cy="28" r="26.5" stroke={`url(#${id}-ring)`} strokeWidth="1" fill="none" />
+        <circle cx="28" cy="28" r="27" fill="white" />
+        <circle cx="28" cy="28" r="26.5" stroke={`url(#${id}-ring)`} strokeWidth="1.5" fill="none" />
 
-        <ellipse cx="28" cy="36" rx="13" ry="2.5" stroke={`url(#${id}-icon)`} strokeWidth="1.5" fill="none" opacity="0.6" />
+        <line x1="21" y1="13" x2="21" y2="27" stroke="#2d2d2d" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="19" y1="13" x2="19" y2="18" stroke="#2d2d2d" strokeWidth="1.3" strokeLinecap="round" />
+        <line x1="23" y1="13" x2="23" y2="18" stroke="#2d2d2d" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M19 18 Q21 20.5 23 18" stroke="#2d2d2d" strokeWidth="1.3" fill="none" strokeLinecap="round" />
 
-        <path
-          d="M15 36 Q15 22 28 20 Q41 22 41 36"
-          stroke={`url(#${id}-icon)`}
-          strokeWidth="1.8"
-          fill="none"
-          strokeLinecap="round"
-          filter={`url(#${id}-glow)`}
-        />
-        <line x1="14" y1="36" x2="42" y2="36" stroke={`url(#${id}-icon)`} strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="29" y1="13" x2="29" y2="27" stroke="#2d2d2d" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M29 13 Q33 15.5 31.5 19 L29 20" stroke="#2d2d2d" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
-        <circle cx="28" cy="20" r="2" fill={`url(#${id}-icon)`} filter={`url(#${id}-glow)`} />
+        <path d="M14 30 Q28 26 42 30" stroke={`url(#${id}-swoosh)`} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path d="M16 33 Q28 37 40 33" stroke="#3a7d1e" strokeWidth="1.8" fill="none" strokeLinecap="round" />
 
-        <g filter={`url(#${id}-glow)`}>
-          <line x1="10" y1="12" x2="10" y2="24" stroke={`url(#${id}-icon)`} strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="8"  y1="12" x2="8"  y2="17" stroke={`url(#${id}-icon)`} strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="12" y1="12" x2="12" y2="17" stroke={`url(#${id}-icon)`} strokeWidth="1.2" strokeLinecap="round" />
-          <path d="M8 17 Q10 19.5 12 17" stroke={`url(#${id}-icon)`} strokeWidth="1.2" fill="none" strokeLinecap="round" />
-        </g>
+        <path d="M36 18 L42 14 L40 20" stroke="#f07820" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
-        <g filter={`url(#${id}-glow)`}>
-          <line x1="46" y1="12" x2="46" y2="24" stroke={`url(#${id}-icon)`} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M46 12 Q50 14.5 48.5 18 L46 19" stroke={`url(#${id}-icon)`} strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </g>
-
-        <ellipse cx="22" cy="18" rx="5" ry="3" fill="white" fillOpacity="0.04" transform="rotate(-20, 22, 18)" />
+        <path d="M31 13 Q34 10 37 12 Q35 15 31 13Z" fill="#3a7d1e" />
+        <path d="M31 13 Q34 11.5 37 12" stroke="#3a7d1e" strokeWidth="0.8" fill="none" />
       </svg>
 
       {showText && (
         <div className="flex flex-col leading-none">
           <span
-            className="font-bold text-white"
-            style={{ fontSize: textSize === "2xl" ? "1.4rem" : textSize === "xl" ? "1.2rem" : "1rem", letterSpacing: "-0.03em" }}
+            className="font-bold"
+            style={{
+              fontSize: textSize === "2xl" ? "1.4rem" : textSize === "xl" ? "1.2rem" : "1rem",
+              letterSpacing: "-0.03em",
+              color: textColor,
+            }}
           >
-            Serve<span style={{ color: "#f43f5e" }}>Flow</span>
+            Serve<span style={{ color: "#f07820" }}>Flow</span>
           </span>
           <span
-            className="text-xs tracking-widest uppercase mt-0.5"
-            style={{ color: "#e11d48", fontSize: "0.6rem", letterSpacing: "0.14em" }}
+            style={{
+              color: subColor,
+              fontSize: "0.6rem",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              marginTop: "2px",
+            }}
           >
             Restaurante
           </span>
