@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../services/api";
 import { useAuth } from "../AuthContext";
-import Logo from "../components/Logo";
 import ParticleCanvas from "../components/ParticleCanvas";
 import {
   validateUsername,
@@ -20,7 +19,7 @@ const greeting = () => {
   return "Boa noite";
 };
 
-const STRENGTH_COLORS = ["#3d0f18", "#9f1239", "#e11d48", "#f43f5e", "#fb7185", "#4ade80"];
+const STRENGTH_COLORS = ["#3d1a08", "#9f3219", "#e46033", "#f07040", "#f09060", "#4ade80"];
 
 export default function Login() {
   const navigate = useNavigate();
@@ -91,359 +90,440 @@ export default function Login() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: "#080404" }}
+      transition={{ duration: 0.4 }}
+      className="sf-page"
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <ParticleCanvas />
 
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 70% at 50% 35%, #1a0008 0%, #0d0204 45%, #080404 100%)",
-        }}
-      />
-
-      <div
-        className="absolute pointer-events-none animate-float-1 animate-pulse-glow"
-        style={{
-          width: 520, height: 520, top: "-10%", left: "-8%",
-          background: "radial-gradient(circle, rgba(225,29,72,0.12) 0%, transparent 70%)",
-          filter: "blur(60px)", borderRadius: "50%",
-        }}
-      />
-      <div
-        className="absolute pointer-events-none animate-float-2"
-        style={{
-          width: 380, height: 380, bottom: "-5%", right: "5%",
-          background: "radial-gradient(circle, rgba(244,63,94,0.1) 0%, transparent 70%)",
-          filter: "blur(50px)", borderRadius: "50%",
-        }}
-      />
-      <div
-        className="absolute pointer-events-none animate-float-3"
-        style={{
-          width: 260, height: 260, top: "30%", right: "-5%",
-          background: "radial-gradient(circle, rgba(159,18,57,0.12) 0%, transparent 70%)",
-          filter: "blur(40px)", borderRadius: "50%",
-        }}
-      />
-
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px pointer-events-none"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(225,29,72,0.5), transparent)" }}
-      />
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-56 h-20 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at top, rgba(225,29,72,0.15) 0%, transparent 70%)" }}
-      />
-
-      <motion.div
-        initial={{ y: 40, opacity: 0, scale: 0.97 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-sm px-4 flex flex-col items-center"
-      >
-        <motion.div
-          initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
-          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-          transition={{ delay: 0.05, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-5"
-        >
-          <Logo size={100} showText={false} />
-        </motion.div>
-
-        <motion.h1
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="text-4xl font-bold mb-1 text-neon-red"
-          style={{ color: "#fff1f2", letterSpacing: "-0.02em" }}
-        >
-          Serve<span style={{ color: "#f43f5e" }}>Flow</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="text-xs uppercase mb-2"
-          style={{ color: "#6b2130", letterSpacing: "0.20em" }}
-        >
-          Sistema de Restaurante
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-sm mb-6"
-          style={{ color: "#9f1239" }}
-        >
-          Faça seu acesso
-        </motion.p>
-
-        <div className="flex items-center gap-3 w-full mb-6">
-          <div className="flex-1 h-px" style={{ background: "rgba(225,29,72,0.18)" }} />
-          <div className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ background: "rgba(225,29,72,0.7)" }} />
-          <div className="flex-1 h-px" style={{ background: "rgba(225,29,72,0.18)" }} />
-        </div>
-
-        <motion.div
-          animate={shaking ? { x: [-7, 7, -4, 4, -2, 2, 0] } : {}}
-          transition={{ duration: 0.45 }}
-          className="w-full rounded-2xl p-8 shadow-2xl animate-border-breathe"
+      
+      <div className="position-fixed" style={{ inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 0 }}>
+        <div
+          className="position-absolute animate-float-1 animate-pulse-glow"
           style={{
-            background: "rgba(10, 2, 4, 0.92)",
-            border: "1px solid rgba(225,29,72,0.22)",
-            backdropFilter: "blur(24px)",
-            boxShadow:
-              "0 24px 64px rgba(0,0,0,0.75), inset 0 1px 0 rgba(225,29,72,0.08), 0 0 40px rgba(225,29,72,0.05)",
+            width: 600, height: 600, top: "-15%", left: "-10%",
+            background: "radial-gradient(circle, rgba(228,96,51,0.18) 0%, transparent 70%)",
+            filter: "blur(70px)", borderRadius: "50%",
           }}
-        >
-          <h2
-            className="text-base font-semibold mb-6 tracking-wide"
-            style={{ color: "#6b2130", letterSpacing: "0.08em" }}
-          >
-            ACESSO AO SISTEMA
-          </h2>
+        />
+        <div
+          className="position-absolute animate-float-2"
+          style={{
+            width: 420, height: 420, bottom: "-8%", right: "2%",
+            background: "radial-gradient(circle, rgba(240,112,64,0.14) 0%, transparent 70%)",
+            filter: "blur(55px)", borderRadius: "50%",
+          }}
+        />
+        <div
+          className="position-absolute"
+          style={{
+            inset: 0,
+            background: "radial-gradient(ellipse 75% 60% at 50% 30%, rgba(228,96,51,0.10) 0%, transparent 65%)",
+          }}
+        />
+        <div
+          className="position-fixed w-100"
+          style={{
+            top: 0, height: "1px",
+            background: "linear-gradient(90deg, transparent, rgba(228,96,51,0.7), transparent)",
+          }}
+        />
+      </div>
 
-          <AnimatePresence>
-            {erro && (
+      
+      <div
+        className="flex-grow-1 d-flex align-items-center justify-content-center position-relative px-3 py-5"
+        style={{ zIndex: 1 }}
+      >
+        <div style={{ width: "100%", maxWidth: "840px" }}>
+
+          <motion.div
+            initial={{ y: 50, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="row g-0 sf-login-card"
+          >
+
+            
+            <div className="col-12 col-md-5 sf-login-panel-left d-flex flex-column align-items-center justify-content-center text-center p-5">
+              <div className="deco-circle-1" />
+              <div className="deco-circle-2" />
+              <div className="deco-circle-3" />
+
               <motion.div
-                initial={{ opacity: 0, y: -8, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
-                exit={{ opacity: 0, y: -8, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
+                initial={{ scale: 0.4, opacity: 0, rotate: -10 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ delay: 0.25, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="position-relative"
+                style={{ zIndex: 1 }}
+              >
+                <img
+                  src="/logo.jpeg"
+                  alt="ServeFlow"
+                  style={{
+                    width: "110px",
+                    height: "110px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "3px solid rgba(255,255,255,0.2)",
+                    boxShadow: "0 0 40px rgba(228,96,51,0.35)",
+                  }}
+                />
+              </motion.div>
+
+              <motion.h2
+                initial={{ y: 24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="text-white text-uppercase fw-black mt-4 mb-3 position-relative"
+                style={{
+                  fontSize: "clamp(1.5rem, 3vw, 1.9rem)",
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.15,
+                  zIndex: 1,
+                }}
+              >
+                BEM-VINDO<br />DE VOLTA!
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.6 }}
+                className="position-relative"
+                style={{
+                  color: "rgba(255,241,242,0.72)",
+                  fontSize: "13px",
+                  lineHeight: 1.75,
+                  maxWidth: "230px",
+                  zIndex: 1,
+                }}
+              >
+                Ficamos felizes em tê-lo de volta. Gerencie seu restaurante com eficiência.
+              </motion.p>
+
+              <motion.div
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="position-relative mt-4"
+                style={{
+                  width: 48, height: 2, borderRadius: 2,
+                  background: "rgba(255,255,255,0.28)",
+                  zIndex: 1,
+                }}
+              />
+            </div>
+
+            
+            <motion.div
+              animate={shaking ? { x: [-8, 8, -5, 5, -2, 2, 0] } : {}}
+              transition={{ duration: 0.5 }}
+              className="col-12 col-md-7 sf-login-panel-right p-4 p-md-5 d-flex flex-column justify-content-center"
+            >
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="mb-4"
+              >
+                <p
+                  className="text-uppercase fw-bold mb-1"
+                  style={{ color: "#f07040", fontSize: "11px", letterSpacing: "0.22em" }}
+                >
+                  Acesso ao Sistema
+                </p>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "14px", margin: 0 }}>
+                  {greeting()}, faça seu login abaixo
+                </p>
+              </motion.div>
+
+              
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.45, duration: 0.4 }}
+                className="sf-divider mb-4"
               >
                 <div
-                  className="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-lg"
-                  style={{
-                    background: "rgba(225,29,72,0.08)",
-                    border: "1px solid rgba(225,29,72,0.28)",
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f43f5e">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-sm" style={{ color: "#f87171" }}>{erro}</p>
-                </div>
+                  className="animate-pulse-glow"
+                  style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(228,96,51,0.75)" }}
+                />
               </motion.div>
-            )}
-          </AnimatePresence>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-4" noValidate>
-            <Field
-              label="Usuário"
-              type="text"
-              placeholder="Digite seu usuário"
-              autoComplete="username"
-              maxLength={USERNAME_MAX}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, username: true }))}
-              valid={userCheck.valid}
-              hint={touched.username || username ? userCheck.hint : ""}
-              showStatus={touched.username || username.length > 0}
-            />
-
-            <div>
-              <Field
-                label="Senha"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                maxLength={PASSWORD_MAX}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={handleKeyEvents}
-                onKeyUp={handleKeyEvents}
-                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                valid={passCheck.valid}
-                hint={touched.password || password ? passCheck.hint : ""}
-                showStatus={touched.password || password.length > 0}
-                rightSlot={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                    className="p-1 rounded-md transition-colors"
-                    style={{ color: "#6b2130" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "#f43f5e")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "#6b2130")}
-                  >
-                    {showPassword ? <EyeOff /> : <Eye />}
-                  </button>
-                }
-              />
-
-              {/* Barra de força */}
-              {password && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mt-2 flex gap-1"
-                >
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: i < passCheck.strength ? 1 : 0.2 }}
-                      transition={{ duration: 0.25 }}
-                      className="flex-1 h-1 rounded-full origin-left"
-                      style={{
-                        background:
-                          i < passCheck.strength
-                            ? STRENGTH_COLORS[passCheck.strength]
-                            : "rgba(225,29,72,0.08)",
-                      }}
-                    />
-                  ))}
-                </motion.div>
-              )}
-
+              
               <AnimatePresence>
-                {capsOn && (
+                {erro && (
                   <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    className="mt-2 flex items-center gap-1.5 text-xs"
-                    style={{ color: "#fb7185" }}
+                    initial={{ opacity: 0, y: -8, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden mb-3"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11l7-7 7 7M5 19h14" />
-                    </svg>
-                    Caps Lock está ativo
+                    <div
+                      className="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+                      style={{
+                        background: "rgba(228,96,51,0.09)",
+                        border: "1px solid rgba(228,96,51,0.32)",
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f07040">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="mb-0" style={{ color: "#f87171", fontSize: "13px" }}>{erro}</p>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
 
-            <motion.button
-              type="submit"
-              disabled={!canSubmit}
-              whileHover={canSubmit ? { y: -2, boxShadow: "0 10px 36px rgba(225,29,72,0.5)" } : {}}
-              whileTap={canSubmit ? { scale: 0.98 } : {}}
-              className="btn-shine w-full py-3 rounded-xl font-bold text-sm mt-1 tracking-wider uppercase relative overflow-hidden"
-              style={{
-                background: canSubmit
-                  ? "linear-gradient(135deg, #e11d48 0%, #9f1239 100%)"
-                  : "linear-gradient(135deg, #4a1525 0%, #2a0810 100%)",
-                color: "#ffffff",
-                boxShadow: canSubmit ? "0 4px 24px rgba(225,29,72,0.35)" : "none",
-                letterSpacing: "0.1em",
-                cursor: canSubmit ? "pointer" : "not-allowed",
-                opacity: canSubmit ? 1 : 0.6,
-              }}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Spinner /> Acessando...
-                </span>
-              ) : (
-                "Acessar Sistema"
-              )}
-            </motion.button>
+              
+              <form onSubmit={handleLogin} noValidate>
 
-          </form>
-        </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="mb-4"
+                >
+                  <label
+                    className="form-label fw-bold text-uppercase mb-2"
+                    style={{ color: "#f07040", fontSize: "11px", letterSpacing: "0.2em" }}
+                  >
+                    Usuário
+                  </label>
+                  <div className="position-relative">
+                    <input
+                      type="text"
+                      placeholder="Digite seu usuário"
+                      autoComplete="username"
+                      maxLength={USERNAME_MAX}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      onBlur={() => setTouched((t) => ({ ...t, username: true }))}
+                      className="form-control sf-input"
+                      style={{
+                        paddingRight: "40px",
+                        fontSize: "15px",
+                        color: "#ffffff",
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1.5px solid rgba(240,112,64,0.35)",
+                      }}
+                    />
+                    <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", display: "flex" }}>
+                      {(touched.username || username.length > 0) &&
+                        (userCheck.valid ? <CheckIcon /> : <ErrorIcon />)}
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {(touched.username || username) && userCheck.hint && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -3 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -3 }}
+                        className="mt-1 mb-0"
+                        style={{ fontSize: "12px", color: userCheck.valid ? "#4ade80" : "#f87171" }}
+                      >
+                        {userCheck.hint}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 text-xs"
-          style={{ color: "#3d0f18", letterSpacing: "0.06em" }}
-        >
-          Acesso restrito · ServeFlow v1.0
-        </motion.p>
-      </motion.div>
-    </motion.div>
-  );
-}
+                
+                <motion.div
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                  className="mb-4"
+                >
+                  <label
+                    className="form-label fw-bold text-uppercase mb-2"
+                    style={{ color: "#f07040", fontSize: "11px", letterSpacing: "0.2em" }}
+                  >
+                    Senha
+                  </label>
+                  <div className="position-relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      maxLength={PASSWORD_MAX}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={handleKeyEvents}
+                      onKeyUp={handleKeyEvents}
+                      onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                      className="form-control sf-input"
+                      style={{
+                        paddingRight: "68px",
+                        fontSize: "15px",
+                        color: "#ffffff",
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1.5px solid rgba(240,112,64,0.35)",
+                      }}
+                    />
+                    <div style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: "4px" }}>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        style={{
+                          background: "transparent", border: "none",
+                          color: "#f07040", padding: "4px", cursor: "pointer",
+                          transition: "color 0.2s",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "#f07040")}
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                      {(touched.password || password.length > 0) &&
+                        (passCheck.valid ? <CheckIcon /> : <ErrorIcon />)}
+                    </div>
+                  </div>
 
-function Field({ label, hint, valid, showStatus, rightSlot, ...inputProps }) {
-  const showError = showStatus && !valid && hint;
-  const showOk = showStatus && valid;
+                  {password && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="d-flex gap-1 mt-2"
+                    >
+                      {[0, 1, 2, 3, 4].map((i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: i < passCheck.strength ? 1 : 0.2 }}
+                          transition={{ duration: 0.25 }}
+                          style={{
+                            flex: 1, height: 3, borderRadius: 2,
+                            transformOrigin: "left",
+                            background: i < passCheck.strength
+                              ? STRENGTH_COLORS[passCheck.strength]
+                              : "rgba(228,96,51,0.08)",
+                          }}
+                        />
+                      ))}
+                    </motion.div>
+                  )}
 
-  return (
-    <div>
-      <label
-        className="block text-xs font-semibold mb-1.5 tracking-wider uppercase"
-        style={{ color: "#6b2130" }}
-      >
-        {label}
-      </label>
-      <div className="relative">
-        <input
-          {...inputProps}
-          className="input-red w-full px-4 py-3 rounded-xl text-sm transition-all pr-10"
-          style={{
-            background: "rgba(255,255,255,0.04)",
-            border: showError
-              ? "1px solid rgba(248,113,113,0.55)"
-              : showOk
-              ? "1px solid rgba(74,222,128,0.35)"
-              : "1px solid rgba(225,29,72,0.18)",
-            color: "#fff1f2",
-          }}
-        />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {showOk && !rightSlot && <CheckIcon />}
-          {showError && !rightSlot && <ErrorIcon />}
-          {rightSlot}
+                  <AnimatePresence>
+                    {(touched.password || password) && passCheck.hint && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -3 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -3 }}
+                        className="mt-1 mb-0"
+                        style={{ fontSize: "12px", color: passCheck.valid ? "#4ade80" : "#f87171" }}
+                      >
+                        {passCheck.hint}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+
+                  <AnimatePresence>
+                    {capsOn && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="d-flex align-items-center gap-1 mt-2"
+                        style={{ color: "#f09060", fontSize: "12px" }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 11l7-7 7 7M5 19h14" />
+                        </svg>
+                        Caps Lock está ativo
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7, duration: 0.5 }}
+                >
+                  <motion.button
+                    type="submit"
+                    disabled={!canSubmit}
+                    whileHover={canSubmit ? { y: -3, boxShadow: "0 12px 40px rgba(228,96,51,0.6)" } : {}}
+                    whileTap={canSubmit ? { scale: 0.97 } : {}}
+                    className="btn btn-sf-primary w-100 py-3 rounded-3 text-uppercase btn-shine"
+                    style={{
+                      letterSpacing: "0.1em",
+                      fontSize: "13px",
+                      cursor: canSubmit ? "pointer" : "not-allowed",
+                      opacity: canSubmit ? 1 : 0.5,
+                    }}
+                  >
+                    {loading ? (
+                      <span className="d-flex align-items-center justify-content-center gap-2">
+                        <Spinner /> Acessando...
+                      </span>
+                    ) : (
+                      "Entrar no Sistema"
+                    )}
+                  </motion.button>
+                </motion.div>
+              </form>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.85 }}
+                className="text-center mt-4 mb-0"
+                style={{ color: "#4a2010", fontSize: "11px", letterSpacing: "0.06em" }}
+              >
+              ServeFlow 1.0
+              </motion.p>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-      <AnimatePresence>
-        {hint && showStatus && (
-          <motion.p
-            initial={{ opacity: 0, y: -3 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -3 }}
-            className="text-xs mt-1.5"
-            style={{ color: valid ? "#4ade80" : "#f87171" }}
-          >
-            {hint}
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
 function CheckIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={2.4}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth={2.4}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   );
 }
+
 function ErrorIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth={2.2}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth={2.2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }
+
 function Eye() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12c1.7-4.3 5.4-7 9.5-7s7.8 2.7 9.5 7c-1.7 4.3-5.4 7-9.5 7s-7.8-2.7-9.5-7z" />
     </svg>
   );
 }
+
 function EyeOff() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 4.2A10.5 10.5 0 0112 4c4.1 0 7.8 2.7 9.5 7-.4 1-1 1.9-1.7 2.7M6.2 6.2C4.4 7.4 3 9.5 2.5 12c1.7 4.3 5.4 7 9.5 7 1.6 0 3-.4 4.3-1.1" />
     </svg>
   );
 }
+
 function Spinner() {
   return (
-    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
       <path d="M22 12a10 10 0 00-10-10" stroke="white" strokeWidth="3" strokeLinecap="round" />
     </svg>

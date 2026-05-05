@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import Entrada from "./pages/Entrada";
 import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
 import Dashboard from "./pages/Dashboard";
-import Pedido from "./pages/Pedido";
+import Pagamento from "./pages/Pagamento";
 import Estoque from "./pages/Estoque";
 import Financeiro from "./pages/Financeiro";
-import Vendas from "./pages/Vendas";
 import Cadastro from "./pages/Cadastro";
 import Usuarios from "./pages/Usuarios";
 import Menu from "./pages/Menu";
@@ -19,7 +19,8 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Entrada />} />
+        <Route path="/login" element={<Login />} />
 
         <Route
           path="/profile/senha"
@@ -36,17 +37,8 @@ function AnimatedRoutes() {
         />
 
         <Route
-          path="/pedido"
-          element={<RoleRoute><Pedido /></RoleRoute>}
-        />
-
-        <Route
-          path="/vendas"
-          element={
-            <RoleRoute roles={["admin", "gerente", "caixa"]}>
-              <Vendas />
-            </RoleRoute>
-          }
+          path="/pagamento"
+          element={<RoleRoute><Pagamento /></RoleRoute>}
         />
 
         <Route
@@ -107,5 +99,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;

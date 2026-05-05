@@ -5,7 +5,7 @@ import { api } from "../services/api";
 import { useAuth } from "../AuthContext";
 import { validatePassword } from "../utils/validators";
 
-const STRENGTH_COLORS = ["#3d0f18", "#9f1239", "#e11d48", "#f43f5e", "#fb7185", "#4ade80"];
+const STRENGTH_COLORS = ["#4a2010", "#b84020", "#e46033", "#f07040", "#f09060", "#4ade80"];
 
 export default function ChangePassword() {
   const { user } = useAuth();
@@ -86,13 +86,13 @@ export default function ChangePassword() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="relative flex flex-col min-h-screen"
-      style={{ background: "#080404" }}
+      style={{ background: "#080503" }}
     >
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 90% 60% at 65% 25%, #1a0008 0%, #0d0204 40%, #080404 100%)",
+            "radial-gradient(ellipse 90% 60% at 65% 25%, #1a0a03 0%, #0d0603 40%, #080503 100%)",
         }}
       />
       <Sidebar />
@@ -103,13 +103,13 @@ export default function ChangePassword() {
             <div className="flex items-center gap-3 mb-1">
               <div
                 className="w-1 h-7 rounded-full"
-                style={{ background: "linear-gradient(180deg, #f43f5e, #e11d48)" }}
+                style={{ background: "linear-gradient(180deg, #f07040, #e46033)" }}
               />
               <h1 className="text-3xl font-bold tracking-tight" style={{ color: "#fff1f2" }}>
                 Alterar senha
               </h1>
             </div>
-            <p className="text-sm ml-4" style={{ color: "#6b2130" }}>
+            <p className="text-sm ml-4" style={{ color: "#7a3518" }}>
               Atualize sua senha de acesso
             </p>
           </div>
@@ -119,7 +119,7 @@ export default function ChangePassword() {
             className="rounded-2xl p-7 flex flex-col gap-4"
             style={{
               background: "rgba(10,2,4,0.92)",
-              border: "1px solid rgba(225,29,72,0.18)",
+              border: "1px solid rgba(228,96,51,0.18)",
               backdropFilter: "blur(20px)",
             }}
           >
@@ -131,8 +131,8 @@ export default function ChangePassword() {
                   exit={{ opacity: 0, y: -6 }}
                   className="text-sm px-3 py-2 rounded-lg"
                   style={{
-                    background: "rgba(225,29,72,0.08)",
-                    border: "1px solid rgba(225,29,72,0.28)",
+                    background: "rgba(228,96,51,0.08)",
+                    border: "1px solid rgba(228,96,51,0.28)",
                     color: "#f87171",
                   }}
                 >
@@ -197,7 +197,7 @@ export default function ChangePassword() {
                         background:
                           i < passCheck.strength
                             ? STRENGTH_COLORS[passCheck.strength]
-                            : "rgba(225,29,72,0.08)",
+                            : "rgba(228,96,51,0.08)",
                       }}
                     />
                   ))}
@@ -230,7 +230,7 @@ export default function ChangePassword() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   className="flex items-center gap-1.5 text-xs"
-                  style={{ color: "#fb7185" }}
+                  style={{ color: "#f09060" }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 11l7-7 7 7M5 19h14" />
@@ -242,16 +242,16 @@ export default function ChangePassword() {
 
             <motion.button
               whileTap={canSubmit ? { scale: 0.98 } : {}}
-              whileHover={canSubmit ? { y: -2, boxShadow: "0 10px 36px rgba(225,29,72,0.5)" } : {}}
+              whileHover={canSubmit ? { y: -2, boxShadow: "0 10px 36px rgba(228,96,51,0.5)" } : {}}
               type="submit"
               disabled={!canSubmit}
               className="btn-shine w-full py-3 rounded-xl font-bold text-sm tracking-wider uppercase"
               style={{
                 background: canSubmit
-                  ? "linear-gradient(135deg, #e11d48 0%, #9f1239 100%)"
-                  : "linear-gradient(135deg, #4a1525 0%, #2a0810 100%)",
+                  ? "linear-gradient(135deg, #e46033 0%, #b84020 100%)"
+                  : "linear-gradient(135deg, #4a2010 0%, #2a0810 100%)",
                 color: "#fff",
-                boxShadow: canSubmit ? "0 4px 24px rgba(225,29,72,0.35)" : "none",
+                boxShadow: canSubmit ? "0 4px 24px rgba(228,96,51,0.35)" : "none",
                 letterSpacing: "0.1em",
                 opacity: canSubmit ? 1 : 0.6,
                 cursor: canSubmit ? "pointer" : "not-allowed",
@@ -266,7 +266,7 @@ export default function ChangePassword() {
               )}
             </motion.button>
 
-            <p className="text-xs text-center" style={{ color: "#4a1525" }}>
+            <p className="text-xs text-center" style={{ color: "#4a2010" }}>
               Mínimo 6 caracteres · use letras, números e símbolos para uma senha forte
             </p>
           </form>
@@ -281,7 +281,7 @@ function PwField({ label, value, onChange, show, onToggleShow, autoComplete, hin
   const showOk = hint && valid;
   return (
     <div>
-      <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "#6b2130" }}>
+      <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "#7a3518" }}>
         {label}
       </label>
       <div className="relative">
@@ -299,7 +299,7 @@ function PwField({ label, value, onChange, show, onToggleShow, autoComplete, hin
               ? "1px solid rgba(248,113,113,0.55)"
               : showOk
               ? "1px solid rgba(74,222,128,0.35)"
-              : "1px solid rgba(225,29,72,0.18)",
+              : "1px solid rgba(228,96,51,0.18)",
             color: "#fff1f2",
           }}
         />
@@ -308,9 +308,9 @@ function PwField({ label, value, onChange, show, onToggleShow, autoComplete, hin
           onClick={onToggleShow}
           aria-label={show ? "Ocultar senha" : "Mostrar senha"}
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors"
-          style={{ color: "#6b2130" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#f43f5e")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#6b2130")}
+          style={{ color: "#7a3518" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#f07040")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#7a3518")}
         >
           {show ? <EyeOff /> : <Eye />}
         </button>
