@@ -1,10 +1,11 @@
 export const ROLES = {
-  ROOT: 'root',
-  ADMIN: 'admin',
-  CAIXA: 'caixa',
-  GARCON: 'garcon',
-  COZINHEIRO: 'cozinheiro',
+  ADMIN: 'ADMIN',
+  CAIXA: 'CAIXA',
+  GARCON: 'GARCON',
+  COZINHEIRO: 'COZINHEIRO',
 };
 
-export const ADMIN_ROLES = [ROLES.ROOT, ROLES.ADMIN];
-export const CAIXA_ROLES = [ROLES.ROOT, ROLES.ADMIN, ROLES.CAIXA];
+export const ADMIN_ROLES = [ROLES.ADMIN];
+export const CAIXA_ROLES = [ROLES.ADMIN, ROLES.CAIXA];
+export const GARCON_ROLES = [ROLES.ADMIN, ROLES.GARCON];
+export const COZINHEIRO_ROLES = [ROLES.ADMIN, ROLES.COZINHEIRO];

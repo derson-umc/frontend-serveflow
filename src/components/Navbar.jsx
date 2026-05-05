@@ -11,14 +11,16 @@ export default function Navbar() {
   };
 
   return (
-    <div className="h-14 bg-blue-800 flex items-center justify-between px-6 shadow">
-      <span className="text-white font-bold text-lg">ServeFlow</span>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-600 transition text-white text-sm px-3 py-1 rounded"
-      >
-        Log Out
-      </button>
-    </div>
+    <nav className="navbar navbar-dark bg-dark">
+      <div className="container-fluid">
+        <span className="navbar-brand mb-0 h1">ServeFlow</span>
+        <button
+          onClick={handleLogout}
+          className="btn btn-outline-danger"
+        >
+          Log Out
+        </button>
+      </div>
+    </nav>
   );
 }
