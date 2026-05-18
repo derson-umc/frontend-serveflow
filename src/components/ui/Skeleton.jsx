@@ -12,6 +12,22 @@ export function Skeleton({ height = 16, width = "100%", radius = 8, className = 
   );
 }
 
+export function SkeletonCard() {
+  return (
+    <div
+      className="rounded-xl flex flex-col overflow-hidden"
+      style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
+    >
+      <Skeleton width="100%" height={110} radius={0} />
+      <div className="flex flex-col gap-2 p-2">
+        <Skeleton width="75%" height={13} />
+        <Skeleton width="50%" height={11} />
+        <Skeleton width="55%" height={20} radius={6} />
+      </div>
+    </div>
+  );
+}
+
 export function SkeletonRow({ count = 3 }) {
   return (
     <div className="flex flex-col gap-3">

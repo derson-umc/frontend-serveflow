@@ -1,10 +1,11 @@
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useAuth } from "../AuthContext";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut, user } = useAuth();
+  const user = useAuthStore((s) => s.user);
+  const signOut = useAuthStore((s) => s.signOut);
 
   const handleLogout = () => {
     signOut();

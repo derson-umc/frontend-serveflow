@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/ui/Sidebar";
 
 const G  = "#2E7D32";
 const GD = "#1B5E20";

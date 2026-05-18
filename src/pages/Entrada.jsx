@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "../AuthContext";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Entrada() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
 
   useEffect(() => {
     if (isAuthenticated) navigate("/dashboard", { replace: true });

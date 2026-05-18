@@ -1,18 +1,42 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
-import Entrada from "./pages/Entrada";
-import Login from "./pages/Login";
-import ChangePassword from "./pages/ChangePassword";
-import Dashboard from "./pages/Dashboard";
-import Pagamento from "./pages/Pagamento";
-import Estoque from "./pages/Estoque";
-import Financeiro from "./pages/Financeiro";
-import Cadastro from "./pages/Cadastro";
-import Menu from "./pages/Menu";
-import CadastroProdutos from "./pages/CadastroProdutos";
-import GestaoUsuarios from "./pages/GestaoUsuarios";
-import RoleRoute from "./routes/RoleRoute";
-import { CartProvider } from "./context/CartContext";
+import { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { ToastProvider } from './components/ui/Toast';
+import RoleRoute from './routes/RoleRoute';
+import { Loading } from './components/ui/Loading';
+import { useAuthStore } from './store/useAuthStore';
+
+/* ── Lazy page imports ──────────────────────────────────── */
+const Entrada = lazy(() => import('./pages/Entrada'));
+const Login = lazy(() => import('./pages/Login'));
+const ChangePassword = lazy(() => import('./pages/ChangePassword'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Pagamento = lazy(() => import('./pages/Pagamento'));
+const Estoque = lazy(() => import('./pages/Estoque'));
+const Financeiro = lazy(() => import('./pages/Financeiro'));
+const Cadastro = lazy(() => import('./pages/Cadastro'));
+const Menu = lazy(() => import('./pages/Menu'));
+const Kds = lazy(() => import('./pages/Kds'));
+const FichaTecnica = lazy(() => import('./pages/FichaTecnica'));
+const CadastroProdutos = lazy(() => import('./pages/CadastroProdutos'));
+const GestaoUsuarios = lazy(() => import('./pages/GestaoUsuarios'));
+
+/* ── Logout listener (dispatched by API client on 401) ──── */
+function AuthLogoutListener() {
+  const signOut = useAuthStore((s) => s.signOut);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    function handleLogout() {
+      signOut();
+      navigate('/login', { replace: true });
+    }
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, [signOut, navigate]);
+
+  return null;
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -31,8 +55,26 @@ function AnimatedRoutes() {
         <Route
           path="/menu"
           element={
-            <RoleRoute roles={["root", "admin", "gerente", "garcon"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente', 'garcon', 'cozinheiro']}>
               <Menu />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="/kds"
+          element={
+            <RoleRoute roles={['root', 'admin', 'gerente', 'cozinheiro']}>
+              <Kds />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="/ficha-tecnica"
+          element={
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
+              <FichaTecnica />
             </RoleRoute>
           }
         />
@@ -45,7 +87,7 @@ function AnimatedRoutes() {
         <Route
           path="/estoque"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
               <Estoque />
             </RoleRoute>
           }
@@ -54,7 +96,7 @@ function AnimatedRoutes() {
         <Route
           path="/financeiro"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente', 'caixa']}>
               <Financeiro />
             </RoleRoute>
           }
@@ -63,7 +105,7 @@ function AnimatedRoutes() {
         <Route
           path="/dashboard"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
               <Dashboard />
             </RoleRoute>
           }
@@ -72,7 +114,7 @@ function AnimatedRoutes() {
         <Route
           path="/cadastro"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
               <Cadastro />
             </RoleRoute>
           }
@@ -81,7 +123,7 @@ function AnimatedRoutes() {
         <Route
           path="/cadastro-produtos"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
               <CadastroProdutos />
             </RoleRoute>
           }
@@ -90,7 +132,7 @@ function AnimatedRoutes() {
         <Route
           path="/gestao-usuarios"
           element={
-            <RoleRoute roles={["root", "admin", "gerente"]}>
+            <RoleRoute roles={['root', 'admin', 'gerente']}>
               <GestaoUsuarios />
             </RoleRoute>
           }
@@ -103,9 +145,11 @@ function AnimatedRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
+      <AuthLogoutListener />
+      <ToastProvider />
+      <Suspense fallback={<Loading fullPage message="Carregando..." />}>
         <AnimatedRoutes />
-      </CartProvider>
+      </Suspense>
     </BrowserRouter>
   );
 }
