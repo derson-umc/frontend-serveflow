@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
   return isAuthenticated ? children : <Navigate to="/" replace />;
 }

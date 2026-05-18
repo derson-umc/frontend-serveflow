@@ -1,87 +1,93 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "../AuthContext";
-import ParticleCanvas from "../components/ParticleCanvas";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Entrada() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
 
   useEffect(() => {
     if (isAuthenticated) navigate("/dashboard", { replace: true });
   }, [isAuthenticated, navigate]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.35 }}
-      className="sf-page"
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <ParticleCanvas />
+    <div className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%)" }}>
 
-      
-      <div className="position-fixed" style={{ inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 0 }}>
-        <div
-          className="position-absolute animate-float-1 animate-pulse-glow"
-          style={{
-            width: 540, height: 540, top: "-12%", left: "-9%",
-            background: "radial-gradient(circle, rgba(228,96,51,0.13) 0%, transparent 70%)",
-            filter: "blur(65px)", borderRadius: "50%",
-          }}
-        />
-        <div
-          className="position-absolute animate-float-2"
-          style={{
-            width: 380, height: 380, bottom: "-6%", right: "4%",
-            background: "radial-gradient(circle, rgba(240,112,64,0.10) 0%, transparent 70%)",
-            filter: "blur(52px)", borderRadius: "50%",
-          }}
-        />
-        <div
-          className="position-absolute"
-          style={{
-            inset: 0,
-            background: "radial-gradient(ellipse 75% 60% at 50% 30%, rgba(228,96,51,0.08) 0%, transparent 65%)",
-          }}
-        />
-        <div
-          className="position-fixed w-100"
-          style={{
-            top: 0, height: "1px",
-            background: "linear-gradient(90deg, transparent, rgba(228,96,51,0.55), transparent)",
-          }}
-        />
+      {/* Decorative circles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute rounded-full" style={{ width: 480, height: 480, top: "-15%", left: "-10%", background: "rgba(255,255,255,0.04)" }} />
+        <div className="absolute rounded-full" style={{ width: 320, height: 320, bottom: "-8%", right: "-5%", background: "rgba(245,124,0,0.12)" }} />
+        <div className="absolute rounded-full" style={{ width: 200, height: 200, top: "30%", right: "12%", background: "rgba(255,255,255,0.05)" }} />
       </div>
 
-      
-      <div
-        className="flex-grow-1 d-flex align-items-center justify-content-center position-relative"
-        style={{ zIndex: 1 }}
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0, y: 30 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 flex flex-col items-center text-center px-6"
       >
-        <motion.img
-          src="/logo.jpeg"
-          alt="ServeFlow"
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.15, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={{ scale: 1.06, boxShadow: "0 0 60px rgba(228,96,51,0.5)" }}
+        {/* Logo */}
+        <motion.div
+          whileHover={{ scale: 1.05, rotate: 2 }}
+          onClick={() => navigate("/login")}
+          className="cursor-pointer mb-8"
+          style={{ filter: "drop-shadow(0 12px 32px rgba(0,0,0,0.25))" }}
+        >
+          <img
+            src="/logo.jpeg"
+            alt="ServeFlow"
+            style={{
+              width: 160, height: 160, borderRadius: "50%", objectFit: "cover",
+              border: "5px solid rgba(255,255,255,0.25)",
+            }}
+          />
+        </motion.div>
+
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-5xl font-black mb-3 tracking-tight"
+          style={{ color: "#FFFFFF", letterSpacing: "-0.02em" }}
+        >
+          ServeFlow
+        </motion.h1>
+
+        <motion.p
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.45, duration: 0.6 }}
+          className="text-lg mb-10"
+          style={{ color: "rgba(255,255,255,0.72)" }}
+        >
+          Sistema de gestão para restaurantes
+        </motion.p>
+
+        <motion.button
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          whileHover={{ y: -3, boxShadow: "0 12px 32px rgba(245,124,0,0.55)" }}
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate("/login")}
-          style={{
-            width: "600px",
-            height: "600px",
-            borderRadius: "50%",
-            objectFit: "cover",
-            border: "3px solid rgba(228,96,51,0.3)",
-            boxShadow: "0 0 40px rgba(228,96,51,0.2)",
-            cursor: "pointer",
-          }}
-        />
-      </div>
-    </motion.div>
+          className="px-10 py-4 rounded-2xl text-base font-bold tracking-wide transition-all"
+          style={{ background: "#F57C00", color: "#FFFFFF", boxShadow: "0 4px 20px rgba(245,124,0,0.4)" }}
+        >
+          Acessar o Sistema →
+        </motion.button>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="mt-8 text-xs"
+          style={{ color: "rgba(255,255,255,0.38)" }}
+        >
+          ServeFlow v1.0 · Gestão inteligente de restaurantes
+        </motion.p>
+      </motion.div>
+    </div>
   );
 }

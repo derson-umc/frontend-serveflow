@@ -175,39 +175,4 @@
 
 ::selection { background: rgba(228, 96, 51, 0.32); color: #fff1f2; }
 
-@keyframes sf-shimmer-skeleton {
-  0%   { background-position: -240px 0; }
-  100% { background-position: 240px 0; }
-}
 
-.sf-skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(228,96,51,0.06) 0%,
-    rgba(228,96,51,0.16) 50%,
-    rgba(228,96,51,0.06) 100%
-  );
-  background-size: 480px 100%;
-  animation: sf-shimmer-skeleton 1.4s ease-in-out infinite;
-}
-
-.sf-hover-lift {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.22s ease;
-}
-.sf-hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(228, 96, 51, 0.18);
-  border-color: rgba(228, 96, 51, 0.4);
-}
-
-.sf-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.sf-status-dot.is-active { background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.18); }
-.sf-status-dot.is-pending { background: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.18); }
-.sf-status-dot.is-off { background: #7a3518; }

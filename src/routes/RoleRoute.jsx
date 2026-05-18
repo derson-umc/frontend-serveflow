@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../AuthContext";
-
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function RoleRoute({ children, roles, redirectTo = "/pedido" }) {
-  const { isAuthenticated, user } = useAuth();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
+  const user = useAuthStore((s) => s.user);
   const location = useLocation();
 
   if (!isAuthenticated) {
