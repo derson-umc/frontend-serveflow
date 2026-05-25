@@ -1,20 +1,20 @@
 import { palette } from '@styles/ds';
 
-export function SuggestionChips({ suggestions, value, onSelect }) {
+export function SuggestionChips({ chips = [], active, onSelect }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 6 }}>
-      {suggestions.map((s) => {
-        const active = value === s;
+      {chips.map((s) => {
+        const isActive = active === s;
         return (
           <button
             key={s}
             type="button"
-            onClick={() => onSelect(active ? '' : s)}
+            onClick={() => onSelect(isActive ? '' : s)}
             className="px-2.5 py-1 rounded-full text-xs font-medium transition-all"
             style={{
-              background: active ? palette.greenSurface : palette.background,
-              color:      active ? palette.green        : palette.textMuted,
-              border:     `1px solid ${active ? palette.greenBorder : palette.border}`,
+              background: isActive ? palette.greenSurface : palette.background,
+              color:      isActive ? palette.green        : palette.textMuted,
+              border:     `1px solid ${isActive ? palette.greenBorder : palette.border}`,
               cursor:     'pointer',
             }}
           >
