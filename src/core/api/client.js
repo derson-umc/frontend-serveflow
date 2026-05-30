@@ -21,6 +21,8 @@ export function setToken(token) {
 export function clearTokens() {
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('refreshToken');
+  sessionStorage.removeItem('serveflow-auth');
+  localStorage.removeItem('sf_categories');
 }
 
 export function getRefreshToken() {
