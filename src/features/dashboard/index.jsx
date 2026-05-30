@@ -1,19 +1,16 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts';
 import Sidebar from '@shared/components/layout/Sidebar';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { palette } from '@styles/ds';
 import { fmtBRL, FALLBACK_METRICS } from './constants';
 import StatCard from './components/StatCard';
-import CashierReportModal from './components/CashierReportModal';
 import { CashIcon, OrderIcon, UsersIcon, TrendIcon } from './components/icons';
 import { useDashboard } from './hooks/useDashboard';
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
   const name = user?.sub || user?.username || 'Usuário';
-  const [showReport, setShowReport] = useState(false);
 
   const { metrics, salesByDay, topProducts } = useDashboard();
 
@@ -45,18 +42,6 @@ export default function Dashboard() {
               {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
-          <button
-            onClick={() => setShowReport(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold flex-shrink-0"
-            style={{ background: palette.white, border: `1px solid ${palette.border}`, color: palette.textSecondary, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = palette.greenSurface)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = palette.white)}
-          >
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Relatório de Caixa
-          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -125,9 +110,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showReport && <CashierReportModal onClose={() => setShowReport(false)} />}
-      </AnimatePresence>
     </motion.div>
   );
 }
