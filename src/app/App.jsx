@@ -11,6 +11,10 @@ import {
   Menu, Payment, Kds, Stock, Financial,
   Recipes, Products, UserManagement, Users, Register,
 } from './routes/routes.config';
+import {
+  GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES, PRODUTO_ROLES,
+  ROLES,
+} from '@core/constants/roles';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -26,15 +30,15 @@ function AnimatedRoutes() {
         } />
 
         <Route path="/menu" element={
-          <RoleRoute roles={['root', 'admin', 'gerente', 'garcon']}><Menu /></RoleRoute>
+          <RoleRoute roles={[...GERENTE_ROLES, ROLES.GARCON]}><Menu /></RoleRoute>
         } />
 
         <Route path="/kds" element={
-          <RoleRoute roles={['root', 'admin', 'gerente', 'cozinheiro']}><Kds /></RoleRoute>
+          <RoleRoute roles={KDS_ROLES}><Kds /></RoleRoute>
         } />
 
         <Route path="/ficha-tecnica" element={
-          <RoleRoute roles={['root', 'admin', 'gerente']}><Recipes /></RoleRoute>
+          <RoleRoute roles={GERENTE_ROLES}><Recipes /></RoleRoute>
         } />
 
         <Route path="/pagamento" element={
@@ -42,27 +46,27 @@ function AnimatedRoutes() {
         } />
 
         <Route path="/estoque" element={
-          <RoleRoute roles={['root', 'admin', 'gerente']}><Stock /></RoleRoute>
+          <RoleRoute roles={GERENTE_ROLES}><Stock /></RoleRoute>
         } />
 
         <Route path="/financeiro" element={
-          <RoleRoute roles={['root', 'admin', 'gerente', 'caixa']}><Financial /></RoleRoute>
+          <RoleRoute roles={CAIXA_ROLES}><Financial /></RoleRoute>
         } />
 
         <Route path="/dashboard" element={
-          <RoleRoute roles={['root', 'admin', 'gerente']}><Dashboard /></RoleRoute>
+          <RoleRoute roles={GERENTE_ROLES}><Dashboard /></RoleRoute>
         } />
 
         <Route path="/cadastro" element={
-          <RoleRoute roles={['root', 'admin', 'gerente']}><Register /></RoleRoute>
+          <RoleRoute roles={GERENTE_ROLES}><Register /></RoleRoute>
         } />
 
         <Route path="/cadastro-produtos" element={
-          <RoleRoute roles={['root', 'admin', 'gerente', 'cozinheiro']}><Products /></RoleRoute>
+          <RoleRoute roles={PRODUTO_ROLES}><Products /></RoleRoute>
         } />
 
         <Route path="/gestao-usuarios" element={
-          <RoleRoute roles={['root', 'admin', 'gerente']}><UserManagement /></RoleRoute>
+          <RoleRoute roles={GERENTE_ROLES}><UserManagement /></RoleRoute>
         } />
 
         <Route path="/usuarios" element={
