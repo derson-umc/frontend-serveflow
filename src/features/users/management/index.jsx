@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
 import { useUserManagement } from './hooks/useUserManagement';
 import { UserTable } from './components/UserTable';
 import { CreateModal } from './components/CreateModal';
@@ -17,49 +16,6 @@ const STAT_ITEMS = (stats, loading) => [
   { label: 'Operacional', value: stats.outros,  color: '#2E7D32' },
 ].map((s) => ({ ...s, display: loading ? '—' : s.value }));
 
-function UserSectionNav({ isAdmin, isGerente }) {
-  const location = useLocation();
-  const canRegister = isAdmin || isGerente;
-
-  const tabs = [
-    { to: '/gestao-usuarios', label: 'Gerenciar Usuários' },
-    { to: '/usuarios',        label: 'Lista de Usuários'  },
-    ...(canRegister ? [{ to: '/cadastro', label: 'Cadastrar Usuário' }] : []),
-  ];
-
-  return (
-    <div style={{
-      display:      'flex',
-      gap:          4,
-      marginBottom: 24,
-      borderBottom: `1px solid ${palette.border}`,
-      paddingBottom: 0,
-    }}>
-      {tabs.map(({ to, label }) => {
-        const active = location.pathname === to;
-        return (
-          <Link
-            key={to}
-            to={to}
-            style={{
-              padding:       '9px 16px',
-              fontSize:      13,
-              fontWeight:    active ? 700 : 500,
-              color:         active ? palette.green : palette.textMuted,
-              borderBottom:  active ? `2px solid ${palette.green}` : '2px solid transparent',
-              textDecoration: 'none',
-              whiteSpace:    'nowrap',
-              transition:    'color 0.15s',
-              marginBottom:  -1,
-            }}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
 
 export default function UserManagement() {
   const gu = useUserManagement();
@@ -75,8 +31,6 @@ export default function UserManagement() {
     >
       <Sidebar />
       <main className="relative flex-1 px-4 py-8 sm:px-8" style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
-        <UserSectionNav isAdmin={gu.isAdmin} isGerente={gu.isGerente} />
-
         <div className="mb-8">
           <div className="flex items-center justify-between gap-3 mb-1">
             <div className="flex items-center gap-3">
