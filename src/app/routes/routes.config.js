@@ -13,8 +13,6 @@ const Financial      = lazy(() => import('@features/financial'));
 const Recipes        = lazy(() => import('@features/recipes'));
 const Products       = lazy(() => import('@features/products'));
 const UserManagement = lazy(() => import('@features/users/management'));
-const Users          = lazy(() => import('@features/users/list'));
-const Register       = lazy(() => import('@features/users/register'));
 
 export {
   Landing,
@@ -29,8 +27,6 @@ export {
   Recipes,
   Products,
   UserManagement,
-  Users,
-  Register,
 };
 
 export const ROUTES = [
@@ -44,8 +40,6 @@ export const ROUTES = [
   { path: '/estoque',          component: Stock,          roles: GERENTE_ROLES },
   { path: '/financeiro',       component: Financial,      roles: CAIXA_ROLES },
   { path: '/dashboard',        component: Dashboard,      roles: GERENTE_ROLES },
-  { path: '/cadastro',         component: Register,       roles: GERENTE_ROLES },
   { path: '/cadastro-produtos',component: Products,       roles: KDS_ROLES },
   { path: '/gestao-usuarios',  component: UserManagement, roles: GERENTE_ROLES },
-  { path: '/usuarios',         component: Users,          roles: null },
 ];

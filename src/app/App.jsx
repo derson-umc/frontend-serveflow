@@ -9,7 +9,7 @@ import { AuthListener } from './providers/AuthListener';
 import {
   Landing, Login, ChangePassword, Dashboard,
   Menu, Payment, Kds, Stock, Financial,
-  Recipes, Products, UserManagement, Users, Register,
+  Recipes, Products, UserManagement,
 } from './routes/routes.config';
 import {
   GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES, PRODUTO_ROLES,
@@ -57,20 +57,12 @@ function AnimatedRoutes() {
           <RoleRoute roles={GERENTE_ROLES}><Dashboard /></RoleRoute>
         } />
 
-        <Route path="/cadastro" element={
-          <RoleRoute roles={GERENTE_ROLES}><Register /></RoleRoute>
-        } />
-
         <Route path="/cadastro-produtos" element={
           <RoleRoute roles={PRODUTO_ROLES}><Products /></RoleRoute>
         } />
 
         <Route path="/gestao-usuarios" element={
           <RoleRoute roles={GERENTE_ROLES}><UserManagement /></RoleRoute>
-        } />
-
-        <Route path="/usuarios" element={
-          <RoleRoute><Users /></RoleRoute>
         } />
 
         <Route path="*" element={<RoleRoute><Menu /></RoleRoute>} />
