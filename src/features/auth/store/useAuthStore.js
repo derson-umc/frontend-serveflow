@@ -1,8 +1,21 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { parseJwt, isTokenExpired } from '@shared/utils/jwt';
-import { clearTokens, setToken, setRefreshToken } from '@core/api/client';
+import { clearTokens, setToken, setRefreshToken, SESSION_GUARD_KEY } from '@core/api/client';
 import { authApi } from '../services/authApi';
+
+function writeSessionGuard(username) {
+  const id = crypto.randomUUID?.() ?? Date.now().toString(36);
+  localStorage.setItem(SESSION_GUARD_KEY, JSON.stringify({ id, username }));
+}
+
+function readSessionGuard() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_GUARD_KEY));
+  } catch {
+    return null;
+  }
+}
 
 const sessionStorageAdapter = createJSONStorage(() => sessionStorage);
 
@@ -25,13 +38,15 @@ export const useAuthStore = create(
         const tokenString = typeof jwt === 'object' ? jwt.token : jwt;
         if (!tokenString || isTokenExpired(tokenString)) return;
 
+        const payload = parseJwt(tokenString);
         setToken(tokenString);
         if (refresh) setRefreshToken(refresh);
+        writeSessionGuard(payload?.sub);
 
         set({
           token: tokenString,
           refreshToken: refresh,
-          user: normalizeUser(parseJwt(tokenString)),
+          user: normalizeUser(payload),
         });
       },
 
@@ -48,8 +63,19 @@ export const useAuthStore = create(
           set({ token: null, refreshToken: null, user: null });
           return;
         }
+
+        const payload = parseJwt(token);
+        const guard   = readSessionGuard();
+
+        // Se existe um guard com usuário diferente, outra sessão tomou conta do navegador.
+        if (guard && guard.username !== payload?.sub) {
+          clearTokens();
+          set({ token: null, refreshToken: null, user: null });
+          return;
+        }
+
         setToken(token);
-        set({ user: normalizeUser(parseJwt(token)) });
+        set({ user: normalizeUser(payload) });
       },
 
       isAuthenticated() {

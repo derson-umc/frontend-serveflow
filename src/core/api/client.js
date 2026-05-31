@@ -10,6 +10,8 @@ export const apiClient = axios.create({
 
 /* ── Tokens ──────────────────────────────────────────────── */
 
+export const SESSION_GUARD_KEY = 'serveflow-active-session';
+
 export function getToken() {
   return sessionStorage.getItem('token');
 }
@@ -23,6 +25,7 @@ export function clearTokens() {
   sessionStorage.removeItem('refreshToken');
   sessionStorage.removeItem('serveflow-auth');
   localStorage.removeItem('sf_categories');
+  localStorage.removeItem(SESSION_GUARD_KEY);
 }
 
 export function getRefreshToken() {
