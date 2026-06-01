@@ -126,7 +126,6 @@ export function ProductCard({ product, imageUrl, onEdit, onDelete }) {
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageFile} />
       </div>
 
-      {/* Content */}
       <div className="flex-1 flex flex-col" style={{ padding: '12px 14px 10px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
           <span style={{
@@ -181,7 +180,6 @@ export function ProductCard({ product, imageUrl, onEdit, onDelete }) {
         )}
       </div>
 
-      {/* Footer */}
       <div style={{ borderTop: '1px solid #F0F0F0', padding: '10px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>

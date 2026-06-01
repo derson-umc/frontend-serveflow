@@ -130,7 +130,6 @@ export function ProductFormModal({ product, allCategories, onClose }) {
         exit={{ scale: 0.94, opacity: 0, y: 12 }}
         transition={{ duration: 0.2 }}
       >
-        {/* Header */}
         <div style={{ borderBottom: `1px solid ${palette.border}` }}>
           <div style={{ height: 4, background: `linear-gradient(90deg, ${palette.green}, ${palette.greenDark})`, borderRadius: '8px 8px 0 0' }} />
           <div className="flex items-center justify-between px-5 py-4">
@@ -162,7 +161,6 @@ export function ProductFormModal({ product, allCategories, onClose }) {
           </div>
         </div>
 
-        {/* Scrollable body */}
         <div className="overflow-y-auto flex-1" style={{ padding: '20px 24px' }}>
 
           {/* Image picker */}
@@ -371,7 +369,6 @@ export function ProductFormModal({ product, allCategories, onClose }) {
           </form>
         </div>
 
-        {/* Footer */}
         <div className="flex gap-3 px-6 py-4" style={{ borderTop: `1px solid ${palette.border}`, background: '#FAFAFA' }}>
           <button
             type="button"

@@ -83,7 +83,6 @@ export function MenuTabBar({
         );
       })}
 
-      {/* Campo de busca */}
       <div className="ml-auto flex items-center px-4">
         <div className="relative flex items-center">
           <svg

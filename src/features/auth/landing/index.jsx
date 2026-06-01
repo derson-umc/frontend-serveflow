@@ -91,7 +91,6 @@ export default function Landing() {
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{ background: "linear-gradient(150deg, #1B5E20 0%, #2E7D32 45%, #1a3a1a 100%)" }}
     >
-      {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute rounded-full" style={{ width: 560, height: 560, top: "-18%", left: "-12%", background: "rgba(255,255,255,0.03)" }} />
         <div className="absolute rounded-full" style={{ width: 380, height: 380, bottom: "-10%", right: "-8%", background: "rgba(245,124,0,0.10)" }} />
@@ -105,7 +104,6 @@ export default function Landing() {
         transition={{ duration: 0.3, ease: "easeIn" }}
         className="relative z-10 w-full max-w-lg px-5 py-10"
       >
-        {/* Logo + brand */}
         <header className="flex flex-col items-center text-center mb-8">
           <motion.div
             whileHover={{ scale: 1.03 }}
@@ -216,7 +214,6 @@ export default function Landing() {
           ))}
         </section>
 
-        {/* CTA */}
         <motion.button
           initial={{ y: 12, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -244,7 +241,6 @@ export default function Landing() {
           Acessar o Sistema
         </motion.button>
 
-        {/* Footer */}
         <motion.footer
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

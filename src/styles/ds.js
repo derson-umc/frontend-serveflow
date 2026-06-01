@@ -3,7 +3,6 @@
  *   import { ds, dsInput, dsBtn, dsCard, dsLabel } from '../styles/ds';
  */
 
-// ─── Palette ──────────────────────────────────────────────────────────────────
 export const palette = {
   green:       '#2E7D32',
   greenDark:   '#1B5E20',
@@ -35,7 +34,6 @@ export const palette = {
   white:        '#FFFFFF',
 };
 
-// ─── Spacing scale (multiples of 4px) ─────────────────────────────────────────
 export const space = {
   1:  4,
   2:  8,
@@ -46,7 +44,6 @@ export const space = {
   8: 32,
 };
 
-// ─── Typography ───────────────────────────────────────────────────────────────
 export const type = {
   pageTitle:   { fontSize: 22, fontWeight: 800, color: palette.textPrimary },
   sectionTitle:{ fontSize: 16, fontWeight: 700, color: palette.textSecondary },
@@ -56,7 +53,6 @@ export const type = {
   caption:     { fontSize: 10, color: palette.textMuted },
 };
 
-// ─── Shared component styles ──────────────────────────────────────────────────
 
 /** Label for form fields */
 export const dsLabel = {
@@ -194,21 +190,18 @@ export const dsAccentBar = {
   flexShrink: 0,
 };
 
-// ─── Form section wrapper ──────────────────────────────────────────────────────
 export const dsFormSection = {
   display: 'flex',
   flexDirection: 'column',
   gap: 16,
 };
 
-// ─── Form row (2-column grid) ──────────────────────────────────────────────────
 export const dsFormRow = {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
   gap: 16,
 };
 
-// ─── Form footer (action buttons row) ─────────────────────────────────────────
 export const dsFormFooter = {
   display: 'flex',
   gap: 12,
@@ -217,10 +210,8 @@ export const dsFormFooter = {
   marginTop: 8,
 };
 
-// ─── Helper: merge styles ──────────────────────────────────────────────────────
 export const ds = (...styles) => Object.assign({}, ...styles);
 
-// ─── Focus handler for input/textarea ─────────────────────────────────────────
 export const dsOnFocus = (e) => { e.target.style.border = `1.5px solid ${palette.green}`; };
 export const dsOnBlur  = (e, hasError = false) => {
   e.target.style.border = `1.5px solid ${hasError ? palette.red : palette.border}`;

@@ -85,7 +85,6 @@ export default function CadastroProdutos() {
 
       <div className="flex-1 flex flex-col" style={{ maxHeight: 'calc(100vh - 52px)', overflow: 'hidden' }}>
 
-        {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4"
           style={{ background: palette.white, borderBottom: `1px solid ${palette.border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
@@ -105,7 +104,6 @@ export default function CadastroProdutos() {
           </button>
         </div>
 
-        {/* Filters */}
         <div className="px-6 py-3 flex flex-col gap-3"
           style={{ background: palette.white, borderBottom: `1px solid ${palette.border}` }}>
           <input
@@ -174,7 +172,6 @@ export default function CadastroProdutos() {
           </div>
         </div>
 
-        {/* Grid */}
         <div className="flex-1 overflow-y-auto p-5">
           {isError && (
             <div className="mb-4 px-4 py-3 rounded-xl text-sm"
@@ -218,7 +215,6 @@ export default function CadastroProdutos() {
           )}
         </div>
 
-        {/* Stats footer */}
         <div className="flex gap-3 px-6 py-3"
           style={{ borderTop: `1px solid ${palette.border}`, background: palette.white }}>
           {stats.map(({ label, value }) => (
