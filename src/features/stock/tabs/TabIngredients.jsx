@@ -19,7 +19,6 @@ import { PU } from '../constants';
 
 const PAGE_SIZE = 10;
 
-// ─── SVG icons ────────────────────────────────────────────────────────────────
 const IconEntry  = () => (
   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m0 0l-4-4m4 4l4-4" />
@@ -51,7 +50,6 @@ const IconActivate = () => (
   </svg>
 );
 
-// ─── Action menu (portal-based, no overflow constraints) ──────────────────────
 function ActionMenu({ item, onAction, onEdit, onToggle, toggling }) {
   const [open, setOpen]  = useState(false);
   const [pos,  setPos]   = useState({ top: 0, right: 0 });
@@ -225,14 +223,12 @@ function ActionMenu({ item, onAction, onEdit, onToggle, toggling }) {
 }
 
 
-// ─── Status filter chips ───────────────────────────────────────────────────────
 const STATUS_OPTIONS = [
   { value: 'ALL',      label: 'Todos'   },
   { value: 'ACTIVE',   label: 'Ativos'  },
   { value: 'INACTIVE', label: 'Inativos'},
 ];
 
-// ─── Main component ────────────────────────────────────────────────────────────
 export function TabIngredients({
   items, loading,
   filtered,

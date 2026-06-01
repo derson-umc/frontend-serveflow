@@ -71,7 +71,6 @@ export function CartItem({ item, extras = [], onIncrease, onDecrease, onRemove, 
         </div>
       </div>
 
-      {/* Extras */}
       <div className="flex items-center justify-between">
         {extras.length > 0 ? (
           <div className="flex flex-wrap gap-1 flex-1">

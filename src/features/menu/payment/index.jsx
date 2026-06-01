@@ -148,7 +148,6 @@ export default function Payment() {
     <p style={{ fontSize: 11, fontWeight: 700, color: palette.textMuted, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>{lbl}</p>
   );
 
-  // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: palette.background }}>
       <Sidebar />
@@ -159,7 +158,6 @@ export default function Payment() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28 }}
       >
-        {/* ── Cabeçalho ── */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
             <div style={{ width: 4, height: 28, borderRadius: 4, background: `linear-gradient(180deg, ${palette.orange}, ${palette.green})`, flexShrink: 0 }} />
@@ -170,11 +168,9 @@ export default function Payment() {
 
         <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
 
-          {/* ── Painel esquerdo — Resumo ── */}
           <div style={{ flex: "0 0 360px", minWidth: 280, background: palette.white, borderRadius: 16, border: `1px solid ${palette.border}`, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", padding: "20px 24px" }}>
             <SectionLabel>Resumo do Pedido</SectionLabel>
 
-            {/* Tipo / mesa / cliente */}
             <div style={{ background: palette.background, border: `1px solid ${palette.border}`, borderRadius: 10, padding: "12px 14px", marginBottom: 14, fontSize: 13 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: tipoVenda !== "pagamento" ? 6 : 0 }}>
                 <span style={{ color: palette.textMuted }}>Tipo</span>
@@ -206,7 +202,6 @@ export default function Payment() {
               )}
             </div>
 
-            {/* Lista de itens */}
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16, maxHeight: 260, overflowY: "auto" }}>
               {itensVenda.map((item, i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: palette.surface, border: `1px solid ${palette.border}`, borderRadius: 10, padding: "10px 14px" }}>
@@ -221,18 +216,15 @@ export default function Payment() {
               ))}
             </div>
 
-            {/* Total */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: `1px solid ${palette.border}` }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: palette.textSecondary }}>Total</span>
               <span style={{ fontSize: 24, fontWeight: 900, color: palette.green }}>R$ {totalVenda.toFixed(2)}</span>
             </div>
           </div>
 
-          {/* ── Painel direito — Pagamento ── */}
           <div style={{ flex: 1, minWidth: 280, background: palette.white, borderRadius: 16, border: `1px solid ${palette.border}`, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", padding: "20px 24px" }}>
             <SectionLabel>Método de Pagamento</SectionLabel>
 
-            {/* Botões de método */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
               {METODOS.map(({ val, label, color, bg, border }) => {
                 const Icon = METHOD_ICONS[val];
@@ -260,7 +252,6 @@ export default function Payment() {
               })}
             </div>
 
-            {/* ── Dinheiro ── */}
             {metodoPagamento === "dinheiro" && (
               <div style={{ background: palette.greenSurface, border: `1px solid ${palette.greenBorder}`, borderRadius: 12, padding: "16px", marginBottom: 16 }}>
                 {fieldLabel("Valor Recebido")}
@@ -280,7 +271,6 @@ export default function Payment() {
               </div>
             )}
 
-            {/* ── Cartão ── */}
             {metodoPagamento === "cartao" && (
               <div style={{ background: palette.blueSurface, border: `1px solid ${palette.blueBorder}`, borderRadius: 12, padding: "16px", marginBottom: 16 }}>
                 {fieldLabel("Forma")}
@@ -306,7 +296,6 @@ export default function Payment() {
               </div>
             )}
 
-            {/* ── PIX ── */}
             {metodoPagamento === "pix" && (
               <div style={{ background: "#F3E5F5", border: "1px solid #CE93D8", borderRadius: 12, padding: "16px", marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -322,7 +311,6 @@ export default function Payment() {
               </div>
             )}
 
-            {/* ── A Prazo ── */}
             {metodoPagamento === "prazo" && (
               <div style={{ background: palette.orangeSurface, border: `1px solid ${palette.orangeBorder}`, borderRadius: 12, padding: "16px", marginBottom: 16 }}>
                 {fieldLabel("Prazo")}
@@ -337,7 +325,6 @@ export default function Payment() {
               </div>
             )}
 
-            {/* Confirmação */}
             {vendaFinalizada && (
               <div style={{ background: palette.greenSurface, border: `1px solid ${palette.greenBorder}`, color: palette.green, borderRadius: 10, padding: "10px 14px", fontSize: 13, fontWeight: 600, textAlign: "center", marginBottom: 14 }}>
                 Pagamento confirmado com sucesso!
@@ -346,7 +333,6 @@ export default function Payment() {
 
             <InlineAlert msg={finalizarError} />
 
-            {/* Finalizar */}
             <button
               onClick={handleFinalizar}
               disabled={vendaFinalizada}
@@ -364,7 +350,6 @@ export default function Payment() {
               {vendaFinalizada ? "Venda Finalizada" : "Finalizar Pagamento"}
             </button>
 
-            {/* Voltar */}
             <button
               onClick={() => navigate("/menu")}
               style={{ width: "100%", padding: "11px", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", background: palette.background, color: palette.textMuted, border: `1px solid ${palette.border}`, transition: "background 0.15s, color 0.15s" }}
@@ -377,7 +362,6 @@ export default function Payment() {
         </div>
       </motion.div>
 
-      {/* ── Modal de impressão ── */}
       <AnimatePresence>
         {showPrintDialog && (
           <motion.div

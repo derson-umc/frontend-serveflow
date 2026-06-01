@@ -43,7 +43,6 @@ export function useProductImageUpload(initialUrl = null) {
     }
   }, [doUpload]);
 
-  // Retry automático ao reconectar
   useEffect(() => {
     const handleOnline = async () => {
       const key = pendingKey.current;
