@@ -42,7 +42,6 @@ export function CartPanel({
     >
       {!isEmpty && (
         <>
-          {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
             style={{ borderBottom: '1px solid var(--color-border)' }}
@@ -67,7 +66,6 @@ export function CartPanel({
             </div>
           </div>
 
-          {/* Items */}
           <div className="flex-1 overflow-y-auto">
             {items.map((item) => (
               <CartItem
@@ -82,7 +80,6 @@ export function CartPanel({
             ))}
           </div>
 
-          {/* Footer */}
           <div className="flex-shrink-0" style={{ borderTop: '1px solid var(--color-border)' }}>
             <div className="flex items-center justify-between px-4 pt-3 pb-2">
               <span
@@ -107,12 +104,10 @@ export function CartPanel({
               </span>
             </div>
 
-            {/* Order form slot */}
             {orderForm && (
               <div className="px-4 pb-2">{orderForm}</div>
             )}
 
-            {/* Actions */}
             <div className="px-4 pb-4 flex gap-2">
               <Button variant="ghost" onClick={onClear} style={{ flex: 1 }}>
                 Cancelar

@@ -30,5 +30,6 @@ export function roleToRoute(role = '') {
   const r = role.toLowerCase();
   if (r === 'cozinheiro') return '/kds';
   if (r === 'garcon')     return '/menu';
+  if (r === 'caixa')      return '/financeiro';
   return '/dashboard';
 }
