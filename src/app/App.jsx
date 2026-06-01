@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ToastProvider } from '@shared/components/feedback/Toast';
 import { Loading } from '@shared/components/feedback/Loading';
@@ -15,6 +15,15 @@ import {
   GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES, PRODUTO_ROLES,
   ROLES,
 } from '@core/constants/roles';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { roleToRoute } from '@features/auth/utils';
+
+function DefaultRedirect() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
+  const user            = useAuthStore((s) => s.user);
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <Navigate to={roleToRoute(user?.role ?? '')} replace />;
+}
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -65,7 +74,7 @@ function AnimatedRoutes() {
           <RoleRoute roles={GERENTE_ROLES}><UserManagement /></RoleRoute>
         } />
 
-        <Route path="*" element={<RoleRoute><Menu /></RoleRoute>} />
+        <Route path="*" element={<DefaultRedirect />} />
       </Routes>
     </AnimatePresence>
   );
