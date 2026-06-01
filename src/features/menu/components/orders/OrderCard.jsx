@@ -1,11 +1,12 @@
 import { Button } from '@shared/components/ui/Button';
+import { formatEndereco } from '../../utils/formatEndereco';
 
 const fmt = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onOcultar, onCancelar }) {
-  const title = type === 'comanda' ? `Mesa ${order.mesa}` : order.nome;
-  const subtitle = type === 'delivery' ? order.endereco : null;
+  const title    = type === 'comanda' ? `Mesa ${order.mesa}` : order.nome;
+  const subtitle = type === 'delivery' ? formatEndereco(order.endereco) : null;
 
   return (
     <div
@@ -21,7 +22,6 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onOcult
         animation: 'slideUp 200ms ease',
       }}
     >
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <p style={{ fontWeight: 'var(--font-semibold)', fontSize: 'var(--text-lg)', color: 'var(--color-text-primary)' }}>
@@ -39,7 +39,6 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onOcult
         </span>
       </div>
 
-      {/* Items */}
       {order.itens?.length > 0 && (
         <div
           style={{
@@ -63,7 +62,6 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onOcult
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-2 flex-wrap justify-end">
         <Button variant="ghost" size="sm" onClick={onPrint}>Imprimir</Button>
         <Button variant="warning" size="sm" onClick={onEdit}>Editar</Button>

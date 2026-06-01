@@ -32,7 +32,6 @@ export function OrderTypeForm({ tipoVenda, onTipoChange, detalhes, onDetalhesCha
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Type selector */}
       <div className="flex gap-1.5">
         {[
           { id: 'comanda', label: 'Comanda' },
@@ -63,7 +62,6 @@ export function OrderTypeForm({ tipoVenda, onTipoChange, detalhes, onDetalhesCha
         ))}
       </div>
 
-      {/* Comanda fields */}
       {tipoVenda === 'comanda' && (
         <div className="flex gap-2">
           <Input
@@ -81,7 +79,6 @@ export function OrderTypeForm({ tipoVenda, onTipoChange, detalhes, onDetalhesCha
         </div>
       )}
 
-      {/* Delivery fields */}
       {tipoVenda === 'delivery' && (
         <div className="flex flex-col gap-2">
           <Input

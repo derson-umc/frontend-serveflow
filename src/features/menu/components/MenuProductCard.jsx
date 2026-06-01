@@ -49,7 +49,6 @@ function MenuProductCard({ item, onAdd, outOfStock = false }) {
         e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.06)';
       }}
     >
-      {/* Image */}
       <div style={{ height: 136, background: outOfStock ? '#FFF3F3' : GF, position: 'relative', flexShrink: 0 }}>
         {showImage ? (
           <img
@@ -78,9 +77,7 @@ function MenuProductCard({ item, onAdd, outOfStock = false }) {
         )}
       </div>
 
-      {/* Content */}
       <div className="flex-1 flex flex-col" style={{ padding: '12px 14px 10px' }}>
-        {/* Badge categoria */}
         {item.category && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
             <span style={{
@@ -116,7 +113,6 @@ function MenuProductCard({ item, onAdd, outOfStock = false }) {
         )}
       </div>
 
-      {/* Footer */}
       <div style={{ borderTop: '1px solid #F0F0F0', padding: '10px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>

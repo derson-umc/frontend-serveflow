@@ -1,7 +1,8 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
+import { roleToRoute } from '@features/auth/utils';
 
-export default function RoleRoute({ children, roles, redirectTo = '/menu' }) {
+export default function RoleRoute({ children, roles, redirectTo }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
   const user            = useAuthStore((s) => s.user);
   const location        = useLocation();
@@ -11,7 +12,8 @@ export default function RoleRoute({ children, roles, redirectTo = '/menu' }) {
   }
 
   if (roles && roles.length > 0 && !roles.includes(user?.role)) {
-    return <Navigate to={redirectTo} replace />;
+    const target = redirectTo ?? roleToRoute(user?.role ?? '');
+    return <Navigate to={target} replace />;
   }
 
   return children;

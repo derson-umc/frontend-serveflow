@@ -4,10 +4,8 @@ import { palette } from '@styles/ds';
 import { fmtBRL, PAYMENT_LABELS } from '../../dashboard/constants';
 import { useCashierReport } from '../../dashboard/hooks/useDashboard';
 
-// ─── Paleta corporativa (mais escura e profissional) ──────────────────────────
 const CHART_COLORS = ['#1B5E20', '#E67E00', '#1565C0', '#6A1B9A', '#00838F', '#C62828'];
 
-// ─── Segmento ativo (hover expande levemente) ─────────────────────────────────
 function ActiveShape({ cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill }) {
   return (
     <Sector
@@ -21,7 +19,6 @@ function ActiveShape({ cx, cy, innerRadius, outerRadius, startAngle, endAngle, f
   );
 }
 
-// ─── Tooltip customizado com valor e % ───────────────────────────────────────
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const item = payload[0];
@@ -33,7 +30,6 @@ function CustomTooltip({ active, payload }) {
   );
 }
 
-// ─── Card de contexto ─────────────────────────────────────────────────────────
 function ContextCard({ label, value, sub, bg, color, icon }) {
   return (
     <div style={{ background: bg, border: `1px solid ${color}28`, borderRadius: 12, padding: '14px 16px' }}>
@@ -47,7 +43,6 @@ function ContextCard({ label, value, sub, bg, color, icon }) {
   );
 }
 
-// ─── Ícones SVG minimalistas ──────────────────────────────────────────────────
 const IconMoney = ({ color }) => (
   <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={1.75} aria-hidden>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -73,7 +68,6 @@ const IconCard = ({ color }) => (
   </svg>
 );
 
-// ─── Componente principal ─────────────────────────────────────────────────────
 export default function TabCashierReport() {
   const today = new Date().toISOString().split('T')[0];
   const [startDate, setStartDate] = useState(today);
@@ -102,7 +96,6 @@ export default function TabCashierReport() {
 
   return (
     <div>
-      {/* ── Filtro de período ── */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', marginBottom: 20, flexWrap: 'wrap' }}>
         {[
           { label: 'Data início', val: startDate, set: setStartDate },
@@ -131,7 +124,6 @@ export default function TabCashierReport() {
         </button>
       </div>
 
-      {/* ── Estados de loading / vazio ── */}
       {isFetching ? (
         <div style={{ textAlign: 'center', padding: 48, color: palette.textMuted }}>Carregando...</div>
       ) : !report || items.length === 0 ? (
@@ -140,7 +132,6 @@ export default function TabCashierReport() {
         </div>
       ) : (
         <>
-          {/* ── Cards de contexto ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 24 }}>
             <ContextCard
               label="Total Bruto"
@@ -174,7 +165,6 @@ export default function TabCashierReport() {
             />
           </div>
 
-          {/* ── Gráfico Donut com valor no centro ── */}
           <div style={{ position: 'relative', marginBottom: 4 }}>
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -217,7 +207,6 @@ export default function TabCashierReport() {
             </div>
           </div>
 
-          {/* ── Legenda rica com interação cruzada ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {pieData.map((entry, idx) => {
               const color   = CHART_COLORS[idx % CHART_COLORS.length];
@@ -239,25 +228,20 @@ export default function TabCashierReport() {
                     transition: 'background 200ms ease-in-out, border-color 200ms ease-in-out',
                   }}
                 >
-                  {/* Cor */}
                   <span style={{ width: 12, height: 12, borderRadius: 3, background: color, flexShrink: 0 }} />
 
-                  {/* Nome */}
                   <p style={{ flex: 1, fontSize: 13, fontWeight: 600, color: palette.textSecondary, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {entry.name}
                   </p>
 
-                  {/* Valor */}
                   <p style={{ fontSize: 13, fontWeight: 700, color, flexShrink: 0 }}>
                     {fmtBRL(entry.value)}
                   </p>
 
-                  {/* Percentual */}
                   <p style={{ fontSize: 12, color: palette.textMuted, flexShrink: 0, minWidth: 44, textAlign: 'right' }}>
                     {entry.pct}%
                   </p>
 
-                  {/* Qtd de movimentações */}
                   <p style={{ fontSize: 11, color: palette.textMuted, flexShrink: 0, minWidth: 60, textAlign: 'right' }}>
                     {entry.ordersCount}&nbsp;mov.
                   </p>
