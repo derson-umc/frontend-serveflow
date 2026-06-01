@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@shared/components/layout/Sidebar';
 import { MenuTabBar } from './components/MenuTabBar';
@@ -85,6 +85,15 @@ export default function Menu() {
   const [editTarget, setEditTarget] = useState(null);
   const [editType, setEditType] = useState(null);
 
+  // Redireciona para 'venda' quando a aba activa perde todos os pedidos
+  useEffect(() => {
+    setActiveTab((current) => {
+      if (current === 'comandas' && comandas.length === 0) return 'venda';
+      if (current === 'delivery' && deliveries.length === 0) return 'venda';
+      return current;
+    });
+  }, [comandas.length, deliveries.length]);
+
   const handleFinalizarVenda = useCallback(async () => {
     if (tipoVenda === 'pagamento') {
       const itensVendidos = items.map((item) => ({
@@ -144,12 +153,17 @@ export default function Menu() {
           address: { cep: endereco.cep || null, street: endereco.logradouro || null, number: endereco.numero || null, complement: endereco.complemento || null },
         });
         const enderecoFmt = [endereco.logradouro, endereco.numero, endereco.complemento].filter(Boolean).join(', ');
+        const enderecoCompleto = [
+          res.address?.street  ?? endereco.logradouro,
+          res.address?.number  ?? endereco.numero,
+          res.address?.complement ?? endereco.complemento,
+        ].filter(Boolean).join(', ') || enderecoFmt;
         setDeliveries((prev) => [
           ...prev,
           {
             ...res,
             nome: res.customerName,
-            endereco: res.address?.street ?? enderecoFmt,
+            endereco: enderecoCompleto,
             itens: (res.items ?? []).map((i) => ({ id: i.id, name: i.productName, quantity: i.quantity, price: Number(i.unitPrice), total: Number(i.total) })),
             total: Number(res.totalValue),
             data: new Date(res.createdAt).toLocaleString('pt-BR'),
@@ -223,6 +237,10 @@ export default function Menu() {
           onTabChange={setActiveTab}
           search={search}
           onSearchChange={setSearch}
+          hasComandas={comandas.length > 0}
+          hasDeliveries={deliveries.length > 0}
+          comandasCount={comandas.length}
+          deliveriesCount={deliveries.length}
         />
 
         {activeTab === 'venda' && (
