@@ -80,20 +80,18 @@ export function OrderCard({ order, position, onStatusChange }) {
   return (
     <>
       <motion.div
-        layout
-        initial={{ opacity: 0, y: 24, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.96 }}
         animate={
           isUrgent
-            ? { opacity: 1, y: 0, scale: 1, ...urgentPulse.animate }
-            : { opacity: 1, y: 0, scale: 1 }
+            ? { opacity: 1, scale: 1, ...urgentPulse.animate }
+            : { opacity: 1, scale: 1 }
         }
-        exit={{ opacity: 0, scale: 0.88, y: -12, transition: { duration: 0.3 } }}
+        exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.2 } }}
         transition={
           isUrgent
-            ? { opacity: { duration: 0.3 }, y: { type: 'spring', stiffness: 200, damping: 22 }, ...urgentPulse.transition }
-            : { type: 'spring', stiffness: 200, damping: 22 }
+            ? { opacity: { duration: 0.25 }, ...urgentPulse.transition }
+            : { duration: 0.25 }
         }
-        whileHover={{ y: -3, boxShadow: '0 8px 28px rgba(0,0,0,0.14)' }}
         style={{
           background:   palette.white,
           border:       `1px solid ${palette.border}`,
