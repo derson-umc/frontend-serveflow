@@ -1,42 +1,43 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-const TABS = [
-  { id: 'venda', label: 'Vendas' },
-  { id: 'comandas', label: 'Comandas' },
-  { id: 'delivery', label: 'Delivery' },
-  { to: '/pagamento', label: 'Pagamento' },
-];
+/**
+ * Props:
+ *   activeTab       – id da aba activa ('venda' | 'comandas' | 'delivery')
+ *   onTabChange     – (id) => void
+ *   search          – valor do campo de busca
+ *   onSearchChange  – (value) => void
+ *   hasComandas     – boolean — exibe aba Comandas apenas quando true
+ *   hasDeliveries   – boolean — exibe aba Delivery apenas quando true
+ *   comandasCount   – number — badge de contagem na aba Comandas
+ *   deliveriesCount – number — badge de contagem na aba Delivery
+ */
+export function MenuTabBar({
+  activeTab,
+  onTabChange,
+  search,
+  onSearchChange,
+  hasComandas     = false,
+  hasDeliveries   = false,
+  comandasCount   = 0,
+  deliveriesCount = 0,
+}) {
+  useLocation(); // mantém re-render quando rota muda
 
-export function MenuTabBar({ activeTab, onTabChange, search, onSearchChange }) {
-  const location = useLocation();
+  const TABS = [
+    { id: 'venda',    label: 'Vendas',   show: true,          count: 0 },
+    { id: 'comandas', label: 'Comandas', show: hasComandas,   count: comandasCount },
+    { id: 'delivery', label: 'Delivery', show: hasDeliveries, count: deliveriesCount },
+  ];
+
+  const visibleTabs = TABS.filter((t) => t.show);
 
   return (
     <div
       className="flex items-stretch flex-shrink-0"
       style={{ background: 'var(--color-success)', borderBottom: '1px solid var(--color-success-dark)' }}
     >
-      {TABS.map((tab) => {
-        const isActive = tab.to
-          ? location.pathname === tab.to
-          : activeTab === tab.id;
-
-        if (tab.to) {
-          return (
-            <Link
-              key={tab.label}
-              to={tab.to}
-              className="tab-item"
-              style={{
-                color: '#fff',
-                opacity: isActive ? 1 : 0.78,
-                background: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
-                borderBottom: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
-              }}
-            >
-              {tab.label}
-            </Link>
-          );
-        }
+      {visibleTabs.map((tab) => {
+        const isActive = activeTab === tab.id;
 
         return (
           <button
@@ -45,17 +46,44 @@ export function MenuTabBar({ activeTab, onTabChange, search, onSearchChange }) {
             onClick={() => onTabChange(tab.id)}
             className="tab-item"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
               color: '#fff',
               opacity: isActive ? 1 : 0.78,
               background: isActive ? 'rgba(255,255,255,0.18)' : 'transparent',
               borderBottom: isActive ? '2px solid var(--color-accent)' : '2px solid transparent',
+              transition: 'opacity 0.15s, background 0.15s',
             }}
           >
             {tab.label}
+
+            {/* Badge de contagem — exibe apenas quando há pedidos */}
+            {tab.count > 0 && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 18,
+                  height: 18,
+                  padding: '0 5px',
+                  borderRadius: 99,
+                  background: 'var(--color-accent)',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                }}
+              >
+                {tab.count}
+              </span>
+            )}
           </button>
         );
       })}
 
+      {/* Campo de busca */}
       <div className="ml-auto flex items-center px-4">
         <div className="relative flex items-center">
           <svg

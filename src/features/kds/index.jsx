@@ -134,7 +134,7 @@ export default function Kds() {
               <div key={key}>
                 <SectionHeader title={label} count={sectionOrders.length} color={color} />
                 <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 6 }}>
-                  <AnimatePresence mode="popLayout">
+                  <AnimatePresence>
                     {sectionOrders.map((order, idx) => (
                       <OrderCard
                         key={order.id}

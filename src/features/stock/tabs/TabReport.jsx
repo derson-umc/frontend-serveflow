@@ -1,27 +1,42 @@
+import { useState, useEffect } from 'react';
 import { Spinner } from '@shared/components/feedback/Spinner';
 import { PlainInput } from '@shared/components/ui/PlainInput';
 import { Btn } from '@shared/components/ui/Btn';
+import { Paginator } from '../components/Paginator';
 import { dsCard, palette } from '@styles/ds';
+
+const PAGE_SIZE = 10;
 
 const fmt = (n) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
 export function TabReport({ filtered, loading, search, setSearch, load, totalEntradas, totalSaidas }) {
+  const [page, setPage] = useState(1);
+
+  // Volta para página 1 sempre que o resultado filtrado muda
+  useEffect(() => { setPage(1); }, [filtered]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged      = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+
+      {/* ── Barra de busca ── */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         <PlainInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar insumo..."
-          style={{ maxWidth: 280 }}
+          style={{ flex: '1 1 200px', maxWidth: 320 }}
         />
-        <Btn variant="ghost" onClick={load} style={{ padding: '9px 16px', fontSize: 12 }}>
+        <Btn variant="ghost" onClick={load} style={{ padding: '9px 16px', fontSize: 12, flexShrink: 0 }}>
           Atualizar
         </Btn>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      {/* ── Cards de totais — responsivos ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
         <div style={{ ...dsCard, padding: '14px 20px', borderTop: `3px solid ${palette.green}` }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: palette.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
             Total entradas
@@ -36,6 +51,7 @@ export function TabReport({ filtered, loading, search, setSearch, load, totalEnt
         </div>
       </div>
 
+      {/* ── Tabela ── */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
           <Spinner size={20} />
@@ -47,33 +63,50 @@ export function TabReport({ filtered, loading, search, setSearch, load, totalEnt
               <thead>
                 <tr style={{ background: '#F5F5F5' }}>
                   {['Insumo', 'Unidade', 'Estoque atual', 'Total entradas', 'Total saídas'].map((h) => (
-                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 700, color: palette.textMuted, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+                    <th
+                      key={h}
+                      style={{
+                        padding: '10px 16px', textAlign: 'left',
+                        fontWeight: 700, color: palette.textMuted,
+                        fontSize: 11, textTransform: 'uppercase',
+                        letterSpacing: '0.06em', whiteSpace: 'nowrap',
+                      }}
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
+                {paged.length === 0 ? (
                   <tr>
                     <td colSpan={5} style={{ padding: 32, textAlign: 'center', color: palette.textMuted }}>
                       Nenhum dado encontrado.
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((r, i) => (
+                  paged.map((r, i) => (
                     <tr key={r.stockItemId ?? i} style={{ borderTop: `1px solid ${palette.border}` }}>
                       <td style={{ padding: '10px 16px', fontWeight: 600, color: palette.textPrimary }}>{r.insumo}</td>
                       <td style={{ padding: '10px 16px', color: palette.textMuted }}>{r.unit}</td>
                       <td style={{ padding: '10px 16px' }}>{r.currentQuantity}</td>
                       <td style={{ padding: '10px 16px', color: palette.green, fontWeight: 600 }}>{fmt(r.totalEntradas)}</td>
-                      <td style={{ padding: '10px 16px', color: palette.red, fontWeight: 600 }}>{fmt(r.totalSaidas)}</td>
+                      <td style={{ padding: '10px 16px', color: palette.red,   fontWeight: 600 }}>{fmt(r.totalSaidas)}</td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
           </div>
+
+          <Paginator
+            page={page}
+            totalPages={totalPages}
+            totalItems={filtered.length}
+            pageSize={PAGE_SIZE}
+            label="insumos"
+            onChange={setPage}
+          />
         </div>
       )}
     </div>

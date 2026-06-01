@@ -8,7 +8,7 @@ const hasFilter = (f) =>
   (f.type && f.type !== '') || (f.itemId && f.itemId !== '') || f.startDate || f.endDate;
 
 const buildParams = (f, p) => {
-  const params = { page: p, size: 50 };
+  const params = { page: p, size: 10 };
   if (f.itemId)    params.stockItemId = f.itemId;
   if (f.type)      params.type        = f.type;
   if (f.startDate) params.startDate   = f.startDate;

@@ -14,6 +14,7 @@ import { LossModal } from '../components/LossModal';
 import { AdjustModal } from '../components/AdjustModal';
 import { IngredientForm } from '../components/IngredientForm';
 import { dsCard, dsFormFooter, palette } from '@styles/ds';
+import { Paginator } from '../components/Paginator';
 import { PU } from '../constants';
 
 const PAGE_SIZE = 10;
@@ -260,7 +261,7 @@ export function TabIngredients({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16 }}>
         <StatCard label="Total de insumos"  value={items.length}  accent={palette.green}  />
         <StatCard label="Insumos ativos"    value={activeCount}   accent={palette.blue}   />
         <StatCard label="Abaixo do mínimo"  value={belowMin}      accent={palette.orange} />
@@ -355,43 +356,14 @@ export function TabIngredients({
             </table>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '10px 16px', borderTop: `1px solid ${palette.border}`,
-              background: '#FAFAFA',
-            }}>
-              <span style={{ fontSize: 12, color: palette.textMuted }}>
-                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length} insumos
-              </span>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${palette.border}`, background: page === 1 ? palette.surface : palette.white, color: page === 1 ? palette.textDisabled : palette.textSecondary, fontSize: 12, fontWeight: 600, cursor: page === 1 ? 'not-allowed' : 'pointer' }}
-                >
-                  ← Anterior
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    style={{ padding: '5px 10px', borderRadius: 8, border: `1px solid ${p === page ? palette.green : palette.border}`, background: p === page ? palette.greenSurface : palette.white, color: p === page ? palette.green : palette.textMuted, fontSize: 12, fontWeight: p === page ? 700 : 500, cursor: 'pointer', minWidth: 32 }}
-                  >
-                    {p}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${palette.border}`, background: page === totalPages ? palette.surface : palette.white, color: page === totalPages ? palette.textDisabled : palette.textSecondary, fontSize: 12, fontWeight: 600, cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
-                >
-                  Próximo →
-                </button>
-              </div>
-            </div>
-          )}
+          <Paginator
+            page={page}
+            totalPages={totalPages}
+            totalItems={filtered.length}
+            pageSize={PAGE_SIZE}
+            label="insumos"
+            onChange={setPage}
+          />
         </div>
       )}
 
