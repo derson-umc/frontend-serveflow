@@ -308,7 +308,6 @@ export default function Menu() {
                     onPrint={() => { setPrintTarget(c); setPrintType('comanda'); }}
                     onEdit={() => { setEditTarget(c); setEditType('comanda'); }}
                     onFecharConta={() => handleFecharConta(c, 'comanda')}
-                    onOcultar={() => setComandas((prev) => prev.filter((x) => x.id !== c.id))}
                     onCancelar={(id, reason) => handleCancelar(id, 'comanda', reason)}
                   />
                 ))}
@@ -331,7 +330,6 @@ export default function Menu() {
                     onPrint={() => { setPrintTarget(d); setPrintType('delivery'); }}
                     onEdit={() => { setEditTarget(d); setEditType('delivery'); }}
                     onFecharConta={() => handleFecharConta(d, 'delivery')}
-                    onOcultar={() => setDeliveries((prev) => prev.filter((x) => x.id !== d.id))}
                     onCancelar={(id, reason) => handleCancelar(id, 'delivery', reason)}
                   />
                 ))}
