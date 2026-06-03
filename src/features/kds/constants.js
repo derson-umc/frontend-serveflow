@@ -32,6 +32,20 @@ export const SECTIONS = [
   { key: 'ready',       label: 'Prontos',    statuses: ['PRONTO', 'A_CAMINHO'],    color: palette.green  },
 ];
 
+// Categorias que vão para o Bar (bebidas)
+export const BEVERAGE_CATEGORIES = ['BEBIDA_ALCOOLICA', 'BEBIDA_NAO_ALCOOLICA'];
+
+// Item vai para KDS: alimento, acompanhamento, ou sem categoria (retrocompat)
+export function isKdsItem(item) {
+  if (!item.productCategory) return true;
+  return !BEVERAGE_CATEGORIES.includes(item.productCategory);
+}
+
+// Item vai para o Bar: bebida alcoólica ou não alcoólica
+export function isBarItem(item) {
+  return BEVERAGE_CATEGORIES.includes(item.productCategory);
+}
+
 export const urgentPulse = {
   animate: {
     boxShadow: [

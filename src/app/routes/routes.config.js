@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { ROLES, GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES } from '@core/constants/roles';
+import { ROLES, GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES, BAR_ROLES } from '@core/constants/roles';
 
 const Landing        = lazy(() => import('@features/auth/landing'));
 const Login          = lazy(() => import('@features/auth'));
@@ -8,6 +8,7 @@ const Dashboard      = lazy(() => import('@features/dashboard'));
 const Menu           = lazy(() => import('@features/menu'));
 const Payment        = lazy(() => import('@features/menu/payment'));
 const Kds            = lazy(() => import('@features/kds'));
+const Bar            = lazy(() => import('@features/bar'));
 const Stock          = lazy(() => import('@features/stock'));
 const Financial      = lazy(() => import('@features/financial'));
 const Recipes        = lazy(() => import('@features/recipes'));
@@ -22,6 +23,7 @@ export {
   Menu,
   Payment,
   Kds,
+  Bar,
   Stock,
   Financial,
   Recipes,
@@ -35,6 +37,7 @@ export const ROUTES = [
   { path: '/profile/senha',    component: ChangePassword, roles: null },
   { path: '/menu',             component: Menu,           roles: [ROLES.ROOT, ROLES.ADMIN, ROLES.GERENTE, ROLES.GARCON] },
   { path: '/kds',              component: Kds,            roles: KDS_ROLES },
+  { path: '/bar',              component: Bar,            roles: BAR_ROLES },
   { path: '/ficha-tecnica',    component: Recipes,        roles: GERENTE_ROLES },
   { path: '/pagamento',        component: Payment,        roles: null },
   { path: '/estoque',          component: Stock,          roles: GERENTE_ROLES },

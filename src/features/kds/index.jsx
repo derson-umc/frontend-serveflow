@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useKdsSocket } from './hooks/useKdsSocket';
 import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { palette } from '@styles/ds';
-import { VISIBLE_STATUSES, SECTIONS, LIGHT } from './constants';
+import { VISIBLE_STATUSES, SECTIONS, LIGHT, isKdsItem } from './constants';
 import { OrderCard } from './components/OrderCard';
 
 function SectionHeader({ title, count, color }) {
@@ -48,7 +48,12 @@ export default function Kds() {
   const { orders, connected, refetch } = useKdsSocket();
 
   const handleStatusChange = () => refetch();
-  const visibleOrders = orders.filter((o) => VISIBLE_STATUSES.includes(o.status));
+
+  // Mostra apenas pedidos com itens de alimento (filtra bebidas)
+  const visibleOrders = orders
+    .filter((o) => VISIBLE_STATUSES.includes(o.status))
+    .map((o) => ({ ...o, items: (o.items ?? []).filter(isKdsItem) }))
+    .filter((o) => o.items.length > 0);
 
   const backTarget = user?.role === 'cozinheiro' ? '/dashboard' : '/menu';
   const backLabel  = user?.role === 'cozinheiro' ? 'Início' : 'Menu';

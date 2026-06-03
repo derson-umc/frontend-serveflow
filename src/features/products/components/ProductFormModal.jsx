@@ -55,6 +55,8 @@ export function ProductFormModal({ product, allCategories, onClose }) {
   const imageUpload = useProductImageUpload(product?.imageUrl ?? null);
 
   const [isActive, setIsActive] = useState(isEditing ? product.active !== false : true);
+  const [productCategory, setProductCategory] = useState(product?.productCategory ?? '');
+  const [requiresHotPrep, setRequiresHotPrep] = useState(product?.requiresHotPrep ?? false);
   const [serverError, setServerError] = useState('');
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm({
@@ -87,6 +89,8 @@ export function ProductFormModal({ product, allCategories, onClose }) {
       imageUrl:               imageUpload.uploadedUrl ?? null,
       requiresTechnicalSheet: formData.requiresTechnicalSheet ?? false,
       active:                 isActive,
+      productCategory:        productCategory || null,
+      requiresHotPrep:        requiresHotPrep,
     };
 
     try {
@@ -314,6 +318,52 @@ export function ProductFormModal({ product, allCategories, onClose }) {
                 )}
               />
               <FieldError error={errors.category} />
+            </div>
+
+            {/* Destino de preparo */}
+            <div style={{ borderTop: `1px solid #F5F5F5`, paddingTop: 16 }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: palette.green, letterSpacing: '0.1em' }}>Roteamento de preparo</p>
+              <div className="flex flex-col gap-2 mb-2">
+                <p className="text-xs" style={{ color: palette.textMuted }}>
+                  Define para onde o item é enviado: <strong>KDS</strong> (cozinha) ou <strong>Bar</strong> (bebidas)
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  {[
+                    { value: '',                   label: 'Não definido', desc: 'Vai para o KDS' },
+                    { value: 'ALIMENTO',            label: '🍽 Alimento',   desc: '→ KDS' },
+                    { value: 'BEBIDA_ALCOOLICA',    label: '🍺 Bebida Alcoólica', desc: '→ Bar' },
+                    { value: 'BEBIDA_NAO_ALCOOLICA', label: '🥤 Bebida Não Alcoólica', desc: '→ Bar' },
+                    { value: 'ACOMPANHAMENTO',      label: '🍟 Acompanhamento', desc: '→ KDS' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setProductCategory(opt.value)}
+                      style={{
+                        padding: '8px 10px', borderRadius: 10, textAlign: 'left', cursor: 'pointer',
+                        border: `1.5px solid ${productCategory === opt.value ? palette.green : palette.border}`,
+                        background: productCategory === opt.value ? palette.greenSurface : '#FAFAFA',
+                      }}
+                    >
+                      <p style={{ fontSize: 11, fontWeight: 600, color: productCategory === opt.value ? palette.green : palette.textSecondary, margin: 0 }}>{opt.label}</p>
+                      <p style={{ fontSize: 10, color: palette.textMuted, margin: 0 }}>{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
+                {(productCategory === 'ACOMPANHAMENTO') && (
+                  <div
+                    className="flex items-center justify-between px-4 py-2.5 rounded-xl cursor-pointer select-none"
+                    style={{ background: requiresHotPrep ? palette.greenSurface : '#FAFAFA', border: `1.5px solid ${requiresHotPrep ? palette.greenBorder : palette.border}`, marginTop: 4 }}
+                    onClick={() => setRequiresHotPrep((v) => !v)}
+                  >
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: requiresHotPrep ? palette.green : palette.textSecondary }}>Preparo quente (KDS)</p>
+                      <p className="text-xs mt-0.5" style={{ color: palette.textMuted }}>Ex: batata frita, mini pizza</p>
+                    </div>
+                    <Toggle active={requiresHotPrep} />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Opções */}

@@ -55,6 +55,7 @@ export default function Menu() {
         category: p.category ?? 'Outros',
         imageUrl: p.imageUrl ?? null,
         outOfStock: p.active === false,
+        productCategory: p.productCategory ?? null,
       })),
     [rawProducts]
   );
@@ -117,6 +118,7 @@ export default function Menu() {
       quantity: item.quantity,
       unitPrice: item.price,
       observation: observations[item.id] || null,
+      productCategory: item.productCategory || null,
       additionals: (extras[item.id] || []).map((e) => ({
         name: e.name, quantity: Number(e.quantity), unitPrice: Number(e.unitPrice),
       })),
