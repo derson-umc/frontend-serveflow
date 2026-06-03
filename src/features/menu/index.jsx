@@ -30,14 +30,16 @@ export default function Menu() {
   const user = useAuthStore((s) => s.user);
   const operator = user?.name ?? user?.username ?? null;
 
-  const items = useCartStore((s) => s.items);
-  const extras = useCartStore((s) => s.extras);
-  const total = useCartStore(selectCartTotal);
-  const isEmpty = useCartStore(selectCartIsEmpty);
-  const addItem = useCartStore((s) => s.addItem);
+  const items        = useCartStore((s) => s.items);
+  const extras       = useCartStore((s) => s.extras);
+  const observations = useCartStore((s) => s.observations);
+  const total        = useCartStore(selectCartTotal);
+  const isEmpty      = useCartStore(selectCartIsEmpty);
+  const addItem      = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const clearCart    = useCartStore((s) => s.clear);
   const setExtras    = useCartStore((s) => s.setExtras);
+  const setObservation = useCartStore((s) => s.setObservation);
   const createOrder  = useCreateOrder();
   const cancelOrder  = useCancelOrder();
 
@@ -114,18 +116,25 @@ export default function Menu() {
       productName: item.name,
       quantity: item.quantity,
       unitPrice: item.price,
-      observation: null,
+      observation: observations[item.id] || null,
       additionals: (extras[item.id] || []).map((e) => ({
         name: e.name, quantity: Number(e.quantity), unitPrice: Number(e.unitPrice),
       })),
     }));
 
     if (tipoVenda === 'comanda') {
-      const customerName = detalhes.nome || detalhes.numero
-        ? `${detalhes.nome} ${detalhes.numero}`.trim()
-        : `Mesa ${comandas.length + 1}`;
+      const customerName = detalhes.nome || `Mesa ${comandas.length + 1}`;
+      const tableNumber = detalhes.numero || null;
+      const orderType = tableNumber ? 'MESA' : 'BALCAO';
       try {
-        const res = await createOrder.mutateAsync({ customerName, type: 'LOCAL', observation: '', paymentMethod: null, items: orderItems });
+        const res = await createOrder.mutateAsync({
+          customerName,
+          type: orderType,
+          tableNumber,
+          observation: '',
+          paymentMethod: null,
+          items: orderItems,
+        });
         setComandas((prev) => [
           ...prev,
           {
@@ -184,15 +193,20 @@ export default function Menu() {
     clearCart();
   }, [tipoVenda, items, extras, total, detalhes, endereco, comandas.length, deliveries.length, clearCart, navigate]);
 
-  const handleCancelar = useCallback(async (id, type) => {
+  const handleCancelar = useCallback(async (id, type, reason) => {
     const isLocal = typeof id === 'number';
     if (!isLocal) {
-      try { await cancelOrder.mutateAsync(id); toast.success('Pedido cancelado.'); }
-      catch (err) { toast.error(err.message ?? 'Erro ao cancelar.'); return; }
+      try {
+        await cancelOrder.mutateAsync({ id, reason: reason || null });
+        toast.success('Pedido cancelado.');
+      } catch (err) {
+        toast.error(err.message ?? 'Erro ao cancelar.');
+        return;
+      }
     }
     if (type === 'comanda') setComandas((prev) => prev.filter((c) => c.id !== id));
     else setDeliveries((prev) => prev.filter((d) => d.id !== id));
-  }, []);
+  }, [cancelOrder]);
 
   const handleFecharConta = useCallback((order, type) => {
     sessionStorage.setItem('tipoVenda', type);
@@ -265,11 +279,15 @@ export default function Menu() {
             <CartPanel
               items={items}
               extras={extras}
+              observations={observations}
               total={total}
+              customerName={detalhes.nome || null}
+              tableNumber={tipoVenda === 'comanda' ? detalhes.numero || null : null}
               onIncrease={(id, qty) => updateQuantity(id, qty)}
               onDecrease={(id, qty) => updateQuantity(id, qty)}
               onRemove={(id) => updateQuantity(id, 0)}
               onEditExtras={(item) => setExtrasModal(item)}
+              onObservationChange={setObservation}
               onClear={clearCart}
               onFinalize={handleFinalizarVenda}
               orderForm={orderForm}
@@ -294,7 +312,7 @@ export default function Menu() {
                     onEdit={() => { setEditTarget(c); setEditType('comanda'); }}
                     onFecharConta={() => handleFecharConta(c, 'comanda')}
                     onOcultar={() => setComandas((prev) => prev.filter((x) => x.id !== c.id))}
-                    onCancelar={() => handleCancelar(c.id, 'comanda')}
+                    onCancelar={(id, reason) => handleCancelar(id, 'comanda', reason)}
                   />
                 ))}
               </div>
@@ -317,7 +335,7 @@ export default function Menu() {
                     onEdit={() => { setEditTarget(d); setEditType('delivery'); }}
                     onFecharConta={() => handleFecharConta(d, 'delivery')}
                     onOcultar={() => setDeliveries((prev) => prev.filter((x) => x.id !== d.id))}
-                    onCancelar={() => handleCancelar(d.id, 'delivery')}
+                    onCancelar={(id, reason) => handleCancelar(id, 'delivery', reason)}
                   />
                 ))}
               </div>

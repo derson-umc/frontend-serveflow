@@ -4,13 +4,13 @@ export const TEAL  = '#00838F';
 export const LIGHT = '#9E9E9E';
 
 export const STATUS_CONFIG = {
-  CREATED:          { label: 'NOVO',           bg: palette.blue   },
-  CONFIRMED:        { label: 'CONFIRMADO',      bg: '#6A1B9A'      },
-  IN_PREPARATION:   { label: 'EM PREPARO',      bg: palette.orange },
-  READY:            { label: 'PRONTO',          bg: palette.green  },
-  OUT_FOR_DELIVERY: { label: 'A CAMINHO',       bg: TEAL           },
-  DELIVERED:        { label: 'ENTREGUE',        bg: '#4E342E'      },
-  CANCELLED:        { label: 'CANCELADO',       bg: palette.red    },
+  RASCUNHO:  { label: 'RASCUNHO',    bg: palette.blue   },
+  ENVIADO:   { label: 'ENVIADO',     bg: '#6A1B9A'      },
+  EM_PREPARO: { label: 'EM PREPARO', bg: palette.orange },
+  PRONTO:    { label: 'PRONTO',      bg: palette.green  },
+  A_CAMINHO: { label: 'A CAMINHO',   bg: TEAL           },
+  ENTREGUE:  { label: 'ENTREGUE',    bg: '#4E342E'      },
+  CANCELADO: { label: 'CANCELADO',   bg: palette.red    },
 };
 
 export const CANCEL_REASONS = [
@@ -22,14 +22,14 @@ export const CANCEL_REASONS = [
   'Outro',
 ];
 
-export const PROGRESS_STEPS = ['CREATED', 'CONFIRMED', 'IN_PREPARATION', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+export const PROGRESS_STEPS = ['RASCUNHO', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE'];
 
-export const VISIBLE_STATUSES = ['CREATED', 'CONFIRMED', 'IN_PREPARATION', 'READY', 'OUT_FOR_DELIVERY'];
+export const VISIBLE_STATUSES = ['RASCUNHO', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO'];
 
 export const SECTIONS = [
-  { key: 'pending',     label: 'Aguardando', statuses: ['CREATED', 'CONFIRMED'],       color: palette.blue   },
-  { key: 'preparation', label: 'Em Preparo', statuses: ['IN_PREPARATION'],             color: palette.orange },
-  { key: 'ready',       label: 'Prontos',    statuses: ['READY', 'OUT_FOR_DELIVERY'],  color: palette.green  },
+  { key: 'pending',     label: 'Aguardando', statuses: ['RASCUNHO', 'ENVIADO'],    color: palette.blue   },
+  { key: 'preparation', label: 'Em Preparo', statuses: ['EM_PREPARO'],             color: palette.orange },
+  { key: 'ready',       label: 'Prontos',    statuses: ['PRONTO', 'A_CAMINHO'],    color: palette.green  },
 ];
 
 export const urgentPulse = {

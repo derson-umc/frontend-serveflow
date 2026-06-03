@@ -15,7 +15,7 @@ import { CancelItemModal } from './CancelItemModal';
 import { StockConsumptionModal } from './StockConsumptionModal';
 
 export function OrderCard({ order, position, onStatusChange }) {
-  const cancelMutation = useMutation({ mutationFn: (id) => ordersApi.cancel(id) });
+  const cancelMutation = useMutation({ mutationFn: ({ id, reason }) => ordersApi.cancel({ id, reason }) });
   const [acting, setActing]             = useState(false);
   const [cancellingOrder, setCancellingOrder] = useState(false);
   const [cancellingItem, setCancellingItem]   = useState(null);
@@ -39,9 +39,9 @@ export function OrderCard({ order, position, onStatusChange }) {
     toast.warning(`"${item.productName}" marcado como indisponível`);
   };
 
-  const handleCancelOrder = async () => {
+  const handleCancelOrder = async (reason) => {
     try {
-      await cancelMutation.mutateAsync(order.id);
+      await cancelMutation.mutateAsync({ id: order.id, reason: reason || null });
       toast.success(`Pedido #${shortId} cancelado`);
       setCancellingOrder(false);
       onStatusChange(order.id);
@@ -190,6 +190,22 @@ export function OrderCard({ order, position, onStatusChange }) {
               letterSpacing: 0.3,
             }}>
               DELIVERY
+            </span>
+          )}
+          {order.type === 'MESA' && order.tableNumber && (
+            <span style={{
+              display:       'inline-block',
+              marginTop:     4,
+              marginBottom:  2,
+              background:    '#F3E5F5',
+              color:         '#6A1B9A',
+              fontSize:      10,
+              fontWeight:    700,
+              padding:       '2px 7px',
+              borderRadius:  10,
+              letterSpacing: 0.3,
+            }}>
+              MESA {order.tableNumber}
             </span>
           )}
 

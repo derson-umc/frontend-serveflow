@@ -18,26 +18,26 @@ export function getPrimaryAction(order) {
   const id      = order.id;
   const shortId = String(id).slice(-6).toUpperCase();
   switch (order.status) {
-    case 'CREATED':
-    case 'CONFIRMED':
+    case 'RASCUNHO':
+    case 'ENVIADO':
       return {
-        label:        'INICIAR',
+        label:        'INICIAR PREPARO',
         bg:           palette.blue,
         fg:           palette.white,
         fn:           () => kdsApi.prepare(id),
         msg:          `Pedido ${shortId} em preparo`,
         deductsStock: true,
       };
-    case 'IN_PREPARATION':
+    case 'EM_PREPARO':
       return {
-        label:        'PRONTO',
+        label:        'FINALIZAR PEDIDO',
         bg:           palette.orange,
         fg:           palette.white,
         fn:           () => kdsApi.ready(id),
         msg:          `Pedido ${shortId} pronto`,
         deductsStock: false,
       };
-    case 'READY':
+    case 'PRONTO':
       return {
         label:        order.type === 'DELIVERY' ? 'ENVIAR' : 'ENTREGAR',
         bg:           palette.green,
@@ -46,7 +46,7 @@ export function getPrimaryAction(order) {
         msg:          `Pedido ${shortId} ${order.type === 'DELIVERY' ? 'a caminho' : 'entregue'}`,
         deductsStock: false,
       };
-    case 'OUT_FOR_DELIVERY':
+    case 'A_CAMINHO':
       return {
         label:        'CONFIRMAR ENTREGA',
         bg:           TEAL,

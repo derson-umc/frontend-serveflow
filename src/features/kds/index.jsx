@@ -50,8 +50,8 @@ export default function Kds() {
   const handleStatusChange = () => refetch();
   const visibleOrders = orders.filter((o) => VISIBLE_STATUSES.includes(o.status));
 
-  const backTarget = user?.role === 'cozinheiro' ? '/cadastro-produtos' : '/menu';
-  const backLabel  = user?.role === 'cozinheiro' ? 'Produtos' : 'Menu';
+  const backTarget = user?.role === 'cozinheiro' ? '/dashboard' : '/menu';
+  const backLabel  = user?.role === 'cozinheiro' ? 'Início' : 'Menu';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: palette.background, fontFamily: 'system-ui, sans-serif' }}>

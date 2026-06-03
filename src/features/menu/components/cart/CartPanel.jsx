@@ -1,24 +1,21 @@
 import { CartItem } from './CartItem';
 import { Button } from '@shared/components/ui/Button';
-import { EmptyState } from '@shared/components/feedback/EmptyState';
 
 const fmt = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-const CART_ICON = (
-  <svg xmlns="http://www.w3.org/2000/svg" width={22} height={22} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13M7 13l-1-5h13" />
-  </svg>
-);
-
 export function CartPanel({
   items,
   extras,
+  observations,
   total,
+  customerName,
+  tableNumber,
   onIncrease,
   onDecrease,
   onRemove,
   onEditExtras,
+  onObservationChange,
   onClear,
   onFinalize,
   orderForm,
@@ -72,36 +69,53 @@ export function CartPanel({
                 key={item.id}
                 item={item}
                 extras={extras[item.id] || []}
+                observation={observations?.[item.id] ?? ''}
                 onIncrease={() => onIncrease(item.id, item.quantity + 1)}
                 onDecrease={() => onDecrease(item.id, item.quantity - 1)}
                 onRemove={() => onRemove(item.id)}
                 onEditExtras={() => onEditExtras(item)}
+                onObservationChange={(text) => onObservationChange?.(item.id, text)}
               />
             ))}
           </div>
 
           <div className="flex-shrink-0" style={{ borderTop: '1px solid var(--color-border)' }}>
-            <div className="flex items-center justify-between px-4 pt-3 pb-2">
-              <span
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 'var(--font-bold)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
-                Total do pedido
-              </span>
-              <span
-                style={{
-                  fontSize: 'var(--text-2xl)',
-                  fontWeight: 'var(--font-black)',
-                  color: 'var(--color-success)',
-                }}
-              >
-                {fmt(total)}
-              </span>
+            <div className="px-4 pt-3 pb-1">
+              {(customerName || tableNumber) && (
+                <p
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: 4,
+                  }}
+                >
+                  {customerName && <span>Cliente: <strong>{customerName}</strong></span>}
+                  {customerName && tableNumber && <span style={{ margin: '0 6px', opacity: 0.4 }}>›</span>}
+                  {tableNumber && <span>Mesa: <strong>{tableNumber}</strong></span>}
+                </p>
+              )}
+              <div className="flex items-center justify-between">
+                <span
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 'var(--font-bold)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--color-text-secondary)',
+                  }}
+                >
+                  Total do pedido
+                </span>
+                <span
+                  style={{
+                    fontSize: 'var(--text-2xl)',
+                    fontWeight: 'var(--font-black)',
+                    color: 'var(--color-success)',
+                  }}
+                >
+                  {fmt(total)}
+                </span>
+              </div>
             </div>
 
             {orderForm && (
@@ -118,7 +132,7 @@ export function CartPanel({
                 disabled={finalizeDisabled}
                 style={{ flex: 2 }}
               >
-                Finalizar Pedido
+                Confirmar Pedido
               </Button>
             </div>
           </div>

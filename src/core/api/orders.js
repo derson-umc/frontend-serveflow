@@ -10,5 +10,6 @@ export const ordersApi = {
   ready: (id) => apiClient.patch(`/orders/${id}/ready`).then((r) => r.data),
   send: (id) => apiClient.patch(`/orders/${id}/send`).then((r) => r.data),
   complete: (id) => apiClient.patch(`/orders/${id}/complete`).then((r) => r.data),
-  cancel: (id) => apiClient.patch(`/orders/${id}/cancel`).then((r) => r.data),
+  cancel: ({ id, reason }) =>
+    apiClient.patch(`/orders/${id}/cancel`, reason != null ? { reason } : undefined).then((r) => r.data),
 };
