@@ -1,4 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+// Hook para estado persistido em sessionStorage (sobrevive navegação, limpa ao fechar aba)
+function useSessionState(key, defaultValue) {
+  const [state, setState] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  });
+  const setAndPersist = useCallback((updater) => {
+    setState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      try { sessionStorage.setItem(key, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, [key]);
+  return [state, setAndPersist];
+}
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '@shared/components/layout/Sidebar';
 import { MenuTabBar } from './components/MenuTabBar';
@@ -81,18 +101,23 @@ export default function Menu() {
   const [endereco, setEndereco] = useState({ cep: '', logradouro: '', numero: '', complemento: '' });
   const [extrasModal, setExtrasModal] = useState(null);
 
-  const [comandas, setComandas] = useState([]);
-  const [deliveries, setDeliveries] = useState([]);
+  const [comandas,   setComandas]   = useSessionState('sf-comandas-v1',   []);
+  const [deliveries, setDeliveries] = useSessionState('sf-deliveries-v1', []);
   const [printTarget, setPrintTarget] = useState(null);
-  const [printType, setPrintType] = useState(null);
-  const [editTarget, setEditTarget] = useState(null);
-  const [editType, setEditType] = useState(null);
+  const [printType,   setPrintType]   = useState(null);
+  const [editTarget,  setEditTarget]  = useState(null);
+  const [editType,    setEditType]    = useState(null);
 
-  // Redireciona para 'venda' quando a aba activa perde todos os pedidos
+  // Só redireciona para 'venda' se a aba ficou vazia APÓS ter sido populada
+  // (evita redirect automático na primeira renderização quando arrays são vazios)
+  const everHadComandas   = useRef(false);
+  const everHadDeliveries = useRef(false);
   useEffect(() => {
+    if (comandas.length   > 0) everHadComandas.current   = true;
+    if (deliveries.length > 0) everHadDeliveries.current = true;
     setActiveTab((current) => {
-      if (current === 'comandas' && comandas.length === 0) return 'venda';
-      if (current === 'delivery' && deliveries.length === 0) return 'venda';
+      if (current === 'comandas'  && comandas.length   === 0 && everHadComandas.current)   return 'venda';
+      if (current === 'delivery'  && deliveries.length === 0 && everHadDeliveries.current) return 'venda';
       return current;
     });
   }, [comandas.length, deliveries.length]);

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-export const useCartStore = create((set, get) => ({
+const cartSlice = (set, get) => ({
   items: [],
   extras: {},
   observations: {},
@@ -59,11 +60,18 @@ export const useCartStore = create((set, get) => ({
   clear() {
     set({ items: [], extras: {}, observations: {} });
   },
-}));
+});
+
+export const useCartStore = create(
+  persist(cartSlice, {
+    name: 'sf-cart-v1',
+    storage: createJSONStorage(() => sessionStorage),
+  })
+);
 
 export const selectCartTotal = (state) =>
   state.items.reduce((sum, item) => {
-    const itemTotal = Number(item.price) * item.quantity;
+    const itemTotal  = Number(item.price) * item.quantity;
     const extrasTotal = (state.extras[item.id] || []).reduce(
       (es, e) => es + Number(e.unitPrice) * Number(e.quantity),
       0
@@ -71,7 +79,5 @@ export const selectCartTotal = (state) =>
     return sum + itemTotal + extrasTotal;
   }, 0);
 
-export const selectCartCount = (state) =>
-  state.items.reduce((sum, i) => sum + i.quantity, 0);
-
+export const selectCartCount   = (state) => state.items.reduce((s, i) => s + i.quantity, 0);
 export const selectCartIsEmpty = (state) => state.items.length === 0;

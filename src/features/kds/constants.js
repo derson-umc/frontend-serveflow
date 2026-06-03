@@ -32,14 +32,31 @@ export const SECTIONS = [
   { key: 'ready',       label: 'Prontos',    statuses: ['PRONTO', 'A_CAMINHO'],    color: palette.green  },
 ];
 
-// Bebidas nunca aparecem no KDS (cozinha não prepara bebidas)
 const BEVERAGE_CATEGORIES = ['BEBIDA_ALCOOLICA', 'BEBIDA_NAO_ALCOOLICA'];
 
-// Retorna true se o item deve aparecer no KDS
-// Itens sem categoria definida vão para o KDS por retrocompatibilidade
+// Heurística por nome — usada quando o produto não tem productCategory definido
+const BEVERAGE_NAME_TOKENS = [
+  'bebida', 'refrigerante', 'suco', 'água', 'agua',
+  'cerveja', 'vinho', 'chopp', 'chope', 'coquetel', 'cocktail',
+  'café', 'cafe', 'chá', 'cha', 'limonada', 'energético', 'energetico',
+  'caipirinha', 'destilado', 'whisky', 'vodka', 'gin', 'rum',
+];
+
+function isBeverageByName(productName = '') {
+  const lower = productName.toLowerCase();
+  return BEVERAGE_NAME_TOKENS.some((t) => lower.includes(t));
+}
+
+/**
+ * Retorna true se o item deve aparecer no KDS (cozinha).
+ * Regra: BEBIDA_* nunca vai para KDS.
+ * Fallback: se não tem categoria, verifica o nome do produto.
+ */
 export function isKdsItem(item) {
-  if (!item.productCategory) return true;
-  return !BEVERAGE_CATEGORIES.includes(item.productCategory);
+  if (item.productCategory) {
+    return !BEVERAGE_CATEGORIES.includes(item.productCategory);
+  }
+  return !isBeverageByName(item.productName);
 }
 
 export const urgentPulse = {

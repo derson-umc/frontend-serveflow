@@ -329,11 +329,12 @@ export function ProductFormModal({ product, allCategories, onClose }) {
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                   {[
-                    { value: '',                   label: 'Não definido', desc: 'Vai para o KDS' },
-                    { value: 'ALIMENTO',            label: '🍽 Alimento',   desc: '→ KDS' },
-                    { value: 'BEBIDA_ALCOOLICA',    label: '🍺 Bebida Alcoólica', desc: '→ Bar' },
-                    { value: 'BEBIDA_NAO_ALCOOLICA', label: '🥤 Bebida Não Alcoólica', desc: '→ Bar' },
-                    { value: 'ACOMPANHAMENTO',      label: '🍟 Acompanhamento', desc: '→ KDS' },
+                    { value: '',                    label: 'Não definido',       desc: 'Vai para o KDS' },
+                    { value: 'ALIMENTO',            label: '🍽 Alimento',        desc: '→ KDS' },
+                    { value: 'BEBIDA_ALCOOLICA',    label: '🍺 Bebida Alcoólica', desc: 'Não vai ao KDS' },
+                    { value: 'BEBIDA_NAO_ALCOOLICA', label: '🥤 Bebida s/ álcool', desc: 'Não vai ao KDS' },
+                    { value: 'ACOMPANHAMENTO',      label: '🍟 Acompanhamento',  desc: '→ KDS' },
+                    { value: 'ADICIONAL',           label: '➕ Adicional',       desc: 'Aparece em Extras' },
                   ].map((opt) => (
                     <button
                       key={opt.value}
