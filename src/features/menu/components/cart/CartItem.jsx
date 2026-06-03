@@ -1,3 +1,5 @@
+import { ObservationField } from './ObservationField';
+
 const fmt = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -120,22 +122,7 @@ export function CartItem({
         </button>
       </div>
 
-      <input
-        type="text"
-        placeholder="Observação (ex: sem cebola)"
-        value={observation}
-        onChange={(e) => onObservationChange?.(e.target.value)}
-        style={{
-          fontSize: 'var(--text-xs)',
-          color: 'var(--color-text-secondary)',
-          background: 'var(--color-bg)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-sm)',
-          padding: '4px 8px',
-          outline: 'none',
-          width: '100%',
-        }}
-      />
+      <ObservationField value={observation} onChange={(v) => onObservationChange?.(v)} />
     </div>
   );
 }

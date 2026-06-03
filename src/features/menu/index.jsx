@@ -242,10 +242,7 @@ export default function Menu() {
     <div className="flex flex-col overflow-hidden" style={{ background: 'var(--color-bg)', height: '100vh' }}>
       <Sidebar />
 
-      <div
-        className="relative flex flex-col flex-1 overflow-hidden"
-        style={{ marginTop: 'var(--navbar-height)', height: 'calc(100vh - var(--navbar-height))' }}
-      >
+      <div className="relative flex flex-col flex-1 overflow-hidden">
         <MenuTabBar
           activeTab={activeTab}
           onTabChange={setActiveTab}

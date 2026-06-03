@@ -24,10 +24,10 @@ export const CANCEL_REASONS = [
 
 export const PROGRESS_STEPS = ['RASCUNHO', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE'];
 
-export const VISIBLE_STATUSES = ['RASCUNHO', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO'];
+export const VISIBLE_STATUSES = ['ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO'];
 
 export const SECTIONS = [
-  { key: 'pending',     label: 'Aguardando', statuses: ['RASCUNHO', 'ENVIADO'],    color: palette.blue   },
+  { key: 'pending',     label: 'Aguardando', statuses: ['ENVIADO'],               color: palette.blue   },
   { key: 'preparation', label: 'Em Preparo', statuses: ['EM_PREPARO'],             color: palette.orange },
   { key: 'ready',       label: 'Prontos',    statuses: ['PRONTO', 'A_CAMINHO'],    color: palette.green  },
 ];
