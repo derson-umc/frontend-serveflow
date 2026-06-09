@@ -68,7 +68,6 @@ function SubTabBtn({ label, active, onClick }) {
   );
 }
 
-// ── Histórico detalhado ──────────────────────────────────────────────────────
 function HistoricoView({ filters, result, loading, handleApply, handleReset, handleFilterChange, handlePageChange, page }) {
   const movements  = result?.content      ?? [];
   const totalPages = result?.totalPages   ?? 0;
@@ -76,7 +75,6 @@ function HistoricoView({ filters, result, loading, handleApply, handleReset, han
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Filtros */}
       <div style={{ ...dsCard, padding: '18px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, alignItems: 'flex-end' }}>
           <div>
@@ -163,7 +161,6 @@ function HistoricoView({ filters, result, loading, handleApply, handleReset, han
   );
 }
 
-// ── Resumo por insumo ────────────────────────────────────────────────────────
 function ResumoView({ filtered, loading, search, setSearch, load }) {
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [filtered]);
@@ -241,7 +238,6 @@ function ResumoView({ filtered, loading, search, setSearch, load }) {
   );
 }
 
-// ── Tab principal ────────────────────────────────────────────────────────────
 export function TabMovements({
   filters, result, loading, page, activeItems,
   handleApply, handleReset, handleFilterChange, handlePageChange,
@@ -253,7 +249,6 @@ export function TabMovements({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* Sub-tabs */}
       <div style={{ display: 'flex', gap: 8 }}>
         <SubTabBtn label="Histórico"         active={subView === 'historico'} onClick={() => setSubView('historico')} />
         <SubTabBtn label="Resumo por Insumo" active={subView === 'resumo'}    onClick={() => setSubView('resumo')}    />

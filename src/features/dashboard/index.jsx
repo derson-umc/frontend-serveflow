@@ -11,8 +11,6 @@ import StatCard       from './components/StatCard';
 import { CashIcon, OrderIcon, UsersIcon, TrendIcon } from './components/icons';
 import { useDashboard, useTopProducts } from './hooks/useDashboard';
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
 /** Variação percentual arredondada; null quando não há base de comparação. */
 function pct(today, yesterday) {
   const t = Number(today ?? 0);
@@ -21,7 +19,6 @@ function pct(today, yesterday) {
   return Math.round(((t - y) / y) * 100);
 }
 
-/** Formata data ISO (yyyy-MM-dd) com nome do dia por extenso: "segunda-feira, 08 de junho". */
 function fmtDayFull(isoDate) {
   return new Date(isoDate + 'T00:00:00').toLocaleDateString('pt-BR', {
     weekday: 'long',
@@ -29,8 +26,6 @@ function fmtDayFull(isoDate) {
     month:   'long',
   });
 }
-
-// ── sub-componentes internos ──────────────────────────────────────────────────
 
 const PERIOD_OPTIONS = [
   { label: 'Hoje',  days: 1  },
@@ -97,7 +92,6 @@ function TopProductsList({ days }) {
           transition={{ duration: 0.2, delay: i * 0.045 }}
           style={{ display: 'flex', alignItems: 'center', gap: 10 }}
         >
-          {/* rank */}
           <span style={{
             width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
             background: i === 0 ? palette.orange : palette.surface,
@@ -108,7 +102,6 @@ function TopProductsList({ days }) {
             {i + 1}
           </span>
 
-          {/* nome + barra de progresso */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: palette.textPrimary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
@@ -118,7 +111,6 @@ function TopProductsList({ days }) {
                 {fmtBRL(p.revenue)}
               </span>
             </div>
-            {/* barra de progresso */}
             <div style={{ height: 4, borderRadius: 4, background: palette.surface, overflow: 'hidden' }}>
               <div style={{
                 height: '100%',
@@ -130,7 +122,6 @@ function TopProductsList({ days }) {
             </div>
           </div>
 
-          {/* quantidade */}
           <span style={{ fontSize: 11, fontWeight: 700, color: palette.textMuted, flexShrink: 0, minWidth: 34, textAlign: 'right' }}>
             {p.quantity}×
           </span>
@@ -139,8 +130,6 @@ function TopProductsList({ days }) {
     </ol>
   );
 }
-
-// ── tooltip customizado ───────────────────────────────────────────────────────
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -160,8 +149,6 @@ function ChartTooltip({ active, payload, label }) {
   );
 }
 
-// ── página principal ──────────────────────────────────────────────────────────
-
 export default function Dashboard() {
   const { metrics, salesByDay } = useDashboard();
   const [topDays, setTopDays] = useState(30);
@@ -169,7 +156,6 @@ export default function Dashboard() {
   const m    = metrics.data ?? FALLBACK_METRICS;
   const sales = salesByDay.data ?? [];
 
-  // ── Tendências dos cards ──────────────────────────────────────────────────
   const trends = {
     revenue:   pct(m.revenueToday,    m.revenueYesterday),
     orders:    pct(m.ordersToday,     m.ordersYesterday),
@@ -177,14 +163,12 @@ export default function Dashboard() {
     ticket:    pct(m.ticketMedio,     m.ticketMedioYesterday),
   };
 
-  // ── Totais e pico do gráfico ──────────────────────────────────────────────
   const periodTotal = useMemo(() => sales.reduce((s, d) => s + d.total, 0), [sales]);
   const peakDay     = useMemo(
     () => sales.length ? sales.reduce((max, d) => d.total > max.total ? d : max, sales[0]) : null,
     [sales],
   );
 
-  // ── Cards de métricas ─────────────────────────────────────────────────────
   const cards = [
     {
       label: 'Receita Hoje',
@@ -242,20 +226,17 @@ export default function Dashboard() {
 
       <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        {/* ── Cards de métricas: Receita ocupa 2 colunas (xl) ── */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: 12,
         }}>
-          {/* Receita — card grande em grid separado para forçar destaque */}
           <div style={{ gridColumn: 'span 2' }} className="xl-span-2">
             <StatCard {...cards[0]} />
           </div>
           {cards.slice(1).map((c) => <StatCard key={c.label} {...c} />)}
         </div>
 
-        {/* ── Gráfico + Top Produtos ── */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 2fr) minmax(280px, 1fr)',
@@ -263,7 +244,6 @@ export default function Dashboard() {
           alignItems: 'stretch',
         }}>
 
-          {/* Gráfico de vendas */}
           <div style={{ ...panel, padding: '20px 24px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
               <div>
@@ -351,7 +331,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Top Produtos */}
           <div style={{ ...panel, padding: '20px 20px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
               <div>
@@ -362,7 +341,6 @@ export default function Dashboard() {
                   Mais vendidos
                 </p>
               </div>
-              {/* Filtro de período */}
               <div style={{ display: 'flex', gap: 2, background: palette.surface, borderRadius: 8, padding: 2 }}>
                 {PERIOD_OPTIONS.map((opt) => (
                   <PeriodTab
@@ -379,7 +357,6 @@ export default function Dashboard() {
               <TopProductsList days={topDays} />
             </div>
 
-            {/* ── Resumo do período — preenche o espaço restante ── */}
             {sales.length > 0 && (
               <>
                 <div style={{ height: 1, background: palette.border, margin: '16px 0 14px' }} />

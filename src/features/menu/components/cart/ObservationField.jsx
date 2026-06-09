@@ -13,7 +13,6 @@ export function ObservationField({ value = '', onChange }) {
   const hasContent              = value.trim().length > 0;
   const overLimit               = value.length > MAX_CHARS;
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el || !open) return;
@@ -21,7 +20,6 @@ export function ObservationField({ value = '', onChange }) {
     el.style.height = Math.min(el.scrollHeight, 76) + 'px';
   }, [value, open]);
 
-  // Fecha ao clicar fora
   useEffect(() => {
     if (!open) return;
     function onOutside(e) {
@@ -37,7 +35,6 @@ export function ObservationField({ value = '', onChange }) {
     if (next.length <= MAX_CHARS) onChange(next);
   }
 
-  // ----- estado colapsado: mostra só um botão/label compacto -----
   if (!open && !hasContent) {
     return (
       <button
@@ -59,7 +56,6 @@ export function ObservationField({ value = '', onChange }) {
     );
   }
 
-  // ----- estado com conteúdo mas fechado: mostra resumo clicável -----
   if (!open && hasContent) {
     return (
       <button
@@ -84,7 +80,6 @@ export function ObservationField({ value = '', onChange }) {
     );
   }
 
-  // ----- estado expandido -----
   return (
     <div ref={wrapperRef} style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
       <div

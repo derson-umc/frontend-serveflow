@@ -47,7 +47,6 @@ export default function Menu() {
   const user       = useAuthStore((s) => s.user);
   const operator   = user?.name ?? user?.username ?? null;
 
-  // ── Cart ──────────────────────────────────────────────────────────────────
   const items        = useCartStore((s) => s.items);
   const extras       = useCartStore((s) => s.extras);
   const observations = useCartStore((s) => s.observations);
@@ -62,7 +61,6 @@ export default function Menu() {
   const createOrder = useCreateOrder();
   const cancelOrder = useCancelOrder();
 
-  // ── Produtos ──────────────────────────────────────────────────────────────
   const { data: rawProducts = [], isLoading } = useProducts();
 
   const products = useMemo(
@@ -91,7 +89,6 @@ export default function Menu() {
     return ['TODOS', ...[...seen.values()].sort((a, b) => a.localeCompare(b, 'pt-BR'))];
   }, [products]);
 
-  // ── UI state ──────────────────────────────────────────────────────────────
   const [activeTab,       setActiveTab]       = useState('venda');
   const [activeCategory,  setActiveCategory]  = useState('TODOS');
   const [search,          setSearch]          = useState('');
@@ -104,7 +101,6 @@ export default function Menu() {
   const [editTarget,      setEditTarget]      = useState(null);
   const [editType,        setEditType]        = useState(null);
 
-  // ── Pedidos em sessionStorage ─────────────────────────────────────────────
   const [comandas,   setComandas]   = useSessionState('sf-comandas-v1',   []);
   const [deliveries, setDeliveries] = useSessionState('sf-deliveries-v1', []);
 
@@ -140,7 +136,6 @@ export default function Menu() {
     setDeliveries((prev) => prev.map(applyLive));
   }, [statusMap, setComandas, setDeliveries]);
 
-  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleFinalizarVenda = useCallback(async () => {
     if (tipoVenda === 'pagamento') {
       const itensVendidos = items.map((item) => ({
@@ -169,7 +164,6 @@ export default function Menu() {
     }));
 
     if (tipoVenda === 'comanda') {
-      // ── Validação: mesa duplicada ──────────────────────────────────────
       const mesaInput = String(detalhes.numero ?? '').trim();
       if (mesaInput) {
         const mesaJaAberta = comandas.some(
@@ -182,8 +176,6 @@ export default function Menu() {
           return;
         }
       }
-      // ──────────────────────────────────────────────────────────────────
-
       const customerName = detalhes.nome    || `Mesa ${comandas.length + 1}`;
       const tableNumber  = detalhes.numero  || null;
       const orderType    = tableNumber ? 'MESA' : 'BALCAO';
@@ -489,7 +481,6 @@ export default function Menu() {
       <Sidebar />
 
       <div className="relative flex flex-col flex-1 overflow-hidden">
-        {/* ── Abas: Vendas | Pedidos ── */}
         <MenuTabBar
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -498,7 +489,6 @@ export default function Menu() {
           pedidosCount={allOrders.length}
         />
 
-        {/* ── Aba: Vendas ── */}
         {activeTab === 'venda' && (
           <div className="flex flex-1 overflow-hidden">
             <div
@@ -542,7 +532,6 @@ export default function Menu() {
           </div>
         )}
 
-        {/* ── Aba: Pedidos (Comandas + Delivery unificados) ── */}
         {activeTab === 'pedidos' && (
           <div className="flex-1 overflow-hidden flex flex-col" style={{ background: 'var(--color-bg)' }}>
             <OrderList
@@ -558,7 +547,6 @@ export default function Menu() {
         )}
       </div>
 
-      {/* ── Modais ── */}
       {extrasModal && (
         <ExtrasModal
           cartItem={extrasModal}
