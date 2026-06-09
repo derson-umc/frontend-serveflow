@@ -278,7 +278,7 @@
 
 .sf-page ::-webkit-scrollbar       { width: 4px; height: 4px; }
 .sf-page ::-webkit-scrollbar-track { background: transparent; }
-.sf-page ::-webkit-scrollbar-thumb { background: rgba(228,96,51,0.3); border-radius: 2px; }
+.sf-page ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
 
 
 @media (max-width: 767.98px) {

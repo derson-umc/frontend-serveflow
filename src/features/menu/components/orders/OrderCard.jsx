@@ -1,31 +1,64 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ContextMenu }    from './ContextMenu';
 import { formatEndereco } from '../../utils/formatEndereco';
+import { isKdsItem }      from '@features/kds/constants';
 
 const fmt = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const STATUS_CONFIG = {
-  PENDENTE:             { label: 'Pendente',            bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },
-  ENVIADO:              { label: 'Enviado',              bg: '#fef9c3', color: '#a16207', border: '#fde047' },
-  EM_PREPARO:           { label: 'Em preparo',           bg: '#ffedd5', color: '#c2410c', border: '#fdba74' },
-  PRONTO:               { label: 'Pronto',               bg: '#dcfce7', color: '#15803d', border: '#86efac' },
-  AGUARDANDO_PAGAMENTO: { label: 'Aguard. pagamento',    bg: '#fef3c7', color: '#d97706', border: '#fcd34d' },
-  A_CAMINHO:            { label: 'A caminho',            bg: '#e0f2fe', color: '#0369a1', border: '#7dd3fc' },
-  ENTREGUE:             { label: 'Entregue',             bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
-  CANCELADO:            { label: 'Cancelado',            bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
+  PENDENTE:             { label: 'Pendente',         bg: 'rgba(109,40,217,0.10)', color: '#6d28d9', borderColor: 'rgba(109,40,217,0.22)' },
+  ENVIADO:              { label: 'Enviado',           bg: 'rgba(161,98,7,0.10)',   color: '#92400e', borderColor: 'rgba(161,98,7,0.22)'   },
+  EM_PREPARO:           { label: 'Em preparo',        bg: 'rgba(194,65,12,0.10)',  color: '#c2410c', borderColor: 'rgba(194,65,12,0.22)'  },
+  PRONTO:               { label: 'Pronto',            bg: 'rgba(21,128,61,0.10)',  color: '#166534', borderColor: 'transparent'           },
+  AGUARDANDO_PAGAMENTO: { label: 'Aguard. pagamento', bg: 'rgba(217,119,6,0.10)', color: '#b45309', borderColor: 'rgba(217,119,6,0.22)'  },
+  A_CAMINHO:            { label: 'A caminho',         bg: 'rgba(3,105,161,0.10)', color: '#0369a1', borderColor: 'rgba(3,105,161,0.22)'  },
+  ENTREGUE:             { label: 'Entregue',          bg: 'rgba(22,101,52,0.10)', color: '#166534', borderColor: 'transparent'           },
+  CANCELADO:            { label: 'Cancelado',         bg: 'rgba(185,28,28,0.10)', color: '#b91c1c', borderColor: 'rgba(185,28,28,0.22)'  },
 };
 
 const COMANDA_CONFIG = {
-  ABERTA:        { label: '● Comanda aberta',    bg: '#f0fdf4', color: '#15803d', border: '#86efac' },
-  EM_FECHAMENTO: { label: '◑ Em fechamento',     bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
-  FECHADA:       { label: '○ Comanda fechada',   bg: '#f3f4f6', color: '#6b7280', border: '#d1d5db' },
+  ABERTA:        { label: 'Comanda aberta',  bg: 'rgba(67,56,202,0.08)',   color: '#4338ca', borderColor: 'rgba(67,56,202,0.22)'   },
+  EM_FECHAMENTO: { label: 'Em fechamento',   bg: 'rgba(180,83,9,0.08)',    color: '#b45309', borderColor: 'rgba(180,83,9,0.22)'    },
+  FECHADA:       { label: 'Comanda fechada', bg: 'rgba(107,114,128,0.08)', color: '#374151', borderColor: 'rgba(107,114,128,0.22)' },
 };
 
 const CANCELABLE = new Set(['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO']);
 const EDITABLE   = new Set(['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE', 'AGUARDANDO_PAGAMENTO']);
 
-// Calcula tempo decorrido desde a criação do pedido
+function mkBadge(bg, color, borderColor) {
+  return {
+    fontSize:      9,
+    fontWeight:    700,
+    letterSpacing: 0.5,
+    background:    bg,
+    color,
+    border:        `1px solid ${borderColor}`,
+    borderRadius:  4,
+    padding:       '2px 7px',
+    whiteSpace:    'nowrap',
+  };
+}
+
+function ClockIcon({ color }) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flexShrink: 0 }}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
 function elapsed(order) {
   const iso = order.createdAt;
   if (!iso) return null;
@@ -39,43 +72,48 @@ function elapsed(order) {
 
 function elapsedColor(order) {
   const iso = order.createdAt;
-  if (!iso) return 'var(--color-text-disabled)';
+  if (!iso) return 'rgba(107,114,128,0.7)';
   try {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
     if (diff >= 30) return '#b91c1c';
     if (diff >= 15) return '#c2410c';
     return '#15803d';
-  } catch { return 'var(--color-text-disabled)'; }
+  } catch { return 'rgba(107,114,128,0.7)'; }
 }
 
 export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onCancelar, onLimpar }) {
-  const [cancelMode,    setCancelMode]    = useState(false);
-  const [cancelReason,  setCancelReason]  = useState('');
-  const [cancelError,   setCancelError]   = useState(false);
+  const [cancelMode,   setCancelMode]   = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelError,  setCancelError]  = useState(false);
+  const [hovered,      setHovered]      = useState(false);
 
-  const status       = order.status ?? 'PENDENTE';
-  const comandaStatus = order.comandaStatus ?? 'ABERTA';
-  const cfg          = STATUS_CONFIG[status] ?? STATUS_CONFIG.PENDENTE;
-  const cmdCfg       = COMANDA_CONFIG[comandaStatus] ?? COMANDA_CONFIG.ABERTA;
-  const isLocal      = type === 'comanda';
-  const isEntregue   = status === 'ENTREGUE';
-  const isCancelado  = status === 'CANCELADO';
+  const status           = order.status ?? 'PENDENTE';
+  const comandaStatus    = order.comandaStatus ?? 'ABERTA';
+  const cfg              = STATUS_CONFIG[status] ?? STATUS_CONFIG.PENDENTE;
+  const cmdCfg           = COMANDA_CONFIG[comandaStatus] ?? COMANDA_CONFIG.ABERTA;
+  const isLocal          = type === 'comanda';
+  const isCancelado      = status === 'CANCELADO';
   const isComandaFechada = comandaStatus === 'FECHADA';
 
   const title  = isLocal ? `Mesa ${order.mesa}` : (order.nome ?? 'Delivery');
-  const tempo  = elapsed(order);   // calculado a partir de createdAt (ISO)
+  const tempo  = elapsed(order);
   const tColor = elapsedColor(order);
 
-  // Itens: até 2 nomes completos + contador
-  const itens = order.itens ?? [];
-  const itensDisplay = itens.slice(0, 2).map((i) => `${i.quantity}× ${i.name}`);
-  const itensExtra   = itens.length > 2 ? `+${itens.length - 2}` : null;
+  const itens      = order.itens ?? [];
+  const itensExtra = itens.length > 2 ? `+${itens.length - 2}` : null;
+
+  const allBeverages = useMemo(
+    () => itens.length > 0 && itens.every((i) => !isKdsItem({ ...i, productName: i.name })),
+    [itens],
+  );
+
+  const kitchenBadge = useMemo(() => {
+    if (allBeverages) return mkBadge('rgba(107,114,128,0.08)', '#6b7280', 'rgba(107,114,128,0.2)');
+    return mkBadge(cfg.bg, cfg.color, cfg.borderColor);
+  }, [allBeverages, cfg]);
 
   function handleConfirmCancel() {
-    if (!cancelReason.trim()) {
-      setCancelError(true);
-      return;
-    }
+    if (!cancelReason.trim()) { setCancelError(true); return; }
     onCancelar?.(cancelReason.trim());
     setCancelMode(false);
     setCancelReason('');
@@ -84,30 +122,51 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onCance
 
   const contextActions = [
     { label: 'Imprimir',        onClick: onPrint },
-    { label: 'Visualizar',      onClick: onEdit,                   hidden: !EDITABLE.has(status)              },
+    { label: 'Visualizar',      onClick: onEdit,                   hidden: !EDITABLE.has(status) },
     { label: 'Fechar Conta',    onClick: onFecharConta,             hidden: isComandaFechada || isCancelado || comandaStatus === 'EM_FECHAMENTO' },
     { label: 'Cancelar pedido', onClick: () => setCancelMode(true), danger: true, hidden: !CANCELABLE.has(status) || isComandaFechada || comandaStatus === 'EM_FECHAMENTO' },
     { label: 'Limpar da lista', onClick: onLimpar,                  danger: true, hidden: comandaStatus === 'ABERTA' && !isCancelado },
   ];
 
   return (
-    <div style={{
-      background:    '#fff',
-      border:        '1px solid #e5e7eb',
-      borderTop:     `3px solid ${cfg.color}`,
-      borderRadius:   10,
-      boxShadow:     '0 1px 4px rgba(0,0,0,0.07)',
-      display:       'flex',
-      flexDirection: 'column',
-      height:        '100%',          /* ocupa toda a célula do grid */
-      opacity:       isCancelado ? 0.55 : 1,
-      transition:    'box-shadow 0.15s',
-    }}>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background:    '#fff',
+        border:        '1px solid rgba(0,0,0,0.08)',
+        borderTop:     `3px solid ${cfg.color}`,
+        borderRadius:   10,
+        boxShadow:     hovered ? '0 4px 16px rgba(0,0,0,0.12)' : '0 1px 4px rgba(0,0,0,0.07)',
+        display:       'flex',
+        flexDirection: 'column',
+        height:        '100%',
+        opacity:       isCancelado ? 0.55 : 1,
+        transition:    'box-shadow 0.2s ease',
+      }}
+    >
 
-      {/* ── Cabeçalho ── */}
-      <div style={{ padding: '10px 12px 8px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Header */}
+      <div style={{ padding: '12px 12px 8px' }}>
+        <div style={{ marginBottom: 4 }}>
+          <span style={{
+            fontSize:      9,
+            fontWeight:    700,
+            letterSpacing: 0.5,
+            background:    isLocal ? 'rgba(124,58,237,0.10)' : 'rgba(29,78,216,0.10)',
+            color:         isLocal ? '#7c3aed' : '#1d4ed8',
+            border:        `1px solid ${isLocal ? 'rgba(124,58,237,0.25)' : 'rgba(29,78,216,0.25)'}`,
+            borderRadius:  4,
+            padding:       '2px 6px',
+          }}>
+            {isLocal ? 'Local' : 'Delivery'}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <p style={{
+            flex:         1,
+            minWidth:     0,
             fontWeight:   800,
             fontSize:     16,
             color:        '#111827',
@@ -115,111 +174,106 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onCance
             textOverflow: 'ellipsis',
             whiteSpace:   'nowrap',
             lineHeight:    1.2,
+            margin:        0,
           }}>
             {title}
           </p>
-          {!isLocal && order.endereco && (
-            <p style={{
-              fontSize:          11,
-              color:             '#6b7280',
-              marginTop:          2,
-              lineHeight:         1.4,
-              display:           '-webkit-box',
-              WebkitLineClamp:    2,
-              WebkitBoxOrient:   'vertical',
-              overflow:          'hidden',
-            }}>
-              {formatEndereco(order.endereco)}
-            </p>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>
+              {fmt(order.total)}
+            </span>
+            <ContextMenu actions={contextActions} />
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <span style={{ fontWeight: 800, fontSize: 15, color: '#15803d' }}>
-            {fmt(order.total)}
-          </span>
-          <ContextMenu actions={contextActions} />
-        </div>
+        {!isLocal && order.endereco && (
+          <p style={{
+            fontSize:          11,
+            color:             'rgba(107,114,128,0.9)',
+            marginTop:          4,
+            lineHeight:         1.4,
+            display:           '-webkit-box',
+            WebkitLineClamp:    2,
+            WebkitBoxOrient:   'vertical',
+            overflow:          'hidden',
+          }}>
+            {formatEndereco(order.endereco)}
+          </p>
+        )}
       </div>
 
-      {/* ── Itens ── */}
+      {/* Items */}
       {itens.length > 0 && (
-        <div style={{ padding: '0 12px 8px', borderBottom: '1px solid #f3f4f6', flex: 1 }}>
-          {itensDisplay.map((txt, i) => (
-            <p key={i} style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{txt}</p>
+        <div style={{ padding: '0 12px 10px', flex: 1 }}>
+          {itens.slice(0, 2).map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: 3 }}>
+              <span style={{
+                display:        'inline-flex',
+                alignItems:     'center',
+                justifyContent: 'center',
+                fontSize:        10,
+                fontWeight:      700,
+                background:     'rgba(0,0,0,0.06)',
+                color:          '#374151',
+                borderRadius:    3,
+                padding:        '0 4px',
+                height:          16,
+                marginRight:     6,
+                flexShrink:      0,
+              }}>
+                {item.quantity}×
+              </span>
+              <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.4 }}>{item.name}</span>
+            </div>
           ))}
           {itensExtra && (
-            <p style={{ fontSize: 11, color: '#9ca3af', fontStyle: 'italic' }}>{itensExtra} mais itens</p>
+            <p style={{ fontSize: 11, color: 'rgba(156,163,175,0.85)', fontStyle: 'italic', marginTop: 2 }}>
+              {itensExtra} mais itens
+            </p>
           )}
         </div>
       )}
 
-      {/* ── Rodapé: badges + tempo ── */}
+      {/* Footer */}
       {!cancelMode && (
         <div style={{
-          padding:     '6px 12px',
-          display:     'flex',
-          alignItems:  'center',
-          gap:          6,
-          background:  '#f9fafb',
-          flexWrap:    'wrap',
+          padding:    '6px 12px',
+          display:    'flex',
+          alignItems: 'center',
+          gap:         6,
+          borderTop:  '1px solid rgba(0,0,0,0.06)',
+          background: 'rgba(0,0,0,0.015)',
+          flexWrap:   'wrap',
         }}>
-          {/* Badge tipo */}
-          <span style={{
-            fontSize:     9,
-            fontWeight:   700,
-            letterSpacing: 0.4,
-            background:   isLocal ? '#f3e8ff' : '#dbeafe',
-            color:        isLocal ? '#7c3aed' : '#1d4ed8',
-            border:       `1px solid ${isLocal ? '#c4b5fd' : '#93c5fd'}`,
-            borderRadius:  4,
-            padding:      '2px 6px',
-          }}>
-            {isLocal ? 'Local' : 'Delivery'}
+          <span style={kitchenBadge}>
+            {`Cozinha: ${allBeverages ? '-' : cfg.label}`}
           </span>
 
-          {/* Badge pedido (cozinha) */}
-          <span style={{
-            fontSize:     9,
-            fontWeight:   700,
-            letterSpacing: 0.4,
-            background:   cfg.bg,
-            color:        cfg.color,
-            border:       `1px solid ${cfg.border}`,
-            borderRadius:  4,
-            padding:      '2px 6px',
-          }}>
-            {cfg.label}
-          </span>
-
-          {/* Badge comanda (billing) */}
-          <span style={{
-            fontSize:     9,
-            fontWeight:   700,
-            letterSpacing: 0.4,
-            background:   cmdCfg.bg,
-            color:        cmdCfg.color,
-            border:       `1px solid ${cmdCfg.border}`,
-            borderRadius:  4,
-            padding:      '2px 6px',
-          }}>
+          <span style={mkBadge(cmdCfg.bg, cmdCfg.color, cmdCfg.borderColor)}>
             {cmdCfg.label}
           </span>
 
           <span style={{ flex: 1 }} />
 
-          {/* Tempo decorrido */}
           {tempo && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: tColor }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: tColor }}>
+              <ClockIcon color={tColor} />
               {tempo}
             </span>
           )}
         </div>
       )}
 
-      {/* ── Cancelamento inline ── */}
+      {/* Cancel inline */}
       {cancelMode && (
-        <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 6, background: '#fef2f2' }}>
+        <div style={{
+          padding:     '8px 12px',
+          display:     'flex',
+          flexDirection: 'column',
+          gap:          6,
+          background:  'rgba(185,28,28,0.04)',
+          borderTop:   '1px solid rgba(185,28,28,0.12)',
+        }}>
           <span style={{ fontSize: 11, color: '#b91c1c', fontWeight: 700 }}>Confirmar cancelamento</span>
           <input
             type="text"
@@ -228,14 +282,14 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onCance
             onChange={(e) => { setCancelReason(e.target.value); setCancelError(false); }}
             autoFocus
             style={{
-              fontSize:      12,
-              padding:       '5px 8px',
-              border:        `1px solid ${cancelError ? '#dc2626' : '#fca5a5'}`,
-              borderRadius:   6,
-              outline:       'none',
-              background:    '#fff',
-              color:         '#111',
-              boxShadow:     cancelError ? '0 0 0 2px rgba(220,38,38,0.2)' : 'none',
+              fontSize:     12,
+              padding:      '5px 8px',
+              border:       `1px solid ${cancelError ? '#dc2626' : 'rgba(185,28,28,0.3)'}`,
+              borderRadius:  6,
+              outline:      'none',
+              background:   '#fff',
+              color:        '#111',
+              boxShadow:    cancelError ? '0 0 0 2px rgba(220,38,38,0.2)' : 'none',
             }}
           />
           {cancelError && (
@@ -246,7 +300,7 @@ export function OrderCard({ order, type, onPrint, onEdit, onFecharConta, onCance
           <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
             <button
               onClick={() => { setCancelMode(false); setCancelReason(''); setCancelError(false); }}
-              style={{ border: '1px solid #d1d5db', background: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer', color: '#6b7280' }}
+              style={{ border: '1px solid rgba(0,0,0,0.12)', background: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer', color: '#6b7280' }}
             >
               Voltar
             </button>
