@@ -45,16 +45,38 @@ export function useProductCategories(productCategories = []) {
     [customCategories, productCategories]
   );
 
+  const persist = useCallback((updated) => {
+    setCustomCategories(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  }, []);
+
   const addCategory = useCallback((name) => {
     const title = toTitleCase(name.trim());
     if (!title || allCategories.some((c) => normalizeCategory(c) === normalizeCategory(title))) {
       return false;
     }
-    const updated = [...customCategories, title];
-    setCustomCategories(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    persist([...customCategories, title]);
     return true;
-  }, [allCategories, customCategories]);
+  }, [allCategories, customCategories, persist]);
 
-  return { allCategories, addCategory };
+  const renameCategory = useCallback((oldName, newName) => {
+    const newTitle = toTitleCase(newName.trim());
+    if (!newTitle || normalizeCategory(oldName) === normalizeCategory(newTitle)) return false;
+    if (allCategories.some((c) => normalizeCategory(c) === normalizeCategory(newTitle))) return false;
+    persist(customCategories.map((c) =>
+      normalizeCategory(c) === normalizeCategory(oldName) ? newTitle : c
+    ));
+    return true;
+  }, [allCategories, customCategories, persist]);
+
+  const deleteCategory = useCallback((name) => {
+    persist(customCategories.filter((c) => normalizeCategory(c) !== normalizeCategory(name)));
+  }, [customCategories, persist]);
+
+  const isCustom = useCallback((name) =>
+    customCategories.some((c) => normalizeCategory(c) === normalizeCategory(name)),
+    [customCategories]
+  );
+
+  return { allCategories, customCategories, addCategory, renameCategory, deleteCategory, isCustom };
 }

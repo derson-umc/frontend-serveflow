@@ -1,8 +1,18 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Sector } from 'recharts';
 import { palette } from '@styles/ds';
 import { fmtBRL, PAYMENT_LABELS } from '../../dashboard/constants';
-import { useCashierReport } from '../../dashboard/hooks/useDashboard';
+import { financialApi } from '@core/api/financial';
+
+function useCashierReport(startDate, endDate) {
+  return useQuery({
+    queryKey: ['financial', 'cashierReport', startDate, endDate],
+    queryFn:  () => financialApi.cashierReport(startDate, endDate),
+    staleTime: 30_000,
+    enabled:   !!startDate && !!endDate,
+  });
+}
 
 const CHART_COLORS = ['#1B5E20', '#E67E00', '#1565C0', '#6A1B9A', '#00838F', '#C62828'];
 

@@ -18,43 +18,30 @@ export function getPrimaryAction(order) {
   const id      = order.id;
   const shortId = String(id).slice(-6).toUpperCase();
   switch (order.status) {
-    case 'CREATED':
-    case 'CONFIRMED':
+    // PENDENTE e ENVIADO → "Em Fila": um único botão "INICIAR PREPARO"
+    // O backend em /prepare já faz confirm + startPreparation numa transação
+    case 'PENDENTE':
+    case 'ENVIADO':
       return {
-        label:        'INICIAR',
-        bg:           palette.blue,
+        label:        'INICIAR PREPARO',
+        bg:           '#6A1B9A',
         fg:           palette.white,
         fn:           () => kdsApi.prepare(id),
-        msg:          `Pedido ${shortId} em preparo`,
+        msg:          `Pedido ${shortId} em andamento`,
         deductsStock: true,
       };
-    case 'IN_PREPARATION':
+    case 'EM_PREPARO':
       return {
-        label:        'PRONTO',
+        label:        'FINALIZAR PREPARO',
         bg:           palette.orange,
         fg:           palette.white,
         fn:           () => kdsApi.ready(id),
         msg:          `Pedido ${shortId} pronto`,
         deductsStock: false,
       };
-    case 'READY':
-      return {
-        label:        order.type === 'DELIVERY' ? 'ENVIAR' : 'ENTREGAR',
-        bg:           palette.green,
-        fg:           palette.white,
-        fn:           () => kdsApi.complete(id),
-        msg:          `Pedido ${shortId} ${order.type === 'DELIVERY' ? 'a caminho' : 'entregue'}`,
-        deductsStock: false,
-      };
-    case 'OUT_FOR_DELIVERY':
-      return {
-        label:        'CONFIRMAR ENTREGA',
-        bg:           TEAL,
-        fg:           palette.white,
-        fn:           () => kdsApi.complete(id),
-        msg:          `Pedido ${shortId} entregue`,
-        deductsStock: false,
-      };
+    // PRONTO: cozinha só visualiza — entrega é responsabilidade do garçom via menu
+    case 'PRONTO':
+      return null;
     default:
       return null;
   }

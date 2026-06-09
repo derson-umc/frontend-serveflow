@@ -30,11 +30,11 @@ export function LossModal({ item, onClose, onSuccess }) {
 
   const onSubmit = async (data) => {
     try {
-      await loss.mutateAsync({ quantity: Number(data.quantity), notes: data.notes });
+      await loss.mutateAsync({ quantity: Number(data.quantity), reason: data.notes });
       toast.success(`Perda de ${data.quantity} ${item.unit} registrada.`);
       onSuccess();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Erro ao registrar perda.');
+      toast.error(err?.response?.data?.error ?? err?.response?.data?.message ?? 'Erro ao registrar perda.');
     }
   };
 

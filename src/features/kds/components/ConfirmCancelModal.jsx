@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { palette } from '@styles/ds';
 
 export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
+  const [reason, setReason] = useState('');
+  const [error,  setError]  = useState(false);
   const shortId = String(order.id).slice(-6).toUpperCase();
+
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -54,7 +58,7 @@ export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
           border:       `1px solid ${palette.border}`,
           borderRadius: 10,
           padding:      '10px 14px',
-          marginBottom: 20,
+          marginBottom: 16,
         }}>
           <p style={{ fontSize: 13, color: palette.textSecondary, margin: '0 0 4px' }}>
             <span style={{ color: palette.green, fontWeight: 700 }}>#{shortId}</span>
@@ -64,6 +68,31 @@ export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
             {order.items.length} {order.items.length === 1 ? 'item' : 'itens'}
           </p>
         </div>
+
+        <input
+          type="text"
+          placeholder="Motivo do cancelamento *"
+          value={reason}
+          onChange={(e) => { setReason(e.target.value); setError(false); }}
+          style={{
+            width:        '100%',
+            padding:      '9px 12px',
+            borderRadius: 8,
+            border:       `1px solid ${error ? palette.red : palette.border}`,
+            fontSize:     13,
+            color:        palette.textSecondary,
+            background:   palette.background,
+            outline:      'none',
+            marginBottom: error ? 6 : 16,
+            boxSizing:    'border-box',
+            boxShadow:    error ? `0 0 0 2px ${palette.redSurface}` : 'none',
+          }}
+        />
+        {error && (
+          <p style={{ fontSize: 11, color: palette.red, fontWeight: 600, marginBottom: 12 }}>
+            Informe o motivo do cancelamento.
+          </p>
+        )}
 
         <div style={{ display: 'flex', gap: 10 }}>
           <button
@@ -83,7 +112,10 @@ export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
             Manter Pedido
           </button>
           <button
-            onClick={onConfirm}
+            onClick={() => {
+              if (!reason.trim()) { setError(true); return; }
+              onConfirm(reason.trim());
+            }}
             disabled={loading}
             style={{
               flex:         1,
