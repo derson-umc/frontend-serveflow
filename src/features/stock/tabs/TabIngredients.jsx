@@ -31,16 +31,18 @@ function KpiCard({ label, value, accent }) {
   return (
     <div style={{
       ...dsCard,
-      padding: '18px 20px',
+      padding: '10px 14px',
       display: 'flex',
-      flexDirection: 'column',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       gap: 8,
       borderTop: `3px solid ${accent}`,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: palette.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: palette.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', lineHeight: 1.3 }}>
         {label}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 800, color: accent, letterSpacing: '-0.02em' }}>
+      <div style={{ fontSize: 20, fontWeight: 800, color: accent, letterSpacing: '-0.02em', flexShrink: 0 }}>
         {value}
       </div>
     </div>
@@ -165,13 +167,12 @@ export function TabIngredients({
   const paged      = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-      {/* ── KPIs ─────────────────────────────────────────────────── */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 16,
+        gap: 10,
       }}>
         <KpiCard label="Total de Insumos" value={items.length} accent={palette.green} />
         <KpiCard label="Insumos Ativos" value={activeCount} accent={palette.blue} />
@@ -188,8 +189,8 @@ export function TabIngredients({
           <PlainInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome, categoria ou fornecedor..."
-            style={{ paddingLeft: 38 }}
+            placeholder=""
+            style={{ paddingLeft: 42 }}
           />
         </div>
 
