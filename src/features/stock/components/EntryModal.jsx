@@ -15,7 +15,6 @@ import { palette, dsFormFooter } from '@styles/ds';
 
 const schema = z.object({
   quantity: z.coerce.number({ invalid_type_error: 'Quantidade inválida' }).min(0.01, 'Deve ser > 0'),
-  unitCost: z.union([z.coerce.number().min(0), z.literal('')]).optional(),
   notes:    z.string().optional(),
 });
 
@@ -24,7 +23,7 @@ export function EntryModal({ item, onClose, onSuccess }) {
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { quantity: '', unitCost: '', notes: '' },
+    defaultValues: { quantity: '', notes: '' },
   });
 
   const notes = watch('notes') ?? '';
@@ -33,13 +32,12 @@ export function EntryModal({ item, onClose, onSuccess }) {
     try {
       await entry.mutateAsync({
         quantity: Number(data.quantity),
-        unitCost: data.unitCost !== '' ? Number(data.unitCost) : null,
-        notes:    data.notes || null,
+        reason:   data.notes || null,
       });
       toast.success(`Entrada de ${data.quantity} ${item.unit} registrada.`);
       onSuccess();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Erro ao registrar entrada.');
+      toast.error(err?.response?.data?.error ?? err?.response?.data?.message ?? 'Erro ao registrar entrada.');
     }
   };
 
@@ -55,28 +53,16 @@ export function EntryModal({ item, onClose, onSuccess }) {
         onSubmit={handleSubmit(onSubmit)}
         style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
       >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <Field label="Quantidade" required error={errors.quantity?.message}>
-              <PlainInput
-                {...register('quantity')}
-                type="number"
-                min="0.01"
-                step="0.01"
-                placeholder="0"
-                hasError={!!errors.quantity}
-              />
-            </Field>
-            <Field label="Custo unitário (R$)" error={errors.unitCost?.message}>
-              <PlainInput
-                {...register('unitCost')}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0,00"
-                hasError={!!errors.unitCost}
-              />
-            </Field>
-          </div>
+          <Field label="Quantidade" required error={errors.quantity?.message}>
+            <PlainInput
+              {...register('quantity')}
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0"
+              hasError={!!errors.quantity}
+            />
+          </Field>
 
           <Field label="Observação" error={errors.notes?.message}>
             <PlainInput {...register('notes')} placeholder="Motivo ou observação" />
@@ -87,6 +73,18 @@ export function EntryModal({ item, onClose, onSuccess }) {
             onSelect={(v) => setValue('notes', v, { shouldValidate: true })}
             active={notes}
           />
+
+          <div style={{
+            background: '#FFF8E1',
+            border: '1px solid #FFD54F',
+            borderRadius: 8,
+            padding: '10px 14px',
+            fontSize: 12,
+            color: '#7B5800',
+            lineHeight: 1.5,
+          }}>
+            Lembre-se de lançar esta compra no módulo <strong>Financeiro → Contas a Pagar</strong>.
+          </div>
 
           <div style={dsFormFooter}>
             <Btn type="button" variant="ghost" onClick={onClose}>Cancelar</Btn>

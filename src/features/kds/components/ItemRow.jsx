@@ -55,28 +55,7 @@ export function ItemRow({ item, cancelled, onCancelRequest }) {
           ))}
         </div>
 
-        {!isCancelled && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onCancelRequest(item); }}
-            title="Marcar como indisponível"
-            style={{
-              width:          22,
-              height:         22,
-              borderRadius:   6,
-              border:         `1px solid ${palette.redBorder}`,
-              background:     palette.redSurface,
-              color:          palette.red,
-              fontSize:       13,
-              cursor:         'pointer',
-              flexShrink:     0,
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-            }}
-          >
-            x
-          </button>
-        )}
+        {/* Botão de cancelar item removido — ação gerenciada pelo garçom/comandas */}
       </div>
     </motion.div>
   );

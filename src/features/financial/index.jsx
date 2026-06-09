@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@shared/components/layout/Sidebar";
 import { palette } from "@styles/ds";
+import { useAuthStore } from "@features/auth/store/useAuthStore";
 import TabCashFlow from "./components/TabCashFlow";
 import TabReceivables from "./components/TabReceivables";
 import TabPayables from "./components/TabPayables";
@@ -11,6 +12,7 @@ const TABS = [
   {
     key: "fluxo",
     label: "Fluxo de Caixa",
+    roles: null,
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -20,6 +22,7 @@ const TABS = [
   {
     key: "receber",
     label: "Contas a Receber",
+    roles: ["root", "admin", "gerente"],
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -29,6 +32,7 @@ const TABS = [
   {
     key: "pagar",
     label: "Contas a Pagar",
+    roles: ["root", "admin", "gerente"],
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
@@ -38,6 +42,7 @@ const TABS = [
   {
     key: "relatorio",
     label: "Relatório de Caixa",
+    roles: ["root", "admin", "gerente"],
     icon: (
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -54,6 +59,8 @@ const TAB_CONTENT = {
 };
 
 export default function Financial() {
+  const { user } = useAuthStore();
+  const visibleTabs = TABS.filter((t) => !t.roles || t.roles.includes(user?.role));
   const [tab, setTab] = useState("fluxo");
 
   return (
@@ -66,17 +73,9 @@ export default function Financial() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
-            <div style={{ width: 4, height: 28, borderRadius: 4, background: `linear-gradient(180deg, ${palette.orange}, ${palette.green})` }} />
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: palette.textPrimary, margin: 0 }}>Financeiro</h1>
-          </div>
-          <p style={{ fontSize: 13, color: palette.textMuted, marginLeft: 16 }}>Contas a receber, contas a pagar e fluxo de caixa</p>
-        </div>
-
-        <div style={{ background: palette.white, borderRadius: 16, border: `1px solid ${palette.border}`, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
+        <div style={{ background: palette.white, borderRadius: 16, border: `1px solid ${palette.border}`, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflowX: "auto" }}>
           <div style={{ display: "flex", borderBottom: `1px solid ${palette.border}`, overflowX: "auto" }}>
-            {TABS.map((t) => (
+            {visibleTabs.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}

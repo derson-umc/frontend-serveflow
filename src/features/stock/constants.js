@@ -36,7 +36,6 @@ export const TABS = [
   { key: 'insumos',       label: 'Insumos'       },
   { key: 'movimentacoes', label: 'Movimentações' },
   { key: 'alertas',       label: 'Alertas'       },
-  { key: 'relatorio',     label: 'Relatório'     },
 ];
 
 export const insumoSchema = z.object({
@@ -46,5 +45,4 @@ export const insumoSchema = z.object({
   currentQuantity: z.coerce.number({ invalid_type_error: 'Quantidade inválida' }).min(0, 'Deve ser ≥ 0').optional(),
   minimumQuantity: z.coerce.number({ invalid_type_error: 'Quantidade inválida' }).min(0, 'Deve ser ≥ 0'),
   supplier:        z.string().optional(),
-  averageCost:     z.union([z.coerce.number().min(0), z.literal('')]).optional(),
 });

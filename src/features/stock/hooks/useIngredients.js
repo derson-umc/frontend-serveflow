@@ -5,8 +5,8 @@ import { stockApi } from '@core/api/stock';
 import { toast } from '@shared/components/feedback/Toast';
 import { insumoSchema } from '../constants';
 
-const CREATE_DEFAULTS = { name: '', unit: 'kg', category: '', currentQuantity: '', minimumQuantity: '', supplier: '', averageCost: '' };
-const EDIT_DEFAULTS   = { name: '', unit: 'kg', category: '', minimumQuantity: '', supplier: '', averageCost: '' };
+const CREATE_DEFAULTS = { name: '', unit: 'kg', category: '', currentQuantity: '', minimumQuantity: '', supplier: '' };
+const EDIT_DEFAULTS   = { name: '', unit: 'kg', category: '', minimumQuantity: '', supplier: '' };
 
 export function useIngredients({ items, onRefresh }) {
   const [search, setSearch]             = useState('');
@@ -41,7 +41,6 @@ export function useIngredients({ items, onRefresh }) {
       category:        item.category || '',
       minimumQuantity: item.minimumQuantity,
       supplier:        item.supplier || '',
-      averageCost:     item.averageCost ?? '',
     });
     setModalEdit(item);
   };
@@ -55,7 +54,6 @@ export function useIngredients({ items, onRefresh }) {
         minimumQuantity: data.minimumQuantity,
         category:        data.category || null,
         supplier:        data.supplier || null,
-        averageCost:     data.averageCost !== '' ? Number(data.averageCost) : null,
       });
       toast.success(`Insumo "${data.name.trim()}" cadastrado!`);
       setModalCreate(false);
@@ -74,7 +72,6 @@ export function useIngredients({ items, onRefresh }) {
         minimumQuantity: data.minimumQuantity,
         category:        data.category || null,
         supplier:        data.supplier || null,
-        averageCost:     data.averageCost !== '' ? Number(data.averageCost) : null,
       });
       toast.success('Insumo atualizado!');
       setModalEdit(null);

@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function TabBar({ children, className = '' }) {
@@ -26,7 +26,42 @@ export function Tab({ id, label, activeId, onSelect, to, icon }) {
 }
 
 export const CategoryNav = forwardRef(function CategoryNav({ children, className = '' }, ref) {
-  return <nav ref={ref} className={`category-nav ${className}`}>{children}</nav>;
+  const wrapperRef  = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd,   setAtEnd]   = useState(false);
+
+  const updateFades = useCallback(() => {
+    const nav = ref?.current ?? wrapperRef.current?.querySelector('nav');
+    if (!nav) return;
+    const { scrollLeft, scrollWidth, clientWidth } = nav;
+    setAtStart(scrollLeft <= 2);
+    setAtEnd(scrollLeft + clientWidth >= scrollWidth - 2);
+  }, [ref]);
+
+  useEffect(() => {
+    const nav = ref?.current ?? wrapperRef.current?.querySelector('nav');
+    if (!nav) return;
+    updateFades();
+    nav.addEventListener('scroll', updateFades, { passive: true });
+    const ro = new ResizeObserver(updateFades);
+    ro.observe(nav);
+    return () => {
+      nav.removeEventListener('scroll', updateFades);
+      ro.disconnect();
+    };
+  }, [ref, updateFades]);
+
+  const wrapperClass = [
+    'category-nav-wrapper',
+    atStart ? 'at-start' : '',
+    atEnd   ? 'at-end'   : '',
+  ].filter(Boolean).join(' ');
+
+  return (
+    <div ref={wrapperRef} className={wrapperClass}>
+      <nav ref={ref} className={`category-nav ${className}`}>{children}</nav>
+    </div>
+  );
 });
 
 export const CategoryPill = forwardRef(function CategoryPill({ label, active, onClick, icon, count }, ref) {

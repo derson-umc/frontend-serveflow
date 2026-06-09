@@ -9,7 +9,7 @@ export function useReport() {
   const load = useCallback(() => {
     setLoading(true);
     stockApi.report.consolidated()
-      .then(setRows)
+      .then((data) => setRows(data || []))
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
   }, []);

@@ -1,8 +1,10 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-export const useCartStore = create((set, get) => ({
+const cartSlice = (set, get) => ({
   items: [],
   extras: {},
+  observations: {},
 
   addItem(product) {
     set((state) => {
@@ -19,12 +21,18 @@ export const useCartStore = create((set, get) => ({
   },
 
   removeItem(id) {
-    set((state) => ({
-      items: state.items.filter((i) => i.id !== id),
-      extras: Object.fromEntries(
-        Object.entries(state.extras).filter(([k]) => k !== String(id))
-      ),
-    }));
+    set((state) => {
+      const strId = String(id);
+      return {
+        items: state.items.filter((i) => i.id !== id),
+        extras: Object.fromEntries(
+          Object.entries(state.extras).filter(([k]) => k !== strId)
+        ),
+        observations: Object.fromEntries(
+          Object.entries(state.observations).filter(([k]) => k !== strId)
+        ),
+      };
+    });
   },
 
   updateQuantity(id, quantity) {
@@ -43,15 +51,33 @@ export const useCartStore = create((set, get) => ({
     }));
   },
 
-  clear() {
-    set({ items: [], extras: {} });
+  setObservation(productId, text) {
+    set((state) => ({
+      observations: { ...state.observations, [productId]: text },
+    }));
   },
-}));
+
+  clear() {
+    set({ items: [], extras: {}, observations: {} });
+  },
+});
+
+export const useCartStore = create(
+  persist(cartSlice, {
+    name: 'sf-cart-v1',
+    storage: createJSONStorage(() => sessionStorage),
+  })
+);
 
 export const selectCartTotal = (state) =>
-  state.items.reduce((sum, i) => sum + Number(i.price) * i.quantity, 0);
+  state.items.reduce((sum, item) => {
+    const itemTotal  = Number(item.price) * item.quantity;
+    const extrasTotal = (state.extras[item.id] || []).reduce(
+      (es, e) => es + Number(e.unitPrice) * Number(e.quantity),
+      0
+    );
+    return sum + itemTotal + extrasTotal;
+  }, 0);
 
-export const selectCartCount = (state) =>
-  state.items.reduce((sum, i) => sum + i.quantity, 0);
-
+export const selectCartCount   = (state) => state.items.reduce((s, i) => s + i.quantity, 0);
 export const selectCartIsEmpty = (state) => state.items.length === 0;

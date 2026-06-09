@@ -4,13 +4,14 @@ export const TEAL  = '#00838F';
 export const LIGHT = '#9E9E9E';
 
 export const STATUS_CONFIG = {
-  CREATED:          { label: 'NOVO',           bg: palette.blue   },
-  CONFIRMED:        { label: 'CONFIRMADO',      bg: '#6A1B9A'      },
-  IN_PREPARATION:   { label: 'EM PREPARO',      bg: palette.orange },
-  READY:            { label: 'PRONTO',          bg: palette.green  },
-  OUT_FOR_DELIVERY: { label: 'A CAMINHO',       bg: TEAL           },
-  DELIVERED:        { label: 'ENTREGUE',        bg: '#4E342E'      },
-  CANCELLED:        { label: 'CANCELADO',       bg: palette.red    },
+  PENDENTE:             { label: 'Em Fila',            bg: '#6A1B9A'      },
+  ENVIADO:              { label: 'Em Fila',            bg: '#6A1B9A'      },
+  EM_PREPARO:           { label: 'Em andamento',       bg: palette.orange },
+  PRONTO:               { label: 'Pronto',             bg: palette.green  },
+  AGUARDANDO_PAGAMENTO: { label: 'Aguard. Pagamento',  bg: '#D97706'      },
+  A_CAMINHO:            { label: 'A Caminho',          bg: TEAL           },
+  ENTREGUE:             { label: 'Entregue',           bg: '#4E342E'      },
+  CANCELADO:            { label: 'Cancelado',          bg: palette.red    },
 };
 
 export const CANCEL_REASONS = [
@@ -22,15 +23,62 @@ export const CANCEL_REASONS = [
   'Outro',
 ];
 
-export const PROGRESS_STEPS = ['CREATED', 'CONFIRMED', 'IN_PREPARATION', 'READY', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+export const PROGRESS_STEPS = ['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE'];
 
-export const VISIBLE_STATUSES = ['CREATED', 'CONFIRMED', 'IN_PREPARATION', 'READY', 'OUT_FOR_DELIVERY'];
+export const VISIBLE_STATUSES = ['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO'];
 
 export const SECTIONS = [
-  { key: 'pending',     label: 'Aguardando', statuses: ['CREATED', 'CONFIRMED'],       color: palette.blue   },
-  { key: 'preparation', label: 'Em Preparo', statuses: ['IN_PREPARATION'],             color: palette.orange },
-  { key: 'ready',       label: 'Prontos',    statuses: ['READY', 'OUT_FOR_DELIVERY'],  color: palette.green  },
+  { key: 'pending',     label: 'Em Fila',       statuses: ['PENDENTE', 'ENVIADO'],   color: '#6A1B9A'      },
+  { key: 'preparation', label: 'Em andamento',  statuses: ['EM_PREPARO'],             color: palette.orange },
+  { key: 'ready',       label: 'Prontos',       statuses: ['PRONTO'],                 color: palette.green  },
 ];
+
+const BEVERAGE_CATEGORIES = ['BEBIDA_ALCOOLICA', 'BEBIDA_NAO_ALCOOLICA'];
+
+// Heurística por nome — usada quando o produto não tem productCategory definido.
+// Inclui marcas populares para maximizar cobertura.
+const BEVERAGE_NAME_TOKENS = [
+  // Genéricos
+  'bebida', 'drink', 'drinkable',
+  'refrigerante', 'suco', 'suco natural', 'vitamina',
+  'água', 'agua', 'mineral', 'tônica', 'tonica', 'soda',
+  'leite', 'milk', 'iogurte', 'yakult',
+  // Quentes
+  'café', 'cafe', 'expresso', 'cappuccino', 'cappucino',
+  'chá', 'cha', 'chocolate quente',
+  // Frios / limões
+  'limonada', 'lemonade', 'kombucha',
+  // Alcoólicos
+  'cerveja', 'beer', 'chopp', 'chope',
+  'vinho', 'wine', 'espumante', 'prosecco', 'champagne',
+  'coquetel', 'cocktail', 'caipirinha', 'caipiroska',
+  'destilado', 'whisky', 'whiskey', 'vodka', 'gin', 'rum',
+  'cachaça', 'cachaca', 'tequila', 'licor', 'conhaque',
+  // Marcas brasileiras e internacionais
+  'coca', 'cola', 'pepsi', 'fanta', 'sprite',
+  'guaraná', 'guarana', 'schweppes', 'gatorade', 'powerade',
+  'isotônico', 'isotonico', 'redbull', 'red bull', 'monster',
+  'heineken', 'budweiser', 'corona', 'skol', 'brahma',
+  'itaipava', 'eisenbahn', 'stella', 'artois', 'beck',
+  'amstel', 'devassa', 'polar', 'original',
+];
+
+function isBeverageByName(productName = '') {
+  const lower = productName.toLowerCase();
+  return BEVERAGE_NAME_TOKENS.some((t) => lower.includes(t));
+}
+
+/**
+ * Retorna true se o item deve aparecer no KDS (cozinha).
+ * Regra: BEBIDA_* nunca vai para KDS.
+ * Fallback: se não tem categoria, verifica o nome do produto.
+ */
+export function isKdsItem(item) {
+  if (item.productCategory) {
+    return !BEVERAGE_CATEGORIES.includes(item.productCategory);
+  }
+  return !isBeverageByName(item.productName);
+}
 
 export const urgentPulse = {
   animate: {
