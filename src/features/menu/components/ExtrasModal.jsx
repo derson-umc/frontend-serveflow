@@ -1,19 +1,15 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Modal } from '@shared/components/ui/Modal';
-import { Button } from '@shared/components/ui/Button';
-import { Input } from '@shared/components/ui/Input';
+import { Modal }      from '@shared/components/ui/Modal';
+import { Button }     from '@shared/components/ui/Button';
+import { Input }      from '@shared/components/ui/Input';
 import { useProducts } from '@features/products/hooks/useProducts';
-import { stockApi } from '@core/api/stock';
+import { stockApi }   from '@core/api/stock';
 
 const fmt = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-function toTitleCase(s) {
-  return String(s ?? '').toLowerCase()
-    .replace(/(^|\s)([\p{L}])/gu, (_, sep, ch) => sep + ch.toUpperCase());
-}
+const BEVERAGE_CATS = new Set(['BEBIDA_ALCOOLICA', 'BEBIDA_NAO_ALCOOLICA']);
 
-// Faz matching entre ingrediente da ficha técnica e produto do catálogo
 function matchIngredient(ingredientName, products) {
   const q = ingredientName.toLowerCase();
   return products.filter((p) => {
@@ -23,29 +19,30 @@ function matchIngredient(ingredientName, products) {
 }
 
 export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
-  const [extras,  setExtras]   = useState(initialExtras);
-  const [search,  setSearch]   = useState('');
-  const [recipe,  setRecipe]   = useState([]);   // ingredientes da ficha técnica
+  const [extras, setExtras] = useState(initialExtras);
+  const [search, setSearch] = useState('');
+  const [recipe, setRecipe] = useState([]);
 
   const { data: rawProducts = [] } = useProducts();
 
-  // Carrega ficha técnica do produto para gerar sugestões
+  const isBeverage      = BEVERAGE_CATS.has(cartItem.productCategory);
+  const termo           = isBeverage ? 'Opcionais'            : 'Adicionais';
+  const termoDisponivel = isBeverage ? 'Opcionais disponíveis' : 'Adicionais disponíveis';
+
   useEffect(() => {
     stockApi.recipes.getByProduct(cartItem.id)
       .then((d) => setRecipe(d?.ingredients ?? []))
       .catch(() => setRecipe([]));
   }, [cartItem.id]);
 
-  // Somente produtos marcados como ADICIONAL aparecem aqui
   const adicionais = useMemo(
     () =>
       rawProducts
         .filter((p) => p.active !== false && p.productCategory === 'ADICIONAL')
         .map((p) => ({ id: p.id, name: p.name, price: Number(p.price) })),
-    [rawProducts]
+    [rawProducts],
   );
 
-  // Sugeridos: cruzamento ficha técnica × adicionais disponíveis
   const suggested = useMemo(() => {
     if (recipe.length === 0) return [];
     const hits = new Map();
@@ -78,14 +75,37 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
     });
   }
 
-  const extrasTotal = extras.reduce((s, e) => s + e.unitPrice * e.quantity, 0);
+  const extrasTotal     = extras.reduce((s, e) => s + e.unitPrice * e.quantity, 0);
   const nothingAvailable = adicionais.length === 0;
+
+  const modalTitle = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <span style={{
+        fontSize:      9,
+        fontWeight:    700,
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        color:         'var(--color-text-secondary)',
+        lineHeight:    1,
+      }}>
+        {termo}
+      </span>
+      <span style={{
+        fontSize:   'var(--text-lg)',
+        fontWeight: 'var(--font-bold)',
+        color:      'var(--color-text-primary)',
+        lineHeight: 1.2,
+      }}>
+        {cartItem.name}
+      </span>
+    </div>
+  );
 
   return (
     <Modal
       open
       onClose={onClose}
-      title={`Adicionais — ${cartItem.name}`}
+      title={modalTitle}
       size="md"
       footer={
         <div className="flex gap-2 w-full">
@@ -98,17 +118,16 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
     >
       <div className="flex flex-col gap-4">
 
-        {/* Selecionados */}
         {extras.length > 0 && (
-          <div
-            style={{
-              display: 'flex', flexWrap: 'wrap', gap: 6,
-              padding: '8px 10px',
-              background: 'var(--color-warning-surface)',
-              border: '1px solid var(--color-warning-border)',
-              borderRadius: 'var(--radius-md)',
-            }}
-          >
+          <div style={{
+            display:      'flex',
+            flexWrap:     'wrap',
+            gap:           6,
+            padding:      '8px 10px',
+            background:   'var(--color-warning-surface)',
+            border:       '1px solid var(--color-warning-border)',
+            borderRadius: 'var(--radius-md)',
+          }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--color-warning)', width: '100%', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Selecionados — +{fmt(extrasTotal)}
             </span>
@@ -116,24 +135,30 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
               <span
                 key={i}
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  fontSize: 11, fontWeight: 600,
-                  background: 'var(--color-surface)', color: 'var(--color-warning)',
-                  border: '1px solid var(--color-warning-border)',
-                  borderRadius: 'var(--radius-full)', padding: '2px 8px',
+                  display:      'inline-flex',
+                  alignItems:   'center',
+                  gap:           4,
+                  fontSize:      11,
+                  fontWeight:    600,
+                  background:   'var(--color-surface)',
+                  color:        'var(--color-warning)',
+                  border:       '1px solid var(--color-warning-border)',
+                  borderRadius: 'var(--radius-full)',
+                  padding:      '2px 8px',
                 }}
               >
                 {e.quantity}× {e.name} — {fmt(e.unitPrice)}
                 <button
                   onClick={() => setExtras((p) => p.filter((_, j) => j !== i))}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error)', fontSize: 12, lineHeight: 1, padding: 0 }}
-                >✕</button>
+                >
+                  ✕
+                </button>
               </span>
             ))}
           </div>
         )}
 
-        {/* Corpo */}
         {nothingAvailable ? (
           <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-text-disabled)' }}>
             <p style={{ fontSize: 'var(--text-sm)', marginBottom: 6 }}>Nenhum adicional cadastrado.</p>
@@ -143,7 +168,7 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxHeight: 360, overflowY: 'auto' }}>
-            {/* Sugeridos */}
+
             {suggested.length > 0 && (
               <div>
                 <SectionLabel>Sugeridos para este prato</SectionLabel>
@@ -155,16 +180,15 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
               </div>
             )}
 
-            {/* Demais adicionais */}
             {otherAdicionais.length > 0 && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <SectionLabel style={{ marginBottom: 0 }}>Adicionais disponíveis</SectionLabel>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+                  <SectionLabel style={{ marginBottom: 0 }}>{termoDisponivel}</SectionLabel>
                   <Input
                     placeholder="Buscar…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    style={{ flex: 1, fontSize: 12, padding: '4px 8px' }}
+                    style={{ width: '100%', fontSize: 12 }}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -174,6 +198,7 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
                 </div>
               </div>
             )}
+
           </div>
         )}
       </div>
@@ -184,9 +209,13 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
 function SectionLabel({ children, style }) {
   return (
     <p style={{
-      fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-      letterSpacing: '0.08em', color: 'var(--color-text-secondary)',
-      marginBottom: 8, ...style,
+      fontSize:      10,
+      fontWeight:    700,
+      textTransform: 'uppercase',
+      letterSpacing: '0.08em',
+      color:         'var(--color-text-secondary)',
+      marginBottom:   8,
+      ...style,
     }}>
       {children}
     </p>
@@ -197,28 +226,53 @@ function ProductRow({ product, qty, onQtyChange }) {
   const active = qty > 0;
   return (
     <div
-      className="flex items-center gap-3 px-3 py-2"
       style={{
+        display:      'flex',
+        alignItems:   'center',
+        gap:           12,
+        padding:      '10px 12px',
         borderRadius: 'var(--radius-md)',
-        background: active ? 'var(--color-success-surface)' : 'var(--color-bg)',
-        border: `1px solid ${active ? 'var(--color-success-border)' : 'var(--color-border)'}`,
-        transition: 'all 0.12s',
+        background:   active ? 'var(--color-success-surface)' : 'var(--color-bg)',
+        border:       `1px solid ${active ? 'var(--color-success-border)' : 'var(--color-border)'}`,
+        transition:   'background 0.12s, border-color 0.12s',
       }}
     >
-      <div className="flex-1 min-w-0">
-        <p style={{ fontSize: 'var(--text-sm)', fontWeight: active ? 'var(--font-semibold)' : 'var(--font-medium)', color: 'var(--color-text-primary)', lineHeight: 1.3 }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <p style={{
+          fontSize:   'var(--text-sm)',
+          fontWeight: active ? 'var(--font-semibold)' : 'var(--font-medium)',
+          color:      'var(--color-text-primary)',
+          lineHeight:  1.3,
+          margin:      0,
+        }}>
           {product.name}
         </p>
-        <p style={{ fontSize: 'var(--text-xs)', color: active ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+        <p style={{
+          fontSize:  'var(--text-xs)',
+          color:     active ? 'var(--color-success)' : 'var(--color-text-secondary)',
+          marginTop:  2,
+          margin:     0,
+        }}>
           {fmt(product.price)}
         </p>
       </div>
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-        <button onClick={() => onQtyChange(qty - 1)} disabled={qty === 0} style={qBtn(qty > 0)}>−</button>
-        <span style={{ minWidth: 18, textAlign: 'center', fontSize: 'var(--text-sm)', fontWeight: 700, color: active ? 'var(--color-success)' : 'var(--color-text-primary)' }}>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button onClick={() => onQtyChange(qty - 1)} disabled={qty === 0} style={qBtn(qty > 0)}>
+          −
+        </button>
+        <span style={{
+          minWidth:   22,
+          textAlign:  'center',
+          fontSize:   'var(--text-sm)',
+          fontWeight:  700,
+          color:      active ? 'var(--color-success)' : 'var(--color-text-primary)',
+        }}>
           {qty}
         </span>
-        <button onClick={() => onQtyChange(qty + 1)} style={qBtn(true)}>+</button>
+        <button onClick={() => onQtyChange(qty + 1)} style={qBtn(true)}>
+          +
+        </button>
       </div>
     </div>
   );
@@ -226,14 +280,17 @@ function ProductRow({ product, qty, onQtyChange }) {
 
 function qBtn(enabled) {
   return {
-    width: 24, height: 24,
-    borderRadius: 'var(--radius-sm)',
-    background: enabled ? 'var(--color-success-surface)' : 'var(--color-bg)',
-    color:       enabled ? 'var(--color-success)' : 'var(--color-text-disabled)',
-    border: `1px solid ${enabled ? 'var(--color-success-border)' : 'var(--color-border)'}`,
-    cursor: enabled ? 'pointer' : 'default',
-    fontWeight: 700, fontSize: 14,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    opacity: enabled ? 1 : 0.4,
+    width:          26,
+    height:         26,
+    borderRadius:   'var(--radius-sm)',
+    background:     enabled ? 'var(--color-success-surface)' : 'var(--color-bg)',
+    color:          enabled ? 'var(--color-success)' : 'var(--color-text-disabled)',
+    border:         `1px solid ${enabled ? 'var(--color-success-border)' : 'var(--color-border)'}`,
+    cursor:         enabled ? 'pointer' : 'default',
+    fontWeight:      700,
+    fontSize:        15,
+    display:        'flex',
+    alignItems:     'center',
+    justifyContent: 'center',
   };
 }

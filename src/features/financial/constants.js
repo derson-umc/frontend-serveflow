@@ -72,7 +72,8 @@ export const PAYMENT_ICONS = {
 export const PAYMENT_KEYS = Object.keys(PAYMENT_LABELS);
 
 export const TYPE_CFG = {
-  MESA:     { label: "Mesa",     bg: "#E3F2FD", color: "#1565C0", border: "#90CAF9" },
+  LOCAL:    { label: "Local",    bg: "#E3F2FD", color: "#1565C0", border: "#90CAF9" },
+  MESA:     { label: "Local",    bg: "#E3F2FD", color: "#1565C0", border: "#90CAF9" },
   DELIVERY: { label: "Delivery", bg: "#F3E5F5", color: "#6A1B9A", border: "#CE93D8" },
   BALCAO:   { label: "Balcão",   bg: "#E8F5E9", color: "#1B5E20", border: "#A5D6A7" },
 };
@@ -97,7 +98,8 @@ export function detectOrderType(description) {
   if (!description) return null;
   const d = description.toLowerCase();
   if (d.includes("delivery"))                        return "DELIVERY";
-  if (d.includes("mesa"))                            return "MESA";
+  if (d.includes("local"))                           return "LOCAL";
+  if (d.includes("mesa"))                            return "LOCAL";
   if (d.includes("balcão") || d.includes("balcao")) return "BALCAO";
   return null;
 }

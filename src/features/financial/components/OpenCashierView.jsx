@@ -14,7 +14,7 @@ import { inputStyle } from "./FormField";
 import { Paginator } from "@features/stock/components/Paginator";
 import {
   QK, fmtBRL, fmtDateTime, toDate, toDateStr,
-  normPayment, groupByPayment, detectOrderType,
+  normPayment, groupByPayment, detectOrderType, TYPE_CFG,
   PAYMENT_KEYS, PAYMENT_LABELS, PAYMENT_ICONS,
 } from "../constants";
 
@@ -220,7 +220,7 @@ export default function OpenCashierView({ session }) {
             </select>
             <select value={fTipo} onChange={(e) => setFTipo(e.target.value)} style={selStyle}>
               <option value="">Tipo: Todos</option>
-              <option value="MESA">Mesa</option>
+              <option value="LOCAL">Local</option>
               <option value="DELIVERY">Delivery</option>
               <option value="BALCAO">Balcão</option>
             </select>
@@ -294,7 +294,7 @@ export default function OpenCashierView({ session }) {
                           </td>
                           <td style={{ padding: "8px 12px" }}>
                             {orderType ? (
-                              <span style={{ padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, background: "#F3F4F6", color: "#374151", border: "1px solid #D1D5DB" }}>{orderType}</span>
+                              <span style={{ padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, background: TYPE_CFG[orderType]?.bg ?? "#F3F4F6", color: TYPE_CFG[orderType]?.color ?? "#374151", border: `1px solid ${TYPE_CFG[orderType]?.border ?? "#D1D5DB"}` }}>{TYPE_CFG[orderType]?.label ?? orderType}</span>
                             ) : <span style={{ fontSize: 11, color: palette.textMuted }}>—</span>}
                           </td>
                           <td style={{ padding: "8px 12px" }}>
