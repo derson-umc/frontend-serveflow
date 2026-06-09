@@ -1,6 +1,48 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, RoleDot, IconBtn } from '../shared';
 import { FILTER_TABS } from '../constants';
+
+const PAGE_SIZE = 10;
+
+function Paginator({ page, totalPages, total, onChange }) {
+  if (totalPages <= 1) return null;
+  const start = (page - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(page * PAGE_SIZE, total);
+  return (
+    <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #F5F5F5', background: '#FAFAFA' }}>
+      <span className="text-xs" style={{ color: '#BDBDBD' }}>{start}–{end} de {total} usuário{total !== 1 ? 's' : ''}</span>
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => onChange(page - 1)}
+          disabled={page === 1}
+          className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+          style={{ border: '1px solid #E0E0E0', background: page === 1 ? '#F5F5F5' : '#FFFFFF', color: page === 1 ? '#BDBDBD' : '#424242', cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+        >
+          ← Anterior
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          <button
+            key={p}
+            onClick={() => onChange(p)}
+            className="w-7 h-7 rounded-lg text-xs font-semibold transition-all"
+            style={{ border: p === page ? '1px solid #A5D6A7' : '1px solid #E0E0E0', background: p === page ? '#E8F5E9' : '#FFFFFF', color: p === page ? '#2E7D32' : '#757575', cursor: 'pointer' }}
+          >
+            {p}
+          </button>
+        ))}
+        <button
+          onClick={() => onChange(page + 1)}
+          disabled={page === totalPages}
+          className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+          style={{ border: '1px solid #E0E0E0', background: page === totalPages ? '#F5F5F5' : '#FFFFFF', color: page === totalPages ? '#BDBDBD' : '#424242', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}
+        >
+          Próximo →
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function UserRow({ user, index, total, isAdmin, isGerente, onEdit, onReset, onDelete }) {
   return (
@@ -81,12 +123,19 @@ export function UserTable({
   search, setSearch,
   roleFilter, setRoleFilter,
   onRefresh,
+  onCreate,
   isAdmin, isGerente,
   onEdit, onReset, onDelete,
 }) {
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [filtered]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged      = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row gap-2.5 mb-4">
         <div className="relative flex-1">
           <svg className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="#BDBDBD">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
@@ -97,15 +146,29 @@ export function UserTable({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por usuário ou cargo..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm"
-            style={{ background: '#FFFFFF', border: '1px solid #E0E0E0', color: '#424242', outline: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+            style={{ background: '#FFFFFF', border: '1px solid #E0E0E0', color: '#424242', outline: 'none', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
             onFocus={(e) => (e.target.style.border = '1px solid #2E7D32')}
             onBlur={(e)  => (e.target.style.border = '1px solid #E0E0E0')}
           />
         </div>
+        {onCreate && (
+          <button
+            onClick={onCreate}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0"
+            style={{ background: '#2E7D32', color: '#FFFFFF', border: 'none', boxShadow: '0 4px 12px rgba(46,125,50,0.28)', cursor: 'pointer', transition: 'background 0.2s ease' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#1B5E20')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#2E7D32')}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Novo Usuário
+          </button>
+        )}
         <button
           onClick={onRefresh}
           className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold flex-shrink-0 transition-all"
-          style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32' }}
+          style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', color: '#2E7D32', cursor: 'pointer' }}
           onMouseEnter={(e) => (e.currentTarget.style.background = '#C8E6C9')}
           onMouseLeave={(e) => (e.currentTarget.style.background = '#E8F5E9')}
         >
@@ -116,20 +179,23 @@ export function UserTable({
         </button>
       </div>
 
-      <div className="flex gap-2 flex-wrap mb-5">
+      <div className="flex gap-2 flex-wrap mb-3">
         {FILTER_TABS.map(({ value, label }) => {
           const active = roleFilter === value;
+          const count  = value === 'ALL'
+            ? users.length
+            : users.filter((u) => u.role?.toUpperCase() === value).length;
           return (
             <button
               key={value}
               onClick={() => setRoleFilter(value)}
               className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
-              style={{ background: active ? '#E8F5E9' : '#FFFFFF', border: active ? '1px solid #A5D6A7' : '1px solid #E0E0E0', color: active ? '#2E7D32' : '#757575' }}
+              style={{ background: active ? '#E8F5E9' : '#FFFFFF', border: active ? '1px solid #A5D6A7' : '1px solid #E0E0E0', color: active ? '#2E7D32' : '#757575', cursor: 'pointer' }}
             >
               {label}
-              {value !== 'ALL' && !loading && (
+              {!loading && (
                 <span className="ml-1.5 text-xs" style={{ color: active ? '#2E7D32' : '#BDBDBD' }}>
-                  {users.filter((u) => u.role?.toUpperCase() === value).length}
+                  {count}
                 </span>
               )}
             </button>
@@ -163,12 +229,12 @@ export function UserTable({
           </div>
         )}
 
-        {!loading && filtered.map((u, i) => (
+        {!loading && paged.map((u, i) => (
           <UserRow
             key={u.id}
             user={u}
             index={i}
-            total={filtered.length}
+            total={paged.length}
             isAdmin={isAdmin}
             isGerente={isGerente}
             onEdit={onEdit}
@@ -176,9 +242,18 @@ export function UserTable({
             onDelete={onDelete}
           />
         ))}
+
+        {!loading && filtered.length > 0 && (
+          <Paginator
+            page={page}
+            totalPages={totalPages}
+            total={filtered.length}
+            onChange={setPage}
+          />
+        )}
       </div>
 
-      {!loading && (
+      {!loading && totalPages <= 1 && (
         <p className="text-xs mt-3 text-right" style={{ color: '#BDBDBD' }}>
           {filtered.length} de {users.length} usuário{users.length !== 1 ? 's' : ''}
         </p>

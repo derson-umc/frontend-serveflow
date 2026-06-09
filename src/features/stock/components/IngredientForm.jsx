@@ -47,28 +47,16 @@ export function IngredientForm({ form, showQuantity = false }) {
         </Field>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <Field label="Qtd. mínima" required error={errors.minimumQuantity?.message}>
-          <PlainInput
-            {...register('minimumQuantity')}
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0"
-            hasError={!!errors.minimumQuantity}
-          />
-        </Field>
-        <Field label="Custo médio (R$)" error={errors.averageCost?.message}>
-          <PlainInput
-            {...register('averageCost')}
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0,00"
-            hasError={!!errors.averageCost}
-          />
-        </Field>
-      </div>
+      <Field label="Qtd. mínima" required error={errors.minimumQuantity?.message}>
+        <PlainInput
+          {...register('minimumQuantity')}
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="0"
+          hasError={!!errors.minimumQuantity}
+        />
+      </Field>
 
       <Field label="Fornecedor" error={errors.supplier?.message}>
         <PlainInput

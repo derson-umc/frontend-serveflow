@@ -55,6 +55,8 @@ export function ProductFormModal({ product, allCategories, onClose }) {
   const imageUpload = useProductImageUpload(product?.imageUrl ?? null);
 
   const [isActive, setIsActive] = useState(isEditing ? product.active !== false : true);
+  const [productCategory, setProductCategory] = useState(product?.productCategory ?? '');
+  const [requiresHotPrep, setRequiresHotPrep] = useState(product?.requiresHotPrep ?? false);
   const [serverError, setServerError] = useState('');
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm({
@@ -87,6 +89,8 @@ export function ProductFormModal({ product, allCategories, onClose }) {
       imageUrl:               imageUpload.uploadedUrl ?? null,
       requiresTechnicalSheet: formData.requiresTechnicalSheet ?? false,
       active:                 isActive,
+      productCategory:        productCategory || null,
+      requiresHotPrep:        requiresHotPrep,
     };
 
     try {
@@ -161,87 +165,91 @@ export function ProductFormModal({ product, allCategories, onClose }) {
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-1" style={{ padding: '20px 24px' }}>
+        <div className="overflow-y-auto flex-1" style={{ padding: '16px 18px' }}>
 
-          {/* Image picker */}
-          <div className="flex items-start gap-4 mb-5 pb-5" style={{ borderBottom: `1px solid #F5F5F5` }}>
-            <div
-              className="relative cursor-pointer group flex-shrink-0"
-              style={{ width: 88, height: 88 }}
-              onClick={() => !imageUpload.uploading && imageUpload.fileRef.current?.click()}
-            >
-              <div
-                className="w-full h-full rounded-2xl overflow-hidden flex items-center justify-center"
-                style={{
-                  background: palette.greenSurface,
-                  border: `2px dashed ${imageUpload.preview ? palette.green : palette.greenBorder}`,
-                  transition: 'border-color 0.2s',
-                }}
-              >
-                {imageUpload.preview
-                  ? <img src={imageUpload.preview} alt="" className="w-full h-full object-cover" />
-                  : <span style={{ fontSize: 32, opacity: 0.4 }}>🍽️</span>}
-              </div>
-              <div
-                className="absolute inset-0 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'rgba(0,0,0,0.35)' }}
-              >
-                {imageUpload.uploading
-                  ? <Spinner size={20} color={palette.white} />
-                  : <span className="text-white" style={{ fontSize: 18 }}>📷</span>}
-              </div>
-              <input ref={imageUpload.fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center gap-1" style={{ paddingTop: 8 }}>
-              <p className="font-semibold text-xs" style={{ color: palette.textSecondary }}>Foto do Produto</p>
-              <p className="text-xs" style={{ color: palette.textMuted, lineHeight: 1.5 }}>
-                {imageUpload.uploading ? 'Enviando imagem...' : 'Clique para selecionar uma foto. Máx. 8 MB.'}
-              </p>
-              {imageUpload.uploadedUrl && (
-                <span className="text-xs font-semibold" style={{ color: palette.green }}>✓ Foto salva no servidor</span>
+          {(imageUpload.offline || serverError) && (
+            <div className="mb-3">
+              {imageUpload.offline && (
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs mb-2"
+                  style={{ background: palette.orangeSurface, border: `1px solid ${palette.orangeBorder}`, color: palette.orange }}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {imageUpload.uploadError}
+                </div>
               )}
-              {imageUpload.preview && !imageUpload.uploading && (
-                <button type="button" onClick={imageUpload.clear}
-                  className="text-xs font-semibold w-fit"
-                  style={{ color: palette.red, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                  Remover imagem
-                </button>
+              {serverError && (
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs"
+                  style={{ background: palette.redSurface, border: `1px solid ${palette.redBorder}`, color: palette.red }}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {serverError}
+                </div>
               )}
-            </div>
-          </div>
-
-          {imageUpload.offline && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs mb-4"
-              style={{ background: palette.orangeSurface, border: `1px solid ${palette.orangeBorder}`, color: palette.orange }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {imageUpload.uploadError}
-            </div>
-          )}
-          {serverError && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs mb-4"
-              style={{ background: palette.redSurface, border: `1px solid ${palette.redBorder}`, color: palette.red }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {serverError}
             </div>
           )}
 
           <form onSubmit={handleSubmit(onSave)} noValidate id="product-form">
 
-            {/* Identificação */}
+            {/* Identificação — imagem + nome + descrição agrupados */}
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: palette.green, letterSpacing: '0.1em' }}>Identificação</p>
 
-            <div style={{ marginBottom: 16 }}>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: palette.textSecondary }}>Nome *</label>
-              <FormInput registration={register('name')} error={errors.name} placeholder="Ex: X-Burguer Artesanal" />
-              <FieldError error={errors.name} />
+            {/* Imagem + Nome na mesma linha */}
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className="relative cursor-pointer group flex-shrink-0"
+                style={{ width: 64, height: 64 }}
+                onClick={() => !imageUpload.uploading && imageUpload.fileRef.current?.click()}
+              >
+                <div
+                  className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center"
+                  style={{
+                    background: palette.greenSurface,
+                    border: `2px dashed ${imageUpload.preview ? palette.green : palette.greenBorder}`,
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  {imageUpload.preview
+                    ? <img src={imageUpload.preview} alt="" className="w-full h-full object-cover" />
+                    : <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke={palette.greenBorder} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>}
+                </div>
+                <div
+                  className="absolute inset-0 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: 'rgba(0,0,0,0.32)' }}
+                >
+                  {imageUpload.uploading
+                    ? <Spinner size={16} color={palette.white} />
+                    : <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>}
+                </div>
+                {imageUpload.preview && !imageUpload.uploading && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); imageUpload.clear(); }}
+                    className="absolute flex items-center justify-center rounded-full"
+                    style={{ top: -5, right: -5, width: 17, height: 17, background: palette.red, border: `2px solid ${palette.white}`, color: palette.white, fontSize: 9, fontWeight: 800, cursor: 'pointer', lineHeight: 1, zIndex: 10 }}
+                  >
+                    ×
+                  </button>
+                )}
+                <input ref={imageUpload.fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: palette.textSecondary }}>Nome *</label>
+                <FormInput registration={register('name')} error={errors.name} placeholder="Ex: X-Burguer Artesanal" />
+                <FieldError error={errors.name} />
+              </div>
             </div>
 
-            <div style={{ marginBottom: 20 }}>
+            {/* Descrição — full width */}
+            <div style={{ marginBottom: 16 }}>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: palette.textSecondary }}>Descrição</label>
               <textarea
                 {...register('description')}
@@ -257,7 +265,7 @@ export function ProductFormModal({ product, allCategories, onClose }) {
             {/* Detalhes */}
             <div style={{ borderTop: `1px solid #F5F5F5`, paddingTop: 16, marginBottom: 16 }}>
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: palette.green, letterSpacing: '0.1em' }}>Detalhes</p>
-              <div className="grid grid-cols-2 gap-3" style={{ marginBottom: 12 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" style={{ marginBottom: 12 }}>
                 <div>
                   <label className="block text-xs font-semibold mb-1.5" style={{ color: palette.textSecondary }}>Marca *</label>
                   <FormInput registration={register('brand')} error={errors.brand} placeholder="Ex: Casa do Chef" />
@@ -316,6 +324,53 @@ export function ProductFormModal({ product, allCategories, onClose }) {
               <FieldError error={errors.category} />
             </div>
 
+            {/* Destino de preparo */}
+            <div style={{ borderTop: `1px solid #F5F5F5`, paddingTop: 16 }}>
+              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: palette.green, letterSpacing: '0.1em' }}>Roteamento de preparo</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: '',                     label: 'Não definido',    icon: '—'  },
+                  { value: 'ALIMENTO',              label: 'Alimento',        icon: '🍽' },
+                  { value: 'BEBIDA_ALCOOLICA',      label: 'Bebida Alcoólica',icon: '🍺' },
+                  { value: 'BEBIDA_NAO_ALCOOLICA',  label: 'Bebida s/ álcool',icon: '🥤' },
+                  { value: 'ACOMPANHAMENTO',        label: 'Acompanhamento',  icon: '🍟' },
+                  { value: 'ADICIONAL',             label: 'Adicional',       icon: '➕' },
+                ].map((opt) => {
+                  const selected = productCategory === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setProductCategory(opt.value)}
+                      className="flex items-center gap-1.5 rounded-xl text-xs font-semibold whitespace-nowrap"
+                      style={{
+                        padding: '6px 12px',
+                        border: `1.5px solid ${selected ? palette.green : palette.border}`,
+                        background: selected ? palette.greenSurface : '#FAFAFA',
+                        color: selected ? palette.green : palette.textMuted,
+                        cursor: 'pointer',
+                        boxShadow: selected ? '0 2px 8px rgba(46,125,50,0.12)' : 'none',
+                      }}
+                    >
+                      <span>{opt.icon}</span>
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {productCategory === 'ACOMPANHAMENTO' && (
+                <div
+                  className="flex items-center justify-between px-4 py-2.5 rounded-xl cursor-pointer select-none"
+                  style={{ background: requiresHotPrep ? palette.greenSurface : '#FAFAFA', border: `1.5px solid ${requiresHotPrep ? palette.greenBorder : palette.border}`, marginTop: 10 }}
+                  onClick={() => setRequiresHotPrep((v) => !v)}
+                >
+                  <p className="text-xs font-semibold" style={{ color: requiresHotPrep ? palette.green : palette.textSecondary }}>Preparo quente</p>
+                  <Toggle active={requiresHotPrep} />
+                </div>
+              )}
+            </div>
+
             {/* Opções */}
             <div style={{ borderTop: `1px solid #F5F5F5`, paddingTop: 16 }}>
               <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: palette.green, letterSpacing: '0.1em' }}>Opções</p>
@@ -369,7 +424,7 @@ export function ProductFormModal({ product, allCategories, onClose }) {
           </form>
         </div>
 
-        <div className="flex gap-3 px-6 py-4" style={{ borderTop: `1px solid ${palette.border}`, background: '#FAFAFA' }}>
+        <div className="flex gap-3 px-4 sm:px-6 py-4" style={{ borderTop: `1px solid ${palette.border}`, background: '#FAFAFA' }}>
           <button
             type="button"
             onClick={() => !isSubmitting && onClose()}

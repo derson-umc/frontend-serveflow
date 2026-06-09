@@ -11,6 +11,7 @@ import PendingOrdersModal from "./PendingOrdersModal";
 import MovementModal from "./MovementModal";
 import CloseCashierModal from "./CloseCashierModal";
 import { inputStyle } from "./FormField";
+import { Paginator } from "@features/stock/components/Paginator";
 import {
   QK, fmtBRL, fmtDateTime, toDate, toDateStr,
   normPayment, groupByPayment, detectOrderType,
@@ -77,6 +78,16 @@ export default function OpenCashierView({ session }) {
       qc.invalidateQueries({ queryKey: QK.movements(session.id) });
       toast.success("Pagamento confirmado!");
       setOrderPayment((p) => { const n = { ...p }; delete n[vars.id]; return n; });
+      // Persiste o ID liquidado para o Menu consumir ao remontar (navegação entre rotas).
+      try {
+        const prev = JSON.parse(sessionStorage.getItem('sf-settled-orders') || '[]');
+        sessionStorage.setItem('sf-settled-orders', JSON.stringify([...prev, String(vars.id)]));
+      } catch {}
+      // Notifica o módulo Menu para remover a comanda imediatamente,
+      // sem depender de WebSocket ou polling.
+      window.dispatchEvent(
+        new CustomEvent('sf:order-settled', { detail: { orderId: vars.id } }),
+      );
     },
   });
 
@@ -101,6 +112,11 @@ export default function OpenCashierView({ session }) {
   const [fTipo,    setFTipo]    = useState("");
   const [fPayment, setFPayment] = useState("");
 
+  // Paginação — 10 por página por padrão
+  const PAGE_SIZE_OPTIONS = [10, 25, 50];
+  const [pageSize, setPageSize] = useState(10);
+  const [page,     setPage]     = useState(1);
+
   const totalIncome    = useMemo(() => movements.filter((m) => m.type === "INCOME").reduce((s, m) => s + Number(m.amount), 0),  [movements]);
   const totalExpense   = useMemo(() => movements.filter((m) => m.type === "EXPENSE").reduce((s, m) => s + Number(m.amount), 0), [movements]);
   const currentBalance = useMemo(() => Number(session.initialBalance ?? 0) + totalIncome - totalExpense, [session, totalIncome, totalExpense]);
@@ -108,16 +124,30 @@ export default function OpenCashierView({ session }) {
   const expenseByPay   = useMemo(() => groupByPayment(movements, "EXPENSE"), [movements]);
   const balancePos     = currentBalance >= 0;
 
-  const filtered = useMemo(() => movements.filter((m) => {
-    if (fDate    && toDateStr(m.createdAt) !== fDate)          return false;
-    if (fOrigem  && m.origem !== fOrigem)                      return false;
-    if (fPayment && normPayment(m.category) !== fPayment)      return false;
-    if (fTipo    && detectOrderType(m.description) !== fTipo)  return false;
-    return true;
-  }), [movements, fDate, fOrigem, fTipo, fPayment]);
+  // Filtrado + ordenado descendente (mais recente primeiro)
+  const filtered = useMemo(() => {
+    const result = movements.filter((m) => {
+      if (fDate    && toDateStr(m.createdAt) !== fDate)          return false;
+      if (fOrigem  && m.origem !== fOrigem)                      return false;
+      if (fPayment && normPayment(m.category) !== fPayment)      return false;
+      if (fTipo    && detectOrderType(m.description) !== fTipo)  return false;
+      return true;
+    });
+    return result.slice().sort((a, b) => {
+      const ta = Array.isArray(a.createdAt) ? new Date(a.createdAt[0], a.createdAt[1]-1, a.createdAt[2], a.createdAt[3]??0, a.createdAt[4]??0).getTime() : new Date(a.createdAt).getTime();
+      const tb = Array.isArray(b.createdAt) ? new Date(b.createdAt[0], b.createdAt[1]-1, b.createdAt[2], b.createdAt[3]??0, b.createdAt[4]??0).getTime() : new Date(b.createdAt).getTime();
+      return tb - ta; // descendente
+    });
+  }, [movements, fDate, fOrigem, fTipo, fPayment]);
+
+  // Reset página quando filtros ou pageSize mudam
+  useEffect(() => { setPage(1); }, [fDate, fOrigem, fTipo, fPayment, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated  = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
 
   const panel    = { background: palette.white, border: `1px solid ${palette.border}`, borderRadius: 12, overflow: "hidden" };
-  const TH       = { padding: "9px 12px", textAlign: "left", fontSize: 10, fontWeight: 700, color: palette.textMuted, textTransform: "uppercase", background: "#F1F5F1", borderBottom: `1px solid ${palette.border}`, whiteSpace: "nowrap" };
+  const TH       = { padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: palette.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", background: "#F8FAF8", borderBottom: `1.5px solid ${palette.border}`, whiteSpace: "nowrap" };
   const selStyle = { ...inputStyle, padding: "5px 8px", fontSize: 11, width: "auto", flex: "none" };
   const operatorName = user?.sub ?? session.openedBy ?? "—";
 
@@ -128,24 +158,6 @@ export default function OpenCashierView({ session }) {
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
       `}</style>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-        {pendingOrders.length > 0 && (
-          <button
-            onClick={() => setShowPaymentModal(true)}
-            style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 16px", borderRadius: 10, border: "1.5px solid #FFB300", cursor: "pointer", background: "#FFF8E1", color: "#5D4037", fontWeight: 700, fontSize: 12, transition: "all 0.15s" }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "#FFF3E0"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(245,127,23,0.2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#FFF8E1"; e.currentTarget.style.boxShadow = "none"; }}
-          >
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#F57C00" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Aguardando Pagamento
-            <span style={{ background: "#F57C00", color: "#fff", borderRadius: 20, fontSize: 10, fontWeight: 800, padding: "1px 7px", minWidth: 18, textAlign: "center" }}>
-              {pendingOrders.length}
-            </span>
-          </button>
-        )}
-      </div>
 
       <PendingOrdersModal
         open={showPaymentModal}
@@ -157,7 +169,7 @@ export default function OpenCashierView({ session }) {
         cancelOrder={cancelOrder}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "180px 1fr 235px", gap: 10, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(180px,200px) minmax(0,1fr) minmax(220px,260px)", gap: 12, alignItems: "start", overflowX: "auto" }}>
         <div style={{ ...panel, padding: 14, display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 10px", borderRadius: 8, background: palette.greenSurface, border: `1px solid ${palette.greenBorder}` }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -177,34 +189,56 @@ export default function OpenCashierView({ session }) {
         </div>
 
         <div style={{ ...panel }}>
-          <div style={{ padding: "10px 14px", borderBottom: `1px solid ${palette.border}`, display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: palette.textPrimary }}>Movimentação do Caixa</span>
-              <span style={{ fontSize: 11, color: palette.textMuted }}>{filtered.length} registros</span>
-            </div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} style={selStyle} />
-              <select value={fOrigem} onChange={(e) => setFOrigem(e.target.value)} style={selStyle}>
-                <option value="">Origem: Todas</option>
-                <option value="AUTOMATICO">Auto</option>
-                <option value="MANUAL">Manual</option>
+          {/* ── Cabeçalho: título + botão Aguardando ── */}
+          <div style={{ padding: "12px 16px", borderBottom: `1px solid ${palette.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: palette.textPrimary }}>Movimentação do Caixa</span>
+            <button
+              onClick={() => pendingOrders.length > 0 && setShowPaymentModal(true)}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                padding: "5px 12px", borderRadius: 8, fontSize: 11, fontWeight: 700,
+                cursor:     pendingOrders.length > 0 ? "pointer" : "default",
+                background: pendingOrders.length > 0 ? "#FFF8E1" : "#F5F5F5",
+                color:      pendingOrders.length > 0 ? "#E65100" : "#9E9E9E",
+                border:     `1.5px solid ${pendingOrders.length > 0 ? "#FFB300" : "#E0E0E0"}`,
+              }}
+            >
+              Aguardando Pagamento
+              <span style={{ borderRadius: 20, fontSize: 10, fontWeight: 800, padding: "1px 6px", background: pendingOrders.length > 0 ? "#F57C00" : "#BDBDBD", color: "#fff" }}>
+                {pendingOrders.length}
+              </span>
+            </button>
+          </div>
+
+          {/* ── Filtros + controles de paginação ── */}
+          <div style={{ padding: "8px 16px", borderBottom: `1px solid ${palette.border}`, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", background: "#FAFAFA" }}>
+            <input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} style={{ ...selStyle, minWidth: 130 }} />
+            <select value={fOrigem} onChange={(e) => setFOrigem(e.target.value)} style={selStyle}>
+              <option value="">Origem: Todas</option>
+              <option value="AUTOMATICO">Auto</option>
+              <option value="MANUAL">Manual</option>
+            </select>
+            <select value={fTipo} onChange={(e) => setFTipo(e.target.value)} style={selStyle}>
+              <option value="">Tipo: Todos</option>
+              <option value="MESA">Mesa</option>
+              <option value="DELIVERY">Delivery</option>
+              <option value="BALCAO">Balcão</option>
+            </select>
+            <select value={fPayment} onChange={(e) => setFPayment(e.target.value)} style={selStyle}>
+              <option value="">Pagamento: Todos</option>
+              {PAYMENT_KEYS.map((k) => <option key={k} value={k}>{PAYMENT_LABELS[k]}</option>)}
+            </select>
+            {(fDate || fOrigem || fTipo || fPayment) && (
+              <button onClick={() => { setFDate(""); setFOrigem(""); setFTipo(""); setFPayment(""); }}
+                style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: palette.redSurface, color: palette.red, border: `1px solid ${palette.redBorder}`, cursor: "pointer" }}>
+                Limpar
+              </button>
+            )}
+            <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 11, color: palette.textMuted, whiteSpace: "nowrap" }}>{filtered.length} reg.</span>
+              <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))} style={{ ...selStyle, fontSize: 11 }}>
+                {PAGE_SIZE_OPTIONS.map((s) => <option key={s} value={s}>{s} / pág.</option>)}
               </select>
-              <select value={fTipo} onChange={(e) => setFTipo(e.target.value)} style={selStyle}>
-                <option value="">Tipo: Todos</option>
-                <option value="MESA">Mesa</option>
-                <option value="DELIVERY">Delivery</option>
-                <option value="BALCAO">Balcão</option>
-              </select>
-              <select value={fPayment} onChange={(e) => setFPayment(e.target.value)} style={selStyle}>
-                <option value="">Pagamento: Todos</option>
-                {PAYMENT_KEYS.map((k) => <option key={k} value={k}>{PAYMENT_LABELS[k]}</option>)}
-              </select>
-              {(fDate || fOrigem || fTipo || fPayment) && (
-                <button onClick={() => { setFDate(""); setFOrigem(""); setFTipo(""); setFPayment(""); }}
-                  style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: palette.redSurface, color: palette.red, border: `1px solid ${palette.redBorder}`, cursor: "pointer" }}>
-                  Limpar
-                </button>
-              )}
             </div>
           </div>
 
@@ -231,11 +265,17 @@ export default function OpenCashierView({ session }) {
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
-                  <tr>{["Hora", "Tipo", "Origem", "Descrição", "Pagamento", "Entrada", "Saída"].map((h) => <th key={h} style={TH}>{h}</th>)}</tr>
+                  <tr>
+                    {["Hora", "Tipo", "Origem", "Descrição", "Pagamento"].map((h) => (
+                      <th key={h} style={TH}>{h}</th>
+                    ))}
+                    <th style={{ ...TH, textAlign: "right" }}>Entrada</th>
+                    <th style={{ ...TH, textAlign: "right" }}>Saída</th>
+                  </tr>
                 </thead>
                 <tbody>
                   <AnimatePresence initial={false}>
-                    {filtered.map((m, idx) => {
+                    {paginated.map((m, idx) => {
                       const isNew     = newIds.has(m.id);
                       const isAuto    = m.origem === "AUTOMATICO";
                       const orderType = detectOrderType(m.description);
@@ -244,7 +284,7 @@ export default function OpenCashierView({ session }) {
                         <motion.tr key={m.id}
                           initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}
                           style={{ background: isNew ? "#E8F5E9" : idx % 2 === 0 ? palette.white : "#FAFAFA", borderBottom: `1px solid ${palette.border}`, transition: "background 1.5s ease" }}>
-                          <td style={{ padding: "8px 12px", color: palette.textMuted, whiteSpace: "nowrap", fontSize: 11 }}>
+                          <td style={{ padding: "8px 14px", color: palette.textMuted, whiteSpace: "nowrap", fontSize: 11 }}>
                             {(() => {
                               const raw = m.createdAt;
                               if (!raw) return "—";
@@ -262,19 +302,21 @@ export default function OpenCashierView({ session }) {
                               {isAuto ? "AUTO" : "MANUAL"}
                             </span>
                           </td>
-                          <td style={{ padding: "8px 12px", color: palette.textPrimary, fontWeight: 500, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.description}</td>
+                          <td style={{ padding: "8px 14px", color: palette.textPrimary, fontWeight: 500, width: "100%", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.description}</td>
                           <td style={{ padding: "8px 12px", whiteSpace: "nowrap" }}>
                             {payKey && PAYMENT_ICONS[payKey] ? (
                               <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
                                 <PayBadge k={payKey} />
                                 <span style={{ fontSize: 11, color: palette.textMuted }}>{PAYMENT_LABELS[payKey]}</span>
                               </span>
-                            ) : <span style={{ fontSize: 11, color: palette.textMuted }}>{m.category || "—"}</span>}
+                            ) : (
+                              <span style={{ fontSize: 11, color: palette.textDisabled || "#BDBDBD" }}>—</span>
+                            )}
                           </td>
-                          <td style={{ padding: "8px 12px", fontWeight: 800, color: palette.green, textAlign: "right", whiteSpace: "nowrap" }}>
+                          <td style={{ padding: "8px 14px", fontWeight: 800, color: palette.green, textAlign: "right", whiteSpace: "nowrap" }}>
                             {m.type === "INCOME" ? `+ ${fmtBRL(m.amount)}` : ""}
                           </td>
-                          <td style={{ padding: "8px 12px", fontWeight: 800, color: palette.red, textAlign: "right", whiteSpace: "nowrap" }}>
+                          <td style={{ padding: "8px 14px", fontWeight: 800, color: palette.red, textAlign: "right", whiteSpace: "nowrap" }}>
                             {m.type === "EXPENSE" ? `− ${fmtBRL(m.amount)}` : ""}
                           </td>
                         </motion.tr>
@@ -284,16 +326,24 @@ export default function OpenCashierView({ session }) {
                 </tbody>
                 <tfoot>
                   <tr style={{ background: "#F1F5F1", borderTop: `2px solid ${palette.border}` }}>
-                    <td colSpan={5} style={{ padding: "8px 12px", fontSize: 11, fontWeight: 700, color: palette.textMuted }}>TOTAL ({filtered.length})</td>
-                    <td style={{ padding: "8px 12px", fontWeight: 900, color: palette.green, textAlign: "right" }}>
-                      + {fmtBRL(filtered.filter((m) => m.type === "INCOME").reduce((s, m) => s + Number(m.amount), 0))}
+                    <td colSpan={5} style={{ padding: "8px 14px", fontSize: 11, fontWeight: 700, color: palette.textMuted }}>TOTAL ({filtered.length})</td>
+                    <td style={{ padding: "8px 14px", fontWeight: 900, color: palette.green, textAlign: "right", whiteSpace: "nowrap" }}>
+                      +&nbsp;{fmtBRL(filtered.filter((m) => m.type === "INCOME").reduce((s, m) => s + Number(m.amount), 0))}
                     </td>
-                    <td style={{ padding: "8px 12px", fontWeight: 900, color: palette.red, textAlign: "right" }}>
-                      − {fmtBRL(filtered.filter((m) => m.type === "EXPENSE").reduce((s, m) => s + Number(m.amount), 0))}
+                    <td style={{ padding: "8px 14px", fontWeight: 900, color: palette.red, textAlign: "right", whiteSpace: "nowrap" }}>
+                      −&nbsp;{fmtBRL(filtered.filter((m) => m.type === "EXPENSE").reduce((s, m) => s + Number(m.amount), 0))}
                     </td>
                   </tr>
                 </tfoot>
               </table>
+              <Paginator
+                page={page}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                pageSize={pageSize}
+                label="movimentos"
+                onChange={setPage}
+              />
             </div>
           )}
         </div>

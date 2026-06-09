@@ -36,7 +36,6 @@ export function OrderTypeForm({ tipoVenda, onTipoChange, detalhes, onDetalhesCha
         {[
           { id: 'comanda', label: 'Comanda' },
           { id: 'delivery', label: 'Delivery' },
-          { id: 'pagamento', label: 'Pagamento' },
         ].map((t) => (
           <button
             key={t.id}

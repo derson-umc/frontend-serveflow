@@ -105,16 +105,52 @@
   border-bottom-color: var(--color-accent);
 }
 
+/* ── Category nav wrapper — holds fade indicators ────────── */
+.category-nav-wrapper {
+  position: relative;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Fade gradients indicate more content off-screen */
+.category-nav-wrapper::before,
+.category-nav-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.category-nav-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg), transparent);
+}
+
+.category-nav-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg), transparent);
+}
+
+/* Hide left fade when scrolled to the start */
+.category-nav-wrapper.at-start::before { opacity: 0; }
+/* Hide right fade when scrolled to the end  */
+.category-nav-wrapper.at-end::after    { opacity: 0; }
+
 .category-nav {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   overflow-x: auto;
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* Snap pills to the start on swipe */
+  scroll-snap-type: x mandatory;
 }
 
 .category-nav::-webkit-scrollbar {
@@ -124,8 +160,11 @@
 .category-pill {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
+  /* Minimum 44 × 44 px touch target (WCAG 2.5.5) */
+  min-height: 44px;
+  padding: 0 var(--space-4);
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
@@ -134,14 +173,32 @@
   background: var(--color-bg);
   color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: background var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
   flex-shrink: 0;
+  scroll-snap-align: start;
+  /* Remove 300 ms tap delay on mobile */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.category-pill:hover {
+/* Desktop: hover feedback */
+@media (hover: hover) {
+  .category-pill:hover {
+    border-color: var(--color-success);
+    color: var(--color-success);
+    background: var(--color-success-surface);
+  }
+}
+
+/* Mobile/tablet: instant active-state feedback on tap */
+.category-pill:active {
+  background: var(--color-success-surface);
   border-color: var(--color-success);
   color: var(--color-success);
-  background: var(--color-success-surface);
+  transform: scale(0.96);
 }
 
 .category-pill.active {

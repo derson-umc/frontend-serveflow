@@ -8,9 +8,11 @@ import { Modal } from "@shared/components/ui/Modal";
 import FormField, { inputStyle } from "./FormField";
 import StatusBadge from "./StatusBadge";
 import { QK, fmtBRL, fmtDate } from "../constants";
+import { useAuthStore } from "@features/auth/store/useAuthStore";
 
 export default function TabReceivables() {
-  const qc = useQueryClient();
+  const qc   = useQueryClient();
+  const user = useAuthStore((s) => s.user);
 
   const [showCreate, setShowCreate] = useState(false);
   const [showSettle, setShowSettle] = useState(null);
@@ -36,7 +38,10 @@ export default function TabReceivables() {
   });
 
   const settleMutation = useMutation({
-    mutationFn: ({ id, amount }) => financialApi.receivables.settle(id, { amount }),
+    mutationFn: ({ id, amount }) => financialApi.receivables.settle(id, {
+      amount,
+      performedBy: user?.sub ?? user?.username ?? user?.name ?? "sistema",
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: QK.receivables });
       toast.success("Recebimento registrado!");

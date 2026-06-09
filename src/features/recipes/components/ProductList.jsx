@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { palette } from '@styles/ds';
 
 const SEARCH_MODES = [
@@ -5,15 +6,76 @@ const SEARCH_MODES = [
   { value: 'category', label: 'Categoria' },
 ];
 
+const PAGE_SIZE = 10;
+
+function Paginator({ page, totalPages, total, onChange }) {
+  if (totalPages <= 1) return null;
+  return (
+    <div style={{
+      display:        'flex',
+      alignItems:     'center',
+      justifyContent: 'space-between',
+      padding:        '8px 12px',
+      borderTop:      `1px solid ${palette.border}`,
+      background:     palette.surface,
+    }}>
+      <span style={{ fontSize: 10, color: palette.textMuted }}>
+        {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} de {total}
+      </span>
+      <div style={{ display: 'flex', gap: 4 }}>
+        <button
+          onClick={() => onChange(page - 1)}
+          disabled={page === 1}
+          style={{
+            padding:      '3px 8px',
+            borderRadius: 6,
+            border:       `1px solid ${palette.border}`,
+            background:   page === 1 ? palette.surface : palette.white,
+            color:        page === 1 ? palette.textMuted : palette.textPrimary,
+            fontSize:     11,
+            cursor:       page === 1 ? 'not-allowed' : 'pointer',
+          }}
+        >
+          ←
+        </button>
+        <span style={{ padding: '3px 8px', fontSize: 11, color: palette.textMuted, lineHeight: '1.6' }}>
+          {page}/{totalPages}
+        </span>
+        <button
+          onClick={() => onChange(page + 1)}
+          disabled={page === totalPages}
+          style={{
+            padding:      '3px 8px',
+            borderRadius: 6,
+            border:       `1px solid ${palette.border}`,
+            background:   page === totalPages ? palette.surface : palette.white,
+            color:        page === totalPages ? palette.textMuted : palette.textPrimary,
+            fontSize:     11,
+            cursor:       page === totalPages ? 'not-allowed' : 'pointer',
+          }}
+        >
+          →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ProductList({
   filteredProducts,
   selectedProductId,
   recipe,
   search, setSearch,
   searchType, setSearchType,
-  debouncedSearch,
   onSelect,
 }) {
+  const [page, setPage] = useState(1);
+
+  useEffect(() => { setPage(1); }, [filteredProducts]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const paged      = filteredProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div style={{
       background:   palette.white,
@@ -22,6 +84,7 @@ export function ProductList({
       overflow:     'hidden',
       boxShadow:    '0 2px 10px rgba(0,0,0,0.06)',
     }}>
+      {/* Header com busca */}
       <div style={{ padding: '12px 14px', borderBottom: `1px solid ${palette.border}`, background: palette.surface }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: palette.textMuted, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 8px' }}>
           Produtos
@@ -32,15 +95,15 @@ export function ProductList({
               key={opt.value}
               onClick={() => { setSearchType(opt.value); setSearch(''); }}
               style={{
-                flex:       1,
-                padding:    '4px 8px',
+                flex:         1,
+                padding:      '4px 8px',
                 borderRadius: 6,
-                fontSize:   11,
-                fontWeight: 600,
-                border:     `1.5px solid ${searchType === opt.value ? palette.green : palette.border}`,
-                background: searchType === opt.value ? palette.greenSurface : palette.white,
-                color:      searchType === opt.value ? palette.green : palette.textMuted,
-                cursor:     'pointer',
+                fontSize:     11,
+                fontWeight:   600,
+                border:       `1.5px solid ${searchType === opt.value ? palette.green : palette.border}`,
+                background:   searchType === opt.value ? palette.greenSurface : palette.white,
+                color:        searchType === opt.value ? palette.green : palette.textMuted,
+                cursor:       'pointer',
               }}
             >
               {opt.label}
@@ -57,7 +120,7 @@ export function ProductList({
               width:        '100%',
               padding:      '7px 32px 7px 10px',
               borderRadius: 8,
-              border:       `1.5px solid ${search.length > 0 && search.length < 3 ? palette.orange : palette.border}`,
+              border:       `1.5px solid ${palette.border}`,
               background:   palette.white,
               fontSize:     12,
               color:        palette.textPrimary,
@@ -69,43 +132,32 @@ export function ProductList({
             <button
               onClick={() => setSearch('')}
               style={{
-                position:  'absolute',
-                right:     8,
-                top:       '50%',
-                transform: 'translateY(-50%)',
-                background:'none',
-                border:    'none',
-                color:     palette.textMuted,
-                cursor:    'pointer',
-                fontSize:  13,
+                position:   'absolute',
+                right:      8,
+                top:        '50%',
+                transform:  'translateY(-50%)',
+                background: 'none',
+                border:     'none',
+                color:      palette.textMuted,
+                cursor:     'pointer',
+                fontSize:   13,
                 lineHeight: 1,
               }}
             >
-              x
+              ×
             </button>
           )}
         </div>
-
-        {search.length > 0 && search.length < 3 && (
-          <p style={{ fontSize: 10, color: palette.orange, margin: '4px 0 0', fontWeight: 600 }}>
-            Digite ao menos 3 caracteres
-          </p>
-        )}
       </div>
 
-      <div style={{ maxHeight: 'calc(100vh - 260px)', overflowY: 'auto' }}>
-        {debouncedSearch.length < 3 ? (
-          <div style={{ padding: '28px 16px', textAlign: 'center' }}>
-            <p style={{ fontSize: 12, color: palette.textMuted }}>
-              {search.length === 0 ? 'Digite para pesquisar' : 'Continue digitando...'}
-            </p>
-          </div>
-        ) : filteredProducts.length === 0 ? (
+      {/* Lista de produtos */}
+      <div style={{ maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}>
+        {filteredProducts.length === 0 ? (
           <div style={{ padding: 24, textAlign: 'center', color: palette.textMuted, fontSize: 13 }}>
             Nenhum produto encontrado
           </div>
         ) : (
-          filteredProducts.map((p) => {
+          paged.map((p) => {
             const hasRecipe = selectedProductId === p.id && recipe !== null;
             const isActive  = selectedProductId === p.id;
             return (
@@ -113,18 +165,18 @@ export function ProductList({
                 key={p.id}
                 onClick={() => onSelect(p.id)}
                 style={{
-                  display:    'flex',
-                  alignItems: 'center',
-                  gap:        10,
-                  width:      '100%',
-                  padding:    '10px 16px',
-                  border:     'none',
+                  display:      'flex',
+                  alignItems:   'center',
+                  gap:          10,
+                  width:        '100%',
+                  padding:      '10px 16px',
+                  border:       'none',
                   borderBottom: `1px solid ${palette.border}`,
-                  background: isActive ? palette.greenSurface : 'transparent',
-                  cursor:     'pointer',
-                  textAlign:  'left',
-                  transition: 'background 0.12s',
-                  borderLeft: isActive ? `3px solid ${palette.green}` : '3px solid transparent',
+                  background:   isActive ? palette.greenSurface : 'transparent',
+                  cursor:       'pointer',
+                  textAlign:    'left',
+                  transition:   'background 0.12s',
+                  borderLeft:   isActive ? `3px solid ${palette.green}` : '3px solid transparent',
                 }}
               >
                 {p.imageUrl ? (
@@ -161,14 +213,14 @@ export function ProductList({
 
                 {isActive && (
                   <span style={{
-                    fontSize:   9,
-                    fontWeight: 700,
-                    padding:    '2px 6px',
+                    fontSize:     9,
+                    fontWeight:   700,
+                    padding:      '2px 6px',
                     borderRadius: 8,
-                    background: hasRecipe ? palette.greenSurface : palette.orangeSurface,
-                    color:      hasRecipe ? palette.green : palette.orange,
-                    border:     `1px solid ${hasRecipe ? palette.greenBorder : palette.orangeBorder}`,
-                    flexShrink: 0,
+                    background:   hasRecipe ? palette.greenSurface : palette.orangeSurface,
+                    color:        hasRecipe ? palette.green : palette.orange,
+                    border:       `1px solid ${hasRecipe ? palette.greenBorder : palette.orangeBorder}`,
+                    flexShrink:   0,
                   }}>
                     {hasRecipe ? 'Ficha' : 'Nova'}
                   </span>
@@ -178,6 +230,13 @@ export function ProductList({
           })
         )}
       </div>
+
+      <Paginator
+        page={page}
+        totalPages={totalPages}
+        total={filteredProducts.length}
+        onChange={setPage}
+      />
     </div>
   );
 }

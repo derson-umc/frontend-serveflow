@@ -1,50 +1,53 @@
 import { useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import { ENV } from "@core/config/env";
+import { getToken } from "@core/api/client";
 
-const MOVEMENTS_TOPIC = "/topic/cashier/movements";
-const SESSIONS_TOPIC  = "/topic/cashier/sessions";
+const TOPIC = "/topic/caixa";
 
 function buildWsUrl() {
   return ENV.API_BASE_URL.replace(/^http/, "ws") + "/ws";
 }
 
-/**
- * Single WebSocket connection for all cashier real-time events.
- *
- * onMovement(movement) — called on NEW_MOVEMENT
- * onSession(event)     — called on OPENED / CLOSED session events
- */
-export function useCashierSocket(onMovement, onSession) {
-  const onMovementRef = useRef(onMovement);
-  const onSessionRef  = useRef(onSession);
-  onMovementRef.current = onMovement;
-  onSessionRef.current  = onSession;
+export function useCashierSocket(onMovement, onSession, onBillClose) {
+  const onMovementRef  = useRef(onMovement);
+  const onSessionRef   = useRef(onSession);
+  const onBillCloseRef = useRef(onBillClose);
+  onMovementRef.current  = onMovement;
+  onSessionRef.current   = onSession;
+  onBillCloseRef.current = onBillClose;
 
   useEffect(() => {
     let client;
     try {
+      const token = getToken();
       client = new Client({
-        brokerURL: buildWsUrl(),
+        brokerURL:      buildWsUrl(),
         reconnectDelay: 6000,
+        connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
         onConnect: () => {
-          client.subscribe(MOVEMENTS_TOPIC, (msg) => {
+          client.subscribe(TOPIC, (msg) => {
             try {
               const event = JSON.parse(msg.body);
-              if (event.type === "NEW_MOVEMENT" && event.movement) {
-                onMovementRef.current?.(event.movement);
+              switch (event.event) {
+                case "CASH_MOVEMENT":
+                  onMovementRef.current?.(event.movement);
+                  break;
+                case "SESSION_OPENED":
+                case "SESSION_CLOSED":
+                  onSessionRef.current?.(event);
+                  break;
+                case "BILL_CLOSE_REQUESTED":
+                  onBillCloseRef.current?.(event);
+                  break;
+                default:
+                  break;
               }
             } catch { /* ignorar mensagem malformada */ }
           });
-          client.subscribe(SESSIONS_TOPIC, (msg) => {
-            try {
-              const event = JSON.parse(msg.body);
-              onSessionRef.current?.(event);
-            } catch { /* ignorar mensagem malformada */ }
-          });
         },
-        onStompError:    () => { /* reconecta automaticamente via reconnectDelay */ },
-        onWebSocketError: () => { /* idem */ },
+        onStompError:     () => {},
+        onWebSocketError: () => {},
       });
       client.activate();
     } catch { /* WebSocket indisponível — React Query polling cobre */ }
@@ -52,5 +55,5 @@ export function useCashierSocket(onMovement, onSession) {
     return () => {
       try { client?.deactivate(); } catch { /* ignorar */ }
     };
-  }, []); // sem deps — callbacks lidos via ref
+  }, []);
 }

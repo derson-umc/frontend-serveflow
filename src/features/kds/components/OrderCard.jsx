@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 import { ordersApi } from '@core/api/orders';
@@ -7,7 +8,6 @@ import { toast } from '@shared/components/feedback/Toast';
 import { palette } from '@styles/ds';
 import { STATUS_CONFIG, urgentPulse, LIGHT } from '../constants';
 import { waitColor, waitMinutes, getPrimaryAction } from '../utils';
-import { useElapsed } from '../hooks/useElapsed';
 import { ItemRow } from './ItemRow';
 import { StatusProgress } from './StatusProgress';
 import { ConfirmCancelModal } from './ConfirmCancelModal';
@@ -15,7 +15,7 @@ import { CancelItemModal } from './CancelItemModal';
 import { StockConsumptionModal } from './StockConsumptionModal';
 
 export function OrderCard({ order, position, onStatusChange }) {
-  const cancelMutation = useMutation({ mutationFn: (id) => ordersApi.cancel(id) });
+  const cancelMutation = useMutation({ mutationFn: ({ id, reason }) => ordersApi.cancel({ id, reason }) });
   const [acting, setActing]             = useState(false);
   const [cancellingOrder, setCancellingOrder] = useState(false);
   const [cancellingItem, setCancellingItem]   = useState(null);
@@ -26,9 +26,22 @@ export function OrderCard({ order, position, onStatusChange }) {
   const minutes   = waitMinutes(order.createdAt);
   const isUrgent  = minutes >= 15;
   const shortId   = String(order.id).slice(-6).toUpperCase();
-  const elapsed   = useElapsed(order.createdAt);
-  const statusCfg = STATUS_CONFIG[order.status] ?? { label: order.status, bg: palette.textMuted };
+const statusCfg = STATUS_CONFIG[order.status] ?? { label: order.status, bg: palette.textMuted };
   const primary   = getPrimaryAction(order);
+
+  const cardAnimate = useMemo(
+    () => isUrgent
+      ? { opacity: 1, scale: 1, ...urgentPulse.animate }
+      : { opacity: 1, scale: 1 },
+    [isUrgent],
+  );
+
+  const cardTransition = useMemo(
+    () => isUrgent
+      ? { opacity: { duration: 0.25 }, ...urgentPulse.transition }
+      : { duration: 0.25 },
+    [isUrgent],
+  );
 
   const positionBg    = position === 1 ? '#FFF8E1' : position === 2 ? palette.background : '#FFF3E0';
   const positionColor = position === 1 ? '#F57F17' : position === 2 ? palette.textMuted   : '#BF360C';
@@ -39,9 +52,9 @@ export function OrderCard({ order, position, onStatusChange }) {
     toast.warning(`"${item.productName}" marcado como indisponível`);
   };
 
-  const handleCancelOrder = async () => {
+  const handleCancelOrder = async (reason) => {
     try {
-      await cancelMutation.mutateAsync(order.id);
+      await cancelMutation.mutateAsync({ id: order.id, reason: reason || null });
       toast.success(`Pedido #${shortId} cancelado`);
       setCancellingOrder(false);
       onStatusChange(order.id);
@@ -81,25 +94,17 @@ export function OrderCard({ order, position, onStatusChange }) {
     <>
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
-        animate={
-          isUrgent
-            ? { opacity: 1, scale: 1, ...urgentPulse.animate }
-            : { opacity: 1, scale: 1 }
-        }
+        animate={cardAnimate}
         exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.2 } }}
-        transition={
-          isUrgent
-            ? { opacity: { duration: 0.25 }, ...urgentPulse.transition }
-            : { duration: 0.25 }
-        }
+        transition={cardTransition}
         style={{
           background:   palette.white,
           border:       `1px solid ${palette.border}`,
           borderTop:    `4px solid ${color}`,
           borderRadius: 14,
           boxShadow:    isUrgent ? '0 2px 14px rgba(198,40,40,0.15)' : '0 2px 14px rgba(0,0,0,0.09)',
-          width:        300,
-          flexShrink:   0,
+          minWidth:     0,
+          maxWidth:     300,
           display:      'flex',
           flexDirection:'column',
           overflow:     'hidden',
@@ -134,43 +139,26 @@ export function OrderCard({ order, position, onStatusChange }) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, marginLeft: 6 }}>
-              <motion.span
-                key={order.status}
-                initial={{ scale: 0.7, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-                style={{
-                  background:    statusCfg.bg,
-                  color:         palette.white,
-                  padding:       '3px 8px',
-                  borderRadius:  20,
-                  fontWeight:    700,
-                  fontSize:      9,
-                  letterSpacing: 0.4,
-                }}
-              >
-                {statusCfg.label}
-              </motion.span>
-              <button
-                onClick={() => setCancellingOrder(true)}
-                title="Cancelar pedido"
-                style={{
-                  width:          24,
-                  height:         24,
-                  borderRadius:   6,
-                  border:         `1px solid ${palette.redBorder}`,
-                  background:     palette.redSurface,
-                  color:          palette.red,
-                  fontSize:       12,
-                  cursor:         'pointer',
-                  flexShrink:     0,
-                  display:        'flex',
-                  alignItems:     'center',
-                  justifyContent: 'center',
-                }}
-              >
-                x
-              </button>
+              {/* Badge de status — oculto para PENDENTE e ENVIADO (seção já contextualiza) */}
+              {order.status !== 'PENDENTE' && order.status !== 'ENVIADO' && (
+                <motion.span
+                  key={order.status}
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                  style={{
+                    background:    statusCfg.bg,
+                    color:         palette.white,
+                    padding:       '3px 8px',
+                    borderRadius:  20,
+                    fontWeight:    700,
+                    fontSize:      9,
+                    letterSpacing: 0.4,
+                  }}
+                >
+                  {statusCfg.label}
+                </motion.span>
+              )}
             </div>
           </div>
 
@@ -192,8 +180,24 @@ export function OrderCard({ order, position, onStatusChange }) {
               DELIVERY
             </span>
           )}
+          {order.type === 'MESA' && order.tableNumber && (
+            <span style={{
+              display:       'inline-block',
+              marginTop:     4,
+              marginBottom:  2,
+              background:    '#F3E5F5',
+              color:         '#6A1B9A',
+              fontSize:      10,
+              fontWeight:    700,
+              padding:       '2px 7px',
+              borderRadius:  10,
+              letterSpacing: 0.3,
+            }}>
+              MESA {order.tableNumber}
+            </span>
+          )}
 
-          <div style={{ maxHeight: 250, overflowY: 'auto', marginTop: 6 }}>
+          <div style={{ maxHeight: 200, overflowY: 'auto', marginTop: 6 }}>
             {order.items.map((item) => (
               <ItemRow
                 key={item.id}
@@ -213,9 +217,6 @@ export function OrderCard({ order, position, onStatusChange }) {
           borderTop:      '1px solid #F0F0F0',
         }}>
           <span style={{ fontSize: 11, color: palette.textMuted }}>{order.customerName}</span>
-          <span style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums', color, fontWeight: 700 }}>
-            {elapsed}
-          </span>
         </div>
 
         {primary && (
@@ -242,29 +243,32 @@ export function OrderCard({ order, position, onStatusChange }) {
         )}
       </motion.div>
 
-      <AnimatePresence>
-        {cancellingOrder && (
-          <ConfirmCancelModal
-            order={order}
-            loading={cancelMutation.isPending}
-            onConfirm={handleCancelOrder}
-            onClose={() => setCancellingOrder(false)}
-          />
-        )}
-        {cancellingItem && (
-          <CancelItemModal
-            item={cancellingItem}
-            onConfirm={(reason) => markItemCancelled(cancellingItem, reason)}
-            onClose={() => setCancellingItem(null)}
-          />
-        )}
-        {stockMovements !== null && (
-          <StockConsumptionModal
-            movements={stockMovements}
-            onClose={() => setStockMovements(null)}
-          />
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {cancellingOrder && (
+            <ConfirmCancelModal
+              order={order}
+              loading={cancelMutation.isPending}
+              onConfirm={handleCancelOrder}
+              onClose={() => setCancellingOrder(false)}
+            />
+          )}
+          {cancellingItem && (
+            <CancelItemModal
+              item={cancellingItem}
+              onConfirm={(reason) => markItemCancelled(cancellingItem, reason)}
+              onClose={() => setCancellingItem(null)}
+            />
+          )}
+          {stockMovements !== null && stockMovements.length > 0 && (
+            <StockConsumptionModal
+              movements={stockMovements}
+              onClose={() => setStockMovements(null)}
+            />
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
