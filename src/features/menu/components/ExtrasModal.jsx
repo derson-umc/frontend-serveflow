@@ -91,7 +91,7 @@ export function ExtrasModal({ cartItem, initialExtras = [], onSave, onClose }) {
         <div className="flex gap-2 w-full">
           <Button variant="ghost"   style={{ flex: 1 }} onClick={onClose}>Cancelar</Button>
           <Button variant="primary" style={{ flex: 2 }} onClick={() => onSave(cartItem.id, extras)}>
-            Confirmar{extrasTotal > 0 ? ` (+${fmt(extrasTotal)})` : ''}
+            Confirmar
           </Button>
         </div>
       }

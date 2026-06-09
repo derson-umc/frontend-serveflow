@@ -30,11 +30,11 @@ export function AdjustModal({ item, onClose, onSuccess }) {
 
   const onSubmit = async (data) => {
     try {
-      await adjust.mutateAsync({ newQuantity: Number(data.newQuantity), notes: data.notes });
+      await adjust.mutateAsync({ newQuantity: Number(data.newQuantity), reason: data.notes });
       toast.success('Ajuste de estoque registrado.');
       onSuccess();
     } catch (err) {
-      toast.error(err?.response?.data?.message ?? 'Erro ao ajustar estoque.');
+      toast.error(err?.response?.data?.error ?? err?.response?.data?.message ?? 'Erro ao ajustar estoque.');
     }
   };
 

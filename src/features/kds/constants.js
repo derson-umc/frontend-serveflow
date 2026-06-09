@@ -4,13 +4,14 @@ export const TEAL  = '#00838F';
 export const LIGHT = '#9E9E9E';
 
 export const STATUS_CONFIG = {
-  RASCUNHO:  { label: 'RASCUNHO',    bg: palette.blue   },
-  ENVIADO:   { label: 'ENVIADO',     bg: '#6A1B9A'      },
-  EM_PREPARO: { label: 'EM PREPARO', bg: palette.orange },
-  PRONTO:    { label: 'PRONTO',      bg: palette.green  },
-  A_CAMINHO: { label: 'A CAMINHO',   bg: TEAL           },
-  ENTREGUE:  { label: 'ENTREGUE',    bg: '#4E342E'      },
-  CANCELADO: { label: 'CANCELADO',   bg: palette.red    },
+  PENDENTE:             { label: 'Em Fila',            bg: '#6A1B9A'      },
+  ENVIADO:              { label: 'Em Fila',            bg: '#6A1B9A'      },
+  EM_PREPARO:           { label: 'Em andamento',       bg: palette.orange },
+  PRONTO:               { label: 'Pronto',             bg: palette.green  },
+  AGUARDANDO_PAGAMENTO: { label: 'Aguard. Pagamento',  bg: '#D97706'      },
+  A_CAMINHO:            { label: 'A Caminho',          bg: TEAL           },
+  ENTREGUE:             { label: 'Entregue',           bg: '#4E342E'      },
+  CANCELADO:            { label: 'Cancelado',          bg: palette.red    },
 };
 
 export const CANCEL_REASONS = [
@@ -22,24 +23,44 @@ export const CANCEL_REASONS = [
   'Outro',
 ];
 
-export const PROGRESS_STEPS = ['RASCUNHO', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE'];
+export const PROGRESS_STEPS = ['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO', 'ENTREGUE'];
 
-export const VISIBLE_STATUSES = ['ENVIADO', 'EM_PREPARO', 'PRONTO', 'A_CAMINHO'];
+export const VISIBLE_STATUSES = ['PENDENTE', 'ENVIADO', 'EM_PREPARO', 'PRONTO'];
 
 export const SECTIONS = [
-  { key: 'pending',     label: 'Aguardando', statuses: ['ENVIADO'],               color: palette.blue   },
-  { key: 'preparation', label: 'Em Preparo', statuses: ['EM_PREPARO'],             color: palette.orange },
-  { key: 'ready',       label: 'Prontos',    statuses: ['PRONTO', 'A_CAMINHO'],    color: palette.green  },
+  { key: 'pending',     label: 'Em Fila',       statuses: ['PENDENTE', 'ENVIADO'],   color: '#6A1B9A'      },
+  { key: 'preparation', label: 'Em andamento',  statuses: ['EM_PREPARO'],             color: palette.orange },
+  { key: 'ready',       label: 'Prontos',       statuses: ['PRONTO'],                 color: palette.green  },
 ];
 
 const BEVERAGE_CATEGORIES = ['BEBIDA_ALCOOLICA', 'BEBIDA_NAO_ALCOOLICA'];
 
-// Heurística por nome — usada quando o produto não tem productCategory definido
+// Heurística por nome — usada quando o produto não tem productCategory definido.
+// Inclui marcas populares para maximizar cobertura.
 const BEVERAGE_NAME_TOKENS = [
-  'bebida', 'refrigerante', 'suco', 'água', 'agua',
-  'cerveja', 'vinho', 'chopp', 'chope', 'coquetel', 'cocktail',
-  'café', 'cafe', 'chá', 'cha', 'limonada', 'energético', 'energetico',
-  'caipirinha', 'destilado', 'whisky', 'vodka', 'gin', 'rum',
+  // Genéricos
+  'bebida', 'drink', 'drinkable',
+  'refrigerante', 'suco', 'suco natural', 'vitamina',
+  'água', 'agua', 'mineral', 'tônica', 'tonica', 'soda',
+  'leite', 'milk', 'iogurte', 'yakult',
+  // Quentes
+  'café', 'cafe', 'expresso', 'cappuccino', 'cappucino',
+  'chá', 'cha', 'chocolate quente',
+  // Frios / limões
+  'limonada', 'lemonade', 'kombucha',
+  // Alcoólicos
+  'cerveja', 'beer', 'chopp', 'chope',
+  'vinho', 'wine', 'espumante', 'prosecco', 'champagne',
+  'coquetel', 'cocktail', 'caipirinha', 'caipiroska',
+  'destilado', 'whisky', 'whiskey', 'vodka', 'gin', 'rum',
+  'cachaça', 'cachaca', 'tequila', 'licor', 'conhaque',
+  // Marcas brasileiras e internacionais
+  'coca', 'cola', 'pepsi', 'fanta', 'sprite',
+  'guaraná', 'guarana', 'schweppes', 'gatorade', 'powerade',
+  'isotônico', 'isotonico', 'redbull', 'red bull', 'monster',
+  'heineken', 'budweiser', 'corona', 'skol', 'brahma',
+  'itaipava', 'eisenbahn', 'stella', 'artois', 'beck',
+  'amstel', 'devassa', 'polar', 'original',
 ];
 
 function isBeverageByName(productName = '') {

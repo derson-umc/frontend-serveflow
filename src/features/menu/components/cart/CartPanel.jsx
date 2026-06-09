@@ -108,8 +108,8 @@ export function CartPanel({
                 </span>
                 <span
                   style={{
-                    fontSize: 'var(--text-2xl)',
-                    fontWeight: 'var(--font-black)',
+                    fontSize: 'var(--text-lg)',
+                    fontWeight: 'var(--font-bold)',
                     color: 'var(--color-success)',
                   }}
                 >
@@ -123,11 +123,12 @@ export function CartPanel({
             )}
 
             <div className="px-4 pb-4 flex gap-2">
-              <Button variant="ghost" onClick={onClear} style={{ flex: 1 }}>
+              <Button variant="ghost" size="xs" onClick={onClear} style={{ flex: 1 }}>
                 Cancelar
               </Button>
               <Button
                 variant="primary"
+                size="xs"
                 onClick={onFinalize}
                 disabled={finalizeDisabled}
                 style={{ flex: 2 }}

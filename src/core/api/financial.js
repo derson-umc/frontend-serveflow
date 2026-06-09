@@ -2,6 +2,8 @@ import apiClient from './client';
 
 export const financialApi = {
   cashFlow: () => apiClient.get('/financial/cash-flow').then((r) => r.data),
+  cashierReport: (startDate, endDate) =>
+    apiClient.get('/financial/cashier-report', { params: { startDate, endDate } }).then((r) => r.data),
 
   receivables: {
     list: () => apiClient.get('/financial/receivables').then((r) => r.data),

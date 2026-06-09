@@ -82,21 +82,11 @@ export default function Users() {
       <div className="relative flex-1 px-4 py-8 sm:px-8" style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
         <UserSectionNav canManage={canManage} />
 
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-1 h-7 rounded-full flex-shrink-0" style={{ background: palette.green }} />
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: palette.textSecondary }}>
-                Lista de Usuários
-              </h1>
-            </div>
-            <p className="text-sm ml-4" style={{ color: palette.textMuted }}>Gerenciar usuários e redefinir senhas</p>
-          </div>
-
-          {canManage && (
+        {canManage && (
+          <div className="mb-6">
             <button
               onClick={() => { setFormModal({ mode: 'create' }); clearNotice(); }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
               style={{ background: palette.green, color: palette.white, border: 'none', boxShadow: '0 4px 18px rgba(46,125,50,0.28)', cursor: 'pointer' }}
               onMouseEnter={(e) => (e.currentTarget.style.background = palette.greenDark)}
               onMouseLeave={(e) => (e.currentTarget.style.background = palette.green)}
@@ -106,8 +96,8 @@ export default function Users() {
               </svg>
               Novo Usuário
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {notice.msg && (
           <div className="mb-4 px-3 py-2.5 rounded-lg" style={{

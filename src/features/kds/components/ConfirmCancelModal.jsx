@@ -4,6 +4,7 @@ import { palette } from '@styles/ds';
 
 export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
   const [reason, setReason] = useState('');
+  const [error,  setError]  = useState(false);
   const shortId = String(order.id).slice(-6).toUpperCase();
 
   return (
@@ -70,22 +71,28 @@ export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
 
         <input
           type="text"
-          placeholder="Motivo do cancelamento (opcional)"
+          placeholder="Motivo do cancelamento *"
           value={reason}
-          onChange={(e) => setReason(e.target.value)}
+          onChange={(e) => { setReason(e.target.value); setError(false); }}
           style={{
             width:        '100%',
             padding:      '9px 12px',
             borderRadius: 8,
-            border:       `1px solid ${palette.border}`,
+            border:       `1px solid ${error ? palette.red : palette.border}`,
             fontSize:     13,
             color:        palette.textSecondary,
             background:   palette.background,
             outline:      'none',
-            marginBottom: 16,
+            marginBottom: error ? 6 : 16,
             boxSizing:    'border-box',
+            boxShadow:    error ? `0 0 0 2px ${palette.redSurface}` : 'none',
           }}
         />
+        {error && (
+          <p style={{ fontSize: 11, color: palette.red, fontWeight: 600, marginBottom: 12 }}>
+            Informe o motivo do cancelamento.
+          </p>
+        )}
 
         <div style={{ display: 'flex', gap: 10 }}>
           <button
@@ -105,7 +112,10 @@ export function ConfirmCancelModal({ order, loading, onConfirm, onClose }) {
             Manter Pedido
           </button>
           <button
-            onClick={() => onConfirm(reason || null)}
+            onClick={() => {
+              if (!reason.trim()) { setError(true); return; }
+              onConfirm(reason.trim());
+            }}
             disabled={loading}
             style={{
               flex:         1,

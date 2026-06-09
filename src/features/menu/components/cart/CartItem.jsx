@@ -24,6 +24,7 @@ export function CartItem({
         flexDirection: 'column',
         gap: 6,
         animation: 'slideUp 180ms ease',
+        minWidth: 0,
       }}
     >
       {/* Row 1: nome + controles de quantidade */}
@@ -66,9 +67,8 @@ export function CartItem({
           style={{
             flex: 1,
             display: 'flex',
+            flexWrap: 'wrap',
             gap: 4,
-            overflowX: 'auto',
-            scrollbarWidth: 'none',
           }}
         >
           {extras.map((e, i) => (

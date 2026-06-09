@@ -1,9 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 
 const SUGGESTIONS = [
-  'Sem cebola', 'Bem passado', 'Ponto', 'Mal passado',
-  'Sem sal', 'Sem molho', 'Molho à parte', 'Extra queijo',
-  'Sem queijo', 'Extra sal', 'Sem alho', 'Bem frito',
+  'Bem passado', 'Mal passado', 'Sem cebola', 'Extra queijo'
 ];
 
 const MAX_CHARS = 200;
@@ -88,8 +86,7 @@ export function ObservationField({ value = '', onChange }) {
 
   // ----- estado expandido -----
   return (
-    <div ref={wrapperRef} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      {/* Chips em linha única com scroll */}
+    <div ref={wrapperRef} style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
       <div
         style={{
           display: 'flex',
@@ -125,8 +122,7 @@ export function ObservationField({ value = '', onChange }) {
         })}
       </div>
 
-      {/* Textarea */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', minWidth: 0 }}>
         <textarea
           ref={textareaRef}
           value={value}
@@ -143,7 +139,7 @@ export function ObservationField({ value = '', onChange }) {
             background: 'var(--color-bg)',
             border: `1px solid ${overLimit ? 'var(--color-error)' : 'var(--color-success)'}`,
             borderRadius: 'var(--radius-sm)',
-            padding: '4px 34px 4px 8px',
+            padding: '4px 8px',
             outline: 'none',
             minHeight: 30,
             maxHeight: 76,
@@ -154,11 +150,11 @@ export function ObservationField({ value = '', onChange }) {
         {value.length > 0 && (
           <span
             style={{
-              position: 'absolute', right: 6, top: '50%',
-              transform: 'translateY(-50%)',
+              display: 'block',
+              textAlign: 'right',
               fontSize: 9,
               color: overLimit ? 'var(--color-error)' : 'var(--color-text-disabled)',
-              pointerEvents: 'none',
+              marginTop: 2,
             }}
           >
             {value.length}/{MAX_CHARS}

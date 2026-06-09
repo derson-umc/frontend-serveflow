@@ -34,7 +34,6 @@ export function useRecipes() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (search.length === 0) { setDebouncedSearch(''); return; }
-    if (search.length < 3) return;
     debounceRef.current = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(debounceRef.current);
   }, [search]);
@@ -99,6 +98,14 @@ export function useRecipes() {
 
   const addIngredient    = () => setIngredients((p) => [...p, EMPTY_INGREDIENT()]);
   const removeIngredient = (idx) => setIngredients((p) => p.filter((_, i) => i !== idx));
+  const reorderIngredient = (from, to) => {
+    setIngredients((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
 
   const handleSave = async () => {
     const product = products.find((p) => p.id === selectedProductId);
@@ -141,19 +148,12 @@ export function useRecipes() {
   const selectedProduct = products.find((p) => p.id === selectedProductId);
   const isCommercial    = productType === 'COMMERCIAL';
 
-  const totalCost = ingredients.reduce((acc, i) => {
-    const item = stockItems.find((s) => s.id === i.stockItemId);
-    const qty  = parseFloat(i.quantityPerUnit) || 0;
-    return acc + qty * (item?.averageCost ?? 0);
-  }, 0);
-
-  const filteredProducts = debouncedSearch.length >= 3
-    ? products.filter((p) => {
-        const q = debouncedSearch.toLowerCase();
-        if (searchType === 'category') return (p.category ?? '').toLowerCase().includes(q);
-        return p.name.toLowerCase().includes(q);
-      })
-    : [];
+  const filteredProducts = products.filter((p) => {
+    if (!debouncedSearch) return true;
+    const q = debouncedSearch.toLowerCase();
+    if (searchType === 'category') return (p.category ?? '').toLowerCase().includes(q);
+    return p.name.toLowerCase().includes(q);
+  });
 
   return {
     products,
@@ -170,13 +170,13 @@ export function useRecipes() {
     searchType, setSearchType,
     debouncedSearch,
     isCommercial,
-    totalCost,
     filteredProducts,
     handleProductSelect,
     handleIngredientChange,
     handleProductTypeChange,
     addIngredient,
     removeIngredient,
+    reorderIngredient,
     handleSave,
   };
 }

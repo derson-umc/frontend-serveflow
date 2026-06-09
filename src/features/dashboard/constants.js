@@ -1,8 +1,14 @@
 import { palette } from "@styles/ds";
 
-export const fmtBRL = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+export const fmtBRL = (v) => {
+  const n = parseFloat(v ?? 0);
+  return (isNaN(n) ? 0 : n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+};
 
-export const FALLBACK_METRICS = { revenueToday: 0, ordersToday: 0, customersToday: 0, netProfit: 0 };
+export const FALLBACK_METRICS = {
+  revenueToday: 0, ordersToday: 0, customersToday: 0, ticketMedio: 0,
+  revenueYesterday: 0, ordersYesterday: 0, customersYesterday: 0, ticketMedioYesterday: 0,
+};
 
 export const PAYMENT_LABELS = {
   DINHEIRO: "Dinheiro",

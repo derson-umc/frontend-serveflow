@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '@core/api/dashboard';
 
 const DK = {
-  metrics:     ['dashboard', 'metrics'],
-  salesByDay:  ['dashboard', 'sales'],
-  topProducts: ['dashboard', 'top'],
+  metrics:       ['dashboard', 'metrics'],
+  salesByDay:    ['dashboard', 'sales'],
+  topProducts:   (days) => ['dashboard', 'top', days],
   cashierReport: (start, end) => ['dashboard', 'cashierReport', start, end],
 };
 
@@ -14,11 +14,20 @@ export function useDashboard() {
     queryFn:  dashboardApi.metrics,
     staleTime: 30_000,
     placeholderData: {
-      revenueToday: 0,
-      ordersToday: 0,
-      customersToday: 0,
-      netProfit: 0,
+      revenueToday: 0, ordersToday: 0, customersToday: 0, ticketMedio: 0,
+      revenueYesterday: 0, ordersYesterday: 0, customersYesterday: 0, ticketMedioYesterday: 0,
     },
+    /** Normaliza todos os campos numéricos — BigDecimal pode chegar como string do Jackson. */
+    select: (d) => ({
+      revenueToday:          parseFloat(d.revenueToday          ?? 0) || 0,
+      ordersToday:           Number(d.ordersToday               ?? 0),
+      customersToday:        Number(d.customersToday            ?? 0),
+      ticketMedio:           parseFloat(d.ticketMedio           ?? 0) || 0,
+      revenueYesterday:      parseFloat(d.revenueYesterday      ?? 0) || 0,
+      ordersYesterday:       Number(d.ordersYesterday           ?? 0),
+      customersYesterday:    Number(d.customersYesterday        ?? 0),
+      ticketMedioYesterday:  parseFloat(d.ticketMedioYesterday  ?? 0) || 0,
+    }),
   });
 
   const salesByDay = useQuery({
@@ -28,22 +37,28 @@ export function useDashboard() {
     placeholderData: [],
     select: (data) =>
       data.map((d) => ({
-        day: new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', {
-          weekday: 'short',
-          day: '2-digit',
-        }),
+        day:   new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' }),
+        date:  d.date,
         total: Number(d.total),
       })),
   });
 
-  const topProducts = useQuery({
-    queryKey: DK.topProducts,
-    queryFn:  dashboardApi.topProducts,
+  return { metrics, salesByDay };
+}
+
+export function useTopProducts(days = 30) {
+  return useQuery({
+    queryKey: DK.topProducts(days),
+    queryFn:  () => dashboardApi.topProducts(days),
     staleTime: 30_000,
     placeholderData: [],
+    select: (data) =>
+      data.map((p) => ({
+        ...p,
+        quantity: Number(p.quantity ?? 0),
+        revenue:  parseFloat(p.revenue  ?? 0) || 0,
+      })),
   });
-
-  return { metrics, salesByDay, topProducts };
 }
 
 export function useCashierReport(startDate, endDate) {

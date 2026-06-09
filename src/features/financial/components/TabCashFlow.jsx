@@ -26,7 +26,11 @@ export default function TabCashFlow() {
     qc.invalidateQueries({ queryKey: QK.session });
   }, [qc]);
 
-  useCashierSocket(handleMovement, handleSession);
+  const handleBillClose = useCallback(() => {
+    qc.invalidateQueries({ queryKey: QK.pendingOrders });
+  }, [qc]);
+
+  useCashierSocket(handleMovement, handleSession, handleBillClose);
 
   if (isLoading) {
     return <div style={{ textAlign: "center", padding: 40, color: palette.textMuted }}>Carregando...</div>;

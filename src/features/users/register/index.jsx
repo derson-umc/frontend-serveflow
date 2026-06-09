@@ -75,14 +75,6 @@ export default function Register() {
         <div className="flex items-center justify-center">
         <div className="w-full max-w-md">
 
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-1 h-7 rounded-full"
-                style={{ background: `linear-gradient(180deg, ${palette.orange}, ${palette.green})` }} />
-              <h1 className="text-2xl font-bold" style={{ color: palette.textSecondary }}>Cadastrar Usuário</h1>
-            </div>
-            <p className="text-sm ml-4" style={{ color: palette.textMuted }}>Criar e gerenciar usuários do sistema</p>
-          </div>
 
           <div className="rounded-2xl p-7 shadow-sm"
             style={{ background: palette.white, border: `1px solid ${palette.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.09)' }}>

@@ -55,8 +55,7 @@ export default function Kds() {
     .map((o) => ({ ...o, items: (o.items ?? []).filter(isKdsItem) }))
     .filter((o) => o.items.length > 0);
 
-  const backTarget = user?.role === 'cozinheiro' ? '/dashboard' : '/menu';
-  const backLabel  = user?.role === 'cozinheiro' ? 'Início' : 'Menu';
+  const canAccessMenu = ['admin', 'gerente', 'garcon'].includes(user?.role);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: palette.background, fontFamily: 'system-ui, sans-serif' }}>
@@ -69,29 +68,31 @@ export default function Kds() {
         alignItems:   'center',
         height:       48,
       }}>
-        <button
-          onClick={() => navigate(backTarget)}
-          style={{
-            background:  'rgba(255,255,255,0.12)',
-            border:      'none',
-            borderRight: '1px solid rgba(255,255,255,0.15)',
-            color:       palette.white,
-            cursor:      'pointer',
-            padding:     '0 16px',
-            height:      '100%',
-            display:     'flex',
-            alignItems:  'center',
-            gap:         6,
-            flexShrink:  0,
-            fontSize:    12,
-            fontWeight:  600,
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
-          </svg>
-          {backLabel}
-        </button>
+        {canAccessMenu && (
+          <button
+            onClick={() => navigate('/menu')}
+            style={{
+              background:  'rgba(255,255,255,0.12)',
+              border:      'none',
+              borderRight: '1px solid rgba(255,255,255,0.15)',
+              color:       palette.white,
+              cursor:      'pointer',
+              padding:     '0 16px',
+              height:      '100%',
+              display:     'flex',
+              alignItems:  'center',
+              gap:         6,
+              flexShrink:  0,
+              fontSize:    12,
+              fontWeight:  600,
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
+            </svg>
+            Menu
+          </button>
+        )}
 
         <span style={{ color: palette.white, fontWeight: 700, fontSize: 15, padding: '0 16px', flex: 1 }}>
           KDS — Monitor de Preparo
@@ -138,7 +139,7 @@ export default function Kds() {
             return (
               <div key={key}>
                 <SectionHeader title={label} count={sectionOrders.length} color={color} />
-                <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 6 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 300px))', gap: 14 }}>
                   <AnimatePresence>
                     {sectionOrders.map((order, idx) => (
                       <OrderCard
