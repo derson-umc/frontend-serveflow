@@ -44,8 +44,11 @@ function LegendDot({ color, label }) {
 
 export default function Kds() {
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
+  const user    = useAuthStore((s) => s.user);
+  const signOut = useAuthStore((s) => s.signOut);
   const { orders, connected, refetch } = useKdsSocket();
+
+  const handleSignOut = () => { signOut(); navigate('/'); };
 
   const handleStatusChange = () => refetch();
 
@@ -98,15 +101,39 @@ export default function Kds() {
           KDS — Monitor de Preparo
         </span>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingRight: 16 }}>
-          <motion.span
-            animate={{ opacity: connected ? 1 : [1, 0.3, 1] }}
-            transition={connected ? {} : { duration: 1.2, repeat: Infinity }}
-            style={{ width: 8, height: 8, borderRadius: '50%', background: connected ? '#69F0AE' : '#FF5252' }}
-          />
-          <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11 }}>
-            {connected ? 'Ao vivo' : 'Polling'}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingRight: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <motion.span
+              animate={{ opacity: connected ? 1 : [1, 0.3, 1] }}
+              transition={connected ? {} : { duration: 1.2, repeat: Infinity }}
+              style={{ width: 8, height: 8, borderRadius: '50%', background: connected ? '#69F0AE' : '#FF5252' }}
+            />
+            <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11 }}>
+              {connected ? 'Ao vivo' : 'Polling'}
+            </span>
+          </div>
+
+          <button
+            onClick={handleSignOut}
+            style={{
+              background:  'rgba(255,255,255,0.12)',
+              border:      '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 6,
+              color:       palette.white,
+              cursor:      'pointer',
+              padding:     '4px 12px',
+              fontSize:    12,
+              fontWeight:  600,
+              display:     'flex',
+              alignItems:  'center',
+              gap:         6,
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+            </svg>
+            Sair
+          </button>
         </div>
       </header>
 

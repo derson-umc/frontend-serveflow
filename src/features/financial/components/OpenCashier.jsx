@@ -5,7 +5,7 @@ import { useAuthStore } from "@features/auth/store/useAuthStore";
 import { cashierApi } from "@core/api/cashier";
 import { toast } from "@shared/components/feedback/Toast";
 import FormField, { inputStyle } from "./FormField";
-import { QK, fmtBRL, fmtDateTime, detectShift } from "../constants";
+import { QK, fmtBRL, fmtDateTime, detectShift, formatUsername } from "../constants";
 
 export default function OpenCashier() {
   const qc       = useQueryClient();
@@ -56,7 +56,7 @@ export default function OpenCashier() {
 
   const dateLabel     = now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
   const timeLabel     = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const operatorLabel = user?.sub ?? user?.username ?? "—";
+  const operatorLabel = formatUsername(user?.sub ?? user?.username);
   const roStyle       = { ...inputStyle, background: palette.surface, color: palette.textMuted, cursor: "default", userSelect: "none" };
 
   return (
@@ -71,7 +71,7 @@ export default function OpenCashier() {
           {lastSession ? (
             <>
               <div style={{ fontSize: 17, fontWeight: 800, color: palette.textPrimary }}>{fmtBRL(lastSession.initialBalance)}</div>
-              <div style={{ fontSize: 11, color: palette.textMuted, marginTop: 3 }}>Fundo inicial · {lastSession.openedBy}</div>
+              <div style={{ fontSize: 11, color: palette.textMuted, marginTop: 3 }}>Fundo inicial · {formatUsername(lastSession.openedBy)}</div>
             </>
           ) : (
             <div style={{ fontSize: 12, color: palette.textMuted }}>Sem registros anteriores</div>
@@ -85,7 +85,7 @@ export default function OpenCashier() {
           {lastSession?.closedAt ? (
             <>
               <div style={{ fontSize: 14, fontWeight: 700, color: palette.textPrimary }}>{fmtDateTime(lastSession.closedAt)}</div>
-              <div style={{ fontSize: 11, color: palette.textMuted, marginTop: 3 }}>Encerrado por {lastSession.closedBy ?? "—"}</div>
+              <div style={{ fontSize: 11, color: palette.textMuted, marginTop: 3 }}>Encerrado por {formatUsername(lastSession.closedBy)}</div>
             </>
           ) : (
             <div style={{ fontSize: 12, color: palette.textMuted }}>Sem fechamento anterior</div>
@@ -132,9 +132,9 @@ export default function OpenCashier() {
 
           <FormField label="Turno" required>
             <select value={form.turno} onChange={(e) => setForm((p) => ({ ...p, turno: e.target.value }))} style={inputStyle}>
-              <option value="MANHÃ">Manhã  —  06:00 às 12:00</option>
-              <option value="TARDE">Tarde  —  12:00 às 18:00</option>
-              <option value="NOITE">Noite  —  18:00 às 06:00</option>
+              <option value="Manhã">Manhã  —  06:00 às 12:00</option>
+              <option value="Tarde">Tarde  —  12:00 às 18:00</option>
+              <option value="Noite">Noite  —  18:00 às 06:00</option>
             </select>
           </FormField>
 
