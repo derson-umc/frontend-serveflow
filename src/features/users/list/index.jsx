@@ -5,6 +5,7 @@ import { useAuthStore } from '@features/auth/store/useAuthStore';
 import { SkeletonRow } from '@shared/components/feedback/Skeleton';
 import { useDocumentTitle } from '@shared/hooks/use-document-title';
 import { ROLE_LABELS, ROLE_COLORS } from './constants';
+import { maskEmail } from '@shared/utils/email';
 import UserFormModal from './components/UserFormModal';
 import ResetPasswordModal from './components/ResetPasswordModal';
 import { useUsers } from './hooks/useUsers';
@@ -131,7 +132,7 @@ export default function Users() {
                     <div className="min-w-0">
                       <p className="font-semibold text-sm truncate" style={{ color: palette.textPrimary }}>{u.username}</p>
                       <p className="text-xs truncate" style={{ color: palette.textMuted }}>{u.jobposition || '—'}</p>
-                      {u.email && <span className="text-xs truncate" style={{ color: palette.textMuted }}>{u.email}</span>}
+                      {u.email && <span className="text-xs truncate" style={{ color: palette.textMuted }}>{maskEmail(u.email)}</span>}
                     </div>
                   </div>
 
