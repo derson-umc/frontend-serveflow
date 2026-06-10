@@ -15,7 +15,7 @@ import { Paginator } from "@features/stock/components/Paginator";
 import {
   QK, fmtBRL, fmtDateTime, toDate, toDateStr,
   normPayment, groupByPayment, detectOrderType, TYPE_CFG,
-  PAYMENT_KEYS, PAYMENT_LABELS, PAYMENT_ICONS,
+  PAYMENT_KEYS, PAYMENT_LABELS, PAYMENT_ICONS, formatUsername,
 } from "../constants";
 
 function InfoField({ label, value, mono, accent }) {
@@ -149,7 +149,7 @@ export default function OpenCashierView({ session }) {
   const panel    = { background: palette.white, border: `1px solid ${palette.border}`, borderRadius: 12, overflow: "hidden" };
   const TH       = { padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: palette.textMuted, textTransform: "uppercase", letterSpacing: "0.05em", background: "#F8FAF8", borderBottom: `1.5px solid ${palette.border}`, whiteSpace: "nowrap" };
   const selStyle = { ...inputStyle, padding: "5px 8px", fontSize: 11, width: "auto", flex: "none" };
-  const operatorName = user?.sub ?? session.openedBy ?? "—";
+  const operatorName = formatUsername(user?.sub ?? session.openedBy);
 
   return (
     <>

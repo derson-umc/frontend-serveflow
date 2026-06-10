@@ -4,9 +4,11 @@ import { ENV }       from '@core/config/env';
 import { getToken }  from '@core/api/client';
 import { kdsApi }    from '@core/api/kds';
 import { ordersApi } from '@core/api/orders';
+import { useAuthStore } from '@features/auth/store/useAuthStore';
 
-const TOPIC   = '/topic/kds/orders';
-const POLL_MS = 6_000;
+const TOPIC          = '/topic/kds/orders';
+const POLL_MS        = 6_000;
+const PRIVILEGED_ROLES = new Set(['admin', 'gerente']);
 
 const IN_PROGRESS_STATUSES = new Set(['PENDENTE', 'ENVIADO', 'EM_PREPARO']);
 
@@ -21,6 +23,10 @@ export function useOrdersKdsSync(orders) {
   const [statusMap, setStatusMap] = useState({});
   const [connected, setConnected] = useState(false);
 
+  const user         = useAuthStore((s) => s.user);
+  const username     = user?.sub ?? user?.username ?? null;
+  const isPrivileged = PRIVILEGED_ROLES.has(user?.role);
+
   const statusMapRef = useRef({});
   useEffect(() => { statusMapRef.current = statusMap; }, [statusMap]);
 
@@ -29,6 +35,7 @@ export function useOrdersKdsSync(orders) {
 
   const applyUpdate = useCallback((kdsOrder) => {
     if (!kdsOrder?.id) return;
+    if (!isPrivileged && kdsOrder.createdBy && kdsOrder.createdBy !== username) return;
     setStatusMap((prev) => ({
       ...prev,
       [String(kdsOrder.id)]: {
@@ -36,7 +43,7 @@ export function useOrdersKdsSync(orders) {
         comandaStatus: kdsOrder.comandaStatus ?? 'ABERTA',
       },
     }));
-  }, []);
+  }, [isPrivileged, username]);
 
   const applyRemove = useCallback(async (orderId, finalStatus) => {
     if (!orderId) return;
