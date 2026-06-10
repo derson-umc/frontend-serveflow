@@ -105,7 +105,16 @@ export function detectOrderType(description) {
 }
 
 export function detectShift(hour) {
-  if (hour >= 6  && hour < 12) return "MANHÃ";
-  if (hour >= 12 && hour < 18) return "TARDE";
-  return "NOITE";
+  if (hour >= 6  && hour < 12) return "Manhã";
+  if (hour >= 12 && hour < 18) return "Tarde";
+  return "Noite";
+}
+
+export function formatUsername(raw) {
+  if (!raw) return "—";
+  return raw
+    .replace(/[._-]/g, " ")
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
