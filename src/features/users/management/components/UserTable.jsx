@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, RoleDot, IconBtn } from '../shared';
 import { FILTER_TABS } from '../constants';
+import { maskEmail } from '@shared/utils/email';
 
 const PAGE_SIZE = 10;
 
@@ -64,10 +65,8 @@ function UserRow({ user, index, total, isAdmin, isGerente, onEdit, onReset, onDe
         <Avatar name={user.username} />
         <div className="min-w-0">
           <p className="text-sm font-semibold truncate" style={{ color: '#424242' }}>{user.username}</p>
-          {user.email ? (
-            <p className="text-xs truncate" style={{ color: '#9E9E9E' }}>{user.email}</p>
-          ) : (
-            <p className="text-xs" style={{ color: '#BDBDBD' }}>ID #{user.id}</p>
+          {user.email && (
+            <p className="text-xs truncate" style={{ color: '#9E9E9E' }}>{maskEmail(user.email)}</p>
           )}
         </div>
       </div>
