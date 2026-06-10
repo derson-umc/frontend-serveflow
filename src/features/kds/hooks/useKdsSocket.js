@@ -4,6 +4,7 @@ import { kdsApi } from "@core/api/kds";
 import { toast } from "@shared/components/feedback/Toast";
 import { ENV } from "@core/config/env";
 import { getToken } from "@core/api/client";
+import { useAuthStore } from "@features/auth/store/useAuthStore";
 
 const POLL_MS = 5_000;
 const TOPIC   = "/topic/kds/orders";
@@ -14,12 +15,18 @@ function buildWsUrl() {
   return ENV.API_BASE_URL.replace(/^http/, "ws") + "/ws";
 }
 
+const PRIVILEGED_ROLES = new Set(["admin", "gerente"]);
+
 export function useKdsSocket() {
   const [orders, setOrders]       = useState([]);
   const [removing, setRemoving]   = useState(new Set());
   const [connected, setConnected] = useState(false);
   const clientRef  = useRef(null);
   const pollRef    = useRef(null);
+
+  const user         = useAuthStore((s) => s.user);
+  const username     = user?.sub ?? user?.username ?? null;
+  const isPrivileged = PRIVILEGED_ROLES.has(user?.role);
 
   const startPoll = useCallback((fetchFn) => {
     if (!pollRef.current) {
@@ -35,6 +42,7 @@ export function useKdsSocket() {
   }, []);
 
   const applyUpdate = useCallback((order) => {
+    if (!isPrivileged && order.createdBy && order.createdBy !== username) return;
     const normalized = { ...order, status: normalizeStatus(order.status) };
     setOrders((prev) => {
       const idx = prev.findIndex((o) => o.id === normalized.id);
@@ -43,7 +51,7 @@ export function useKdsSocket() {
       next[idx] = normalized;
       return next;
     });
-  }, []);
+  }, [isPrivileged, username]);
 
   const applyRemove = useCallback((orderId, finalStatus) => {
     // Pedido pronto → exibe "Pronto" por 5 s na cozinha, depois some com fade
