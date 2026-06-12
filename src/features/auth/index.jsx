@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { BrandPanel } from './components/BrandPanel';
 import { ForgotPasswordModal } from './components/ForgotPasswordModal';
 import { CheckIcon, ErrorIcon, Eye, EyeOff, Spinner } from './components/icons';
@@ -255,6 +256,18 @@ export default function Login() {
               Esqueci minha senha
             </button>
           </div>
+
+          <p style={{ fontSize: 11, color: M, textAlign: 'center', marginTop: 20, lineHeight: 1.7, marginBottom: 0 }}>
+            Ao acessar, você concorda com os{' '}
+            <Link to="/terms" style={{ color: G, textDecoration: 'underline', fontWeight: 600 }}>
+              Termos de Uso
+            </Link>
+            {' '}e a{' '}
+            <Link to="/privacy" style={{ color: G, textDecoration: 'underline', fontWeight: 600 }}>
+              Política de Privacidade
+            </Link>
+            .
+          </p>
         </motion.div>
       </motion.div>
 

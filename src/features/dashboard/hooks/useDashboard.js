@@ -3,7 +3,7 @@ import { dashboardApi } from '@core/api/dashboard';
 
 const DK = {
   metrics:       ['dashboard', 'metrics'],
-  salesByDay:    ['dashboard', 'sales'],
+  salesByDay:    (days) => ['dashboard', 'sales', days],
   topProducts:   (days) => ['dashboard', 'top', days],
   cashierReport: (start, end) => ['dashboard', 'cashierReport', start, end],
 };
@@ -16,34 +16,46 @@ export function useDashboard() {
     placeholderData: {
       revenueToday: 0, ordersToday: 0, customersToday: 0, ticketMedio: 0,
       revenueYesterday: 0, ordersYesterday: 0, customersYesterday: 0, ticketMedioYesterday: 0,
+      revenueSameDayLastWeek: 0, ordersSameDayLastWeek: 0, customersSameDayLastWeek: 0, ticketMedioSameDayLastWeek: 0,
+      openOrdersToday: 0,
     },
-    /** Normaliza todos os campos numéricos — BigDecimal pode chegar como string do Jackson. */
     select: (d) => ({
-      revenueToday:          parseFloat(d.revenueToday          ?? 0) || 0,
-      ordersToday:           Number(d.ordersToday               ?? 0),
-      customersToday:        Number(d.customersToday            ?? 0),
-      ticketMedio:           parseFloat(d.ticketMedio           ?? 0) || 0,
-      revenueYesterday:      parseFloat(d.revenueYesterday      ?? 0) || 0,
-      ordersYesterday:       Number(d.ordersYesterday           ?? 0),
-      customersYesterday:    Number(d.customersYesterday        ?? 0),
-      ticketMedioYesterday:  parseFloat(d.ticketMedioYesterday  ?? 0) || 0,
+      revenueToday:               parseFloat(d.revenueToday              ?? 0) || 0,
+      ordersToday:                Number(d.ordersToday                   ?? 0),
+      customersToday:             Number(d.customersToday                ?? 0),
+      ticketMedio:                parseFloat(d.ticketMedio               ?? 0) || 0,
+      revenueYesterday:           parseFloat(d.revenueYesterday          ?? 0) || 0,
+      ordersYesterday:            Number(d.ordersYesterday               ?? 0),
+      customersYesterday:         Number(d.customersYesterday            ?? 0),
+      ticketMedioYesterday:       parseFloat(d.ticketMedioYesterday      ?? 0) || 0,
+      revenueSameDayLastWeek:     parseFloat(d.revenueSameDayLastWeek    ?? 0) || 0,
+      ordersSameDayLastWeek:      Number(d.ordersSameDayLastWeek         ?? 0),
+      customersSameDayLastWeek:   Number(d.customersSameDayLastWeek      ?? 0),
+      ticketMedioSameDayLastWeek: parseFloat(d.ticketMedioSameDayLastWeek ?? 0) || 0,
+      openOrdersToday:            Number(d.openOrdersToday               ?? 0),
     }),
   });
 
-  const salesByDay = useQuery({
-    queryKey: DK.salesByDay,
-    queryFn:  dashboardApi.salesByDay,
+  return { metrics };
+}
+
+export function useSalesByDay(days = 7) {
+  return useQuery({
+    queryKey: DK.salesByDay(days),
+    queryFn:  () => dashboardApi.salesByDay(days),
     staleTime: 30_000,
     placeholderData: [],
-    select: (data) =>
-      data.map((d) => ({
+    select: (data) => {
+      const all = data.map((d) => ({
         day:   new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' }),
         date:  d.date,
         total: Number(d.total),
-      })),
+      }));
+      const current = all.slice(-days);
+      const prev    = all.slice(0, Math.max(0, all.length - days));
+      return current.map((d, i) => ({ ...d, prevTotal: prev[i]?.total ?? null }));
+    },
   });
-
-  return { metrics, salesByDay };
 }
 
 export function useTopProducts(days = 30) {
@@ -57,6 +69,7 @@ export function useTopProducts(days = 30) {
         ...p,
         quantity: Number(p.quantity ?? 0),
         revenue:  parseFloat(p.revenue  ?? 0) || 0,
+        imageUrl: p.imageUrl ?? null,
       })),
   });
 }
