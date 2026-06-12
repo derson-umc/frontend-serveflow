@@ -100,3 +100,34 @@
   --cart-width: 360px;
   --cart-width-delivery: 440px;
 }
+
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-surface: #1E1E1E;
+  --color-surface-raised: #252525;
+  --color-border: #2E2E2E;
+  --color-border-strong: #424242;
+
+  --color-text-primary: #E0E0E0;
+  --color-text-secondary: #9E9E9E;
+  --color-text-disabled: #616161;
+  --color-text-inverse: #121212;
+
+  --color-success: #66BB6A;
+  --color-success-dark: #43A047;
+  --color-success-light: #81C784;
+  --color-success-surface: #1B2E1B;
+  --color-success-border: #2E5730;
+
+  --color-warning: #FFA726;
+  --color-warning-surface: #2E1F0A;
+  --color-warning-border: #5C3D0F;
+
+  --color-error: #EF5350;
+  --color-error-surface: #2E1212;
+  --color-error-border: #5C2020;
+
+  --color-info: #42A5F5;
+  --color-info-surface: #0D1E30;
+  --color-info-border: #1A3A5C;
+}

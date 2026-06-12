@@ -10,6 +10,7 @@ import {
   Landing, Login, ChangePassword, Dashboard,
   Menu, Payment, Kds, Stock, Financial,
   Recipes, Products, UserManagement,
+  Terms, Privacy,
 } from './routes/routes.config';
 import {
   GERENTE_ROLES, KDS_ROLES, CAIXA_ROLES, PRODUTO_ROLES,
@@ -73,6 +74,9 @@ function AnimatedRoutes() {
         <Route path="/gestao-usuarios" element={
           <RoleRoute roles={GERENTE_ROLES}><UserManagement /></RoleRoute>
         } />
+
+        <Route path="/terms"   element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
 
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
